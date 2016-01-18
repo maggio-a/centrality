@@ -10,7 +10,7 @@ public class DeccenMessage {
 	public enum Type { NOSP, REPORT }
 	
 	public enum Attachment {
-		SENDER, SOURCE, DESTINATION, WEIGHT
+		SENDER, SOURCE, DESTINATION, SP_COUNT, SP_LENGTH
 	}
 	
 	private Map<Attachment, Object> attachments;
@@ -21,20 +21,22 @@ public class DeccenMessage {
 		attachments = new HashMap<Attachment, Object>(8);
 	}
 	
-	public static DeccenMessage createNOSPMessage(Node sender, Node source, int weight) {
+	public static DeccenMessage createNOSPMessage(Node sender, Node source, int count, int length) {
 		DeccenMessage m = new DeccenMessage(Type.NOSP);
 		m.attachments.put(Attachment.SENDER, sender);
 		m.attachments.put(Attachment.SOURCE, source);
-		m.attachments.put(Attachment.WEIGHT, weight);
+		m.attachments.put(Attachment.SP_COUNT, count);
+		m.attachments.put(Attachment.SP_LENGTH, length);
 		return m;
 	}
 	
-	public static DeccenMessage createReportMessage(Node sender, Node source, Node destination, int weight) {
+	public static DeccenMessage createReportMessage(Node sender, Node source, Node destination, int count, int length) {
 		DeccenMessage m = new DeccenMessage(Type.REPORT);
 		m.attachments.put(Attachment.SENDER, sender);
 		m.attachments.put(Attachment.SOURCE, source);
 		m.attachments.put(Attachment.DESTINATION, destination);
-		m.attachments.put(Attachment.WEIGHT, weight);
+		m.attachments.put(Attachment.SP_COUNT, count);
+		m.attachments.put(Attachment.SP_LENGTH, length);
 		return m;
 	}
 	

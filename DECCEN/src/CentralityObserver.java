@@ -26,7 +26,9 @@ public class CentralityObserver implements Control {
 		for (int i = 0; i < Network.size(); ++i) {
 			Node node = Network.get(i);
 			SynchronousDeccenProtocol sdp = (SynchronousDeccenProtocol) node.getProtocol(protocolID);
-			System.out.println(node + ": SC = " + sdp.getStressCentralityValue());
+			System.out.println(node + ": SC = " + sdp.getStressCentralityValue()
+					+ ", CC = " + sdp.getClosenessCentralityValue()
+					+ ", BC = " + sdp.getBetweennessCentralityValue());
 		}
 		System.out.println("##############################################");
 		return false;
