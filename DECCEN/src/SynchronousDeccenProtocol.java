@@ -245,7 +245,8 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 	}
 	
 	public double getClosenessCentralityValue() {
-		return closenessCentralityValue / (double) closenessCount;
+		//return closenessCentralityValue / (double) closenessCount;
+		return 1.0 / closenessCentralityValue;
 	}
 	
 	public double getBetweennessCentralityValue() {

@@ -69,6 +69,7 @@ public class WireFromEdgeList implements Control {
 			}
 			
 		});
+		
 		return false;
 	}
 
