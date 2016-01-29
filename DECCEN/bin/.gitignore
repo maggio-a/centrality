@@ -23,3 +23,14 @@
 /MyNode$Comparator.class
 /MyNode$MyComparator.class
 /WireFromEdgeList$1.class
+/DecentralizedBFS.class
+/BFSControl.class
+/BFSObserver.class
+/BFSInitializer.class
+/SynchronizedTransport.class
+/SynchronizedMessageDispatcher.class
+/SynchronizedMessageDispatcher$SendQueueItem.class
+/Message$Attachment.class
+/Message$Type.class
+/SynchronousTransportLayer$SendQueueItem.class
+/SynchronousTransportLayer.class

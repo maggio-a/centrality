@@ -5,7 +5,7 @@ import java.util.Map;
 import peersim.core.Node;
 
 
-public class DeccenMessage {
+public class Message {
 	
 	public enum Type { NOSP, REPORT }
 	
@@ -16,13 +16,13 @@ public class DeccenMessage {
 	private Map<Attachment, Object> attachments;
 	public final Type type;
 	
-	private DeccenMessage(Type t) {
+	private Message(Type t) {
 		type = t;
 		attachments = new HashMap<Attachment, Object>(8);
 	}
 	
-	public static DeccenMessage createNOSPMessage(Node sender, Node source, int count, int length) {
-		DeccenMessage m = new DeccenMessage(Type.NOSP);
+	public static Message createNOSPMessage(Node sender, Node source, int count, int length) {
+		Message m = new Message(Type.NOSP);
 		m.attachments.put(Attachment.SENDER, sender);
 		m.attachments.put(Attachment.SOURCE, source);
 		m.attachments.put(Attachment.SP_COUNT, count);
@@ -30,8 +30,8 @@ public class DeccenMessage {
 		return m;
 	}
 	
-	public static DeccenMessage createReportMessage(Node sender, Node source, Node destination, int count, int length) {
-		DeccenMessage m = new DeccenMessage(Type.REPORT);
+	public static Message createReportMessage(Node sender, Node source, Node destination, int count, int length) {
+		Message m = new Message(Type.REPORT);
 		m.attachments.put(Attachment.SENDER, sender);
 		m.attachments.put(Attachment.SOURCE, source);
 		m.attachments.put(Attachment.DESTINATION, destination);
