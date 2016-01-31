@@ -41,6 +41,10 @@ public abstract class SynchronousTransportLayer implements Protocol {
 		return smd;
 	}
 	
+	public boolean hasOutgoingMessages() {
+		return !outgoing.isEmpty();
+	}
+	
 	public void addToSendQueue(Message msg, Node destination) {
 		outgoing.add(new SendQueueItem(msg, destination));
 	}

@@ -34,3 +34,10 @@
 /Message$Type.class
 /SynchronousTransportLayer$SendQueueItem.class
 /SynchronousTransportLayer.class
+/SynchronousDispatcher.class
+/BFSMessage.class
+/DecentralizedBFS2.class
+/DecentralizedBFS2$BFSMessage.class
+/BFSObserver2.class
+/BFSInitializer2.class
+/DecentralizedBFS2$State.class

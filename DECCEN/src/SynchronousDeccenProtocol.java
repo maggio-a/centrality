@@ -15,9 +15,9 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 	
 	private static class SendQueueItem {
 		public final Node destination;
-		public final Message message;
+		public final DeccenMessage message;
 		
-		public SendQueueItem(Node d, Message m) {
+		public SendQueueItem(Node d, DeccenMessage m) {
 			destination = d;
 			message = m;
 		}
@@ -50,8 +50,8 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 	private double  betweennessCentralityValue = 0.0;
 	private int     step                       = 0;
 	
-	private Map<Node, List<Message>> NOSPMessageCache   = null;
-	private List<Message>            REPORTMessageCache = null;
+	private Map<Node, List<DeccenMessage>> NOSPMessageCache   = null;
+	private List<DeccenMessage>            REPORTMessageCache = null;
 	private Map<Node, ShortestPathData>    sp                 = null;
 	private Deque<SendQueueItem>           sendQueue          = null;
 	private boolean[][]                    reportMap          = null;
@@ -66,8 +66,8 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 		try {
 			sdp = (SynchronousDeccenProtocol) super.clone();
 		} catch (CloneNotSupportedException e) { e.printStackTrace(); }
-		sdp.NOSPMessageCache = new HashMap<Node, List<Message>>();
-		sdp.REPORTMessageCache = new LinkedList<Message>();
+		sdp.NOSPMessageCache = new HashMap<Node, List<DeccenMessage>>();
+		sdp.REPORTMessageCache = new LinkedList<DeccenMessage>();
 		sdp.sp = new HashMap<Node, ShortestPathData>();
 		sdp.sendQueue = new LinkedList<SendQueueItem>();
 		return sdp;
@@ -90,20 +90,20 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 	}
 	
 	private void processReportMessages(Node self, int protocolID) {
-		Iterator<Message> it = REPORTMessageCache.iterator();
+		Iterator<DeccenMessage> it = REPORTMessageCache.iterator();
 		while (it.hasNext()) {
-			Message m = it.next();
-			Node s = m.get(Message.Attachment.SOURCE, Node.class);
-			Node t = m.get(Message.Attachment.DESTINATION, Node.class);
-			int count = m.get(Message.Attachment.SP_COUNT, Integer.class);
-			int length = m.get(Message.Attachment.SP_LENGTH, Integer.class);
+			DeccenMessage m = it.next();
+			Node s = m.get(DeccenMessage.Attachment.SOURCE, Node.class);
+			Node t = m.get(DeccenMessage.Attachment.DESTINATION, Node.class);
+			int count = m.get(DeccenMessage.Attachment.SP_COUNT, Integer.class);
+			int length = m.get(DeccenMessage.Attachment.SP_LENGTH, Integer.class);
 			if (relevantReport(s, t)) {
 				integrateCentralityContribution(self, s, t, count, length);
 				Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 				for (int i = 0; i < lnk.degree(); ++i) {
 					Node n = lnk.getNeighbor(i);
-					if (n.getID() != m.get(Message.Attachment.SENDER, Node.class).getID())
-						sendQueue.push(new SendQueueItem(n, Message.createReportMessage(self, s, t, count, length)));
+					if (n.getID() != m.get(DeccenMessage.Attachment.SENDER, Node.class).getID())
+						sendQueue.push(new SendQueueItem(n, DeccenMessage.createReportMessage(self, s, t, count, length)));
 				}
 			}
 			it.remove();
@@ -155,20 +155,20 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 		}
 	}
 	
-	private void acceptMessage(Message m) {
-		if (m.type == Message.Type.NOSP) {
-			Node source = m.get(Message.Attachment.SOURCE, Node.class);
+	private void acceptMessage(DeccenMessage m) {
+		if (m.type == DeccenMessage.Type.NOSP) {
+			Node source = m.get(DeccenMessage.Attachment.SOURCE, Node.class);
 			if (!sp.containsKey(source)) {
-				List<Message> l = NOSPMessageCache.get(source);
+				List<DeccenMessage> l = NOSPMessageCache.get(source);
 				if (l == null) {
-					l = new LinkedList<Message>();
+					l = new LinkedList<DeccenMessage>();
 					NOSPMessageCache.put(source, l);
 				}
 				l.add(m);
 			} // otherwise ignore the message (in the synchronous model if we already know the path to a node
 			  // from earlier messages, this path will be longer)
-		} else if (m.type == Message.Type.REPORT) {
-			if (relevantReport(m.get(Message.Attachment.SOURCE, Node.class), m.get(Message.Attachment.DESTINATION, Node.class)))
+		} else if (m.type == DeccenMessage.Type.REPORT) {
+			if (relevantReport(m.get(DeccenMessage.Attachment.SOURCE, Node.class), m.get(DeccenMessage.Attachment.DESTINATION, Node.class)))
 				REPORTMessageCache.add(m);
 		} else {
 			System.err.println(this.getClass().getName() + ".acceptMessage: unexpected message " + m);
@@ -196,7 +196,7 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		for (int i = 0; i < lnk.degree(); ++i) {
 			Node n = lnk.getNeighbor(i);
-			sendQueue.push(new SendQueueItem(n, Message.createNOSPMessage(self, self, 1, 0)));
+			sendQueue.push(new SendQueueItem(n, DeccenMessage.createNOSPMessage(self, self, 1, 0)));
 			//SynchronousDeccenProtocol sdp = (SynchronousDeccenProtocol) n.getProtocol(pid);
 			//sdp.acceptMessage(DeccenMessage.createNOSPMessage(node, node, 1));
 		}
@@ -207,9 +207,9 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 	
 	// The weight of a report is the length of the shortest path
 	private void processNOSPMessages(Node self, int protocolID) {
-		Iterator<Map.Entry<Node, List<Message>>> it = NOSPMessageCache.entrySet().iterator();
+		Iterator<Map.Entry<Node, List<DeccenMessage>>> it = NOSPMessageCache.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry<Node, List<Message>> nextMapping = it.next();
+			Map.Entry<Node, List<DeccenMessage>> nextMapping = it.next();
 			Node source = nextMapping.getKey();
 			if (sp.containsKey(source)) {
 				// already processed, ignore
@@ -217,9 +217,9 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 			} else {
 				int count = 0;
 				int length = step;
-				for (Message message : nextMapping.getValue()) {
-					assert message.type == Message.Type.NOSP : message.type;
-					count += message.get(Message.Attachment.SP_COUNT, Integer.class);
+				for (DeccenMessage message : nextMapping.getValue()) {
+					assert message.type == DeccenMessage.Type.NOSP : message.type;
+					count += message.get(DeccenMessage.Attachment.SP_COUNT, Integer.class);
 				}
 				sp.put(source, new ShortestPathData(count, length));
 				
@@ -230,9 +230,9 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 				for (int i = 0; i < lnk.degree(); ++i) {
 					Node n = lnk.getNeighbor(i);
 					if (n.getID() != source.getID()) {
-						sendQueue.push(new SendQueueItem(n, Message.createNOSPMessage(self, source, count, length)));
+						sendQueue.push(new SendQueueItem(n, DeccenMessage.createNOSPMessage(self, source, count, length)));
 					}
-					sendQueue.push(new SendQueueItem(n, Message.createReportMessage(self, source, self, count, length)));
+					sendQueue.push(new SendQueueItem(n, DeccenMessage.createReportMessage(self, source, self, count, length)));
 				}
 			}
 			it.remove();
