@@ -48,10 +48,9 @@ public class BFSObserver2 implements Control {
 			for (int i = 0; i < Network.size(); ++i) {
 				Node n = Network.get(i);
 				DecentralizedBFS2 dbfs = (DecentralizedBFS2) n.getProtocol(protocolID);
-				//System.out.println(n + "[" + dbfs.depth + "]" + " predecessors: " + dbfs.getPredecessors());
 				System.out.printf("%4s [%d] [ predecessors ", ((MyNode)n).getLabel(), dbfs.depth);
 				for (Node pred : dbfs.getPredecessors()) System.out.printf("%s ", ((MyNode)pred).getLabel());
-				System.out.printf("]\n");
+				System.out.printf("] sigma = %d, delta = %d\n", dbfs.sigma, dbfs.delta);
 			}
 		}
 		

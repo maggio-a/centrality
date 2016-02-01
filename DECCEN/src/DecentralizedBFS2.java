@@ -1,8 +1,10 @@
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
@@ -14,7 +16,7 @@ public class DecentralizedBFS2 extends SynchronousTransportLayer implements CDPr
 	
 	private static class BFSMessage implements Message {
 		private static final int PROBE = 1;
-		private static final int REPORT = 2;
+		//private static final int REPORT = 2;
 		
 		public final Node sender;
 		
@@ -33,7 +35,8 @@ public class DecentralizedBFS2 extends SynchronousTransportLayer implements CDPr
 	private int linkableProtocolID;
 	
 	//private Map<Node, List<Node>> predecessors;
-	private List<Node> predecessors;
+	private List<Node> predecessors = null;
+	private Set<Node> siblings = null;
 	
 	public State state;
 	int depth;
@@ -64,6 +67,7 @@ public class DecentralizedBFS2 extends SynchronousTransportLayer implements CDPr
 		
 		//o.predecessors = new HashMap<Node, List<Node>>();
 		o.predecessors = new LinkedList<Node>();
+		o.siblings = new HashSet<Node>();
 		
 		return o;
 	}
@@ -99,30 +103,29 @@ public class DecentralizedBFS2 extends SynchronousTransportLayer implements CDPr
 			state = State.OPEN;
 		} else if (state == State.OPEN) {
 			// tutti i vicini sono predecessori -> foglia
-			// tuttu i vicini che non sono predecessori hanno terminato
+			// tutti i vicini che non sono predecessori hanno terminato
+			
+			List<BFSMessage> ls = mmap.get(BFSMessage.PROBE);
+			if (ls != null) {
+				assert siblings.isEmpty() : "Siblings set not empty";
+				for (BFSMessage m : ls) siblings.add(m.sender);
+			}
+			
 			boolean canReport = true;
 			int d = 0;
 			for (int i = 0; i < lnk.degree() && canReport; ++i) {
 				Node n = lnk.getNeighbor(i);
-				if (predecessors.contains(n)) {
+				if (predecessors.contains(n) || siblings.contains(n)) {
 					continue;
 				} else {
 					DecentralizedBFS2 dbfs = (DecentralizedBFS2) n.getProtocol(protocolID);
 					
-					if (dbfs.predecessors.contains(self) && dbfs.state == State.REPORTED) {
-						d += (int) sigma * (1 + (dbfs.delta / (double) dbfs.sigma));
-					} else if (dbfs.predecessors.contains(self)) {
-						canReport = false;
-					} else {
-						// the two nodes are siblings in the breadth first tree
-					}
-					
-					/*if (dbfs.state == State.REPORTED) {
+					if (dbfs.state == State.REPORTED) {
 						assert dbfs.predecessors.contains(self) : "self not in predecessor list";
 						d += (int) sigma * (1 + (dbfs.delta / (double) dbfs.sigma));
 					} else {
 						canReport = false;
-					}*/
+					}
 				}
 			}
 			if (canReport) { // FIXME
