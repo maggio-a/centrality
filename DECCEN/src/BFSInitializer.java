@@ -19,6 +19,7 @@ public class BFSInitializer implements Control {
 	@Override
 	public boolean execute() {
 		int i = CommonState.r.nextInt(Network.size());
+		//int i = 22;
 		Node n = Network.get(i);
 		DecentralizedBFS dbfs = (DecentralizedBFS) n.getProtocol(protocolID);
 		System.out.println("Strarting visit from " + n);

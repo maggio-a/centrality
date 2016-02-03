@@ -41,3 +41,10 @@
 /BFSObserver2.class
 /BFSInitializer2.class
 /DecentralizedBFS2$State.class
+/DecentralizedBFS$BFSMessage.class
+/DecentralizedBFS$State.class
+/CentralityApproximation.class
+/CentralityApproximation$BFSNode$State.class
+/CentralityApproximation$BFSNode.class
+/CAInitializer.class
+/CAObserver.class

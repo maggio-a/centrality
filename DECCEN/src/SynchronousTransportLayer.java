@@ -6,13 +6,13 @@ import peersim.core.Node;
 import peersim.core.Protocol;
 
 
-public abstract class SynchronousTransportLayer implements Protocol {
+public abstract class SynchronousTransportLayer<T> implements Protocol {
 
-	public static class SendQueueItem {
-		public final Message message;
+	public static class SendQueueItem<T> {
+		public final T message;
 		public final Node destination;
 
-		public SendQueueItem(Message m, Node d) {
+		public SendQueueItem(T m, Node d) {
 			message = m;
 			destination = d;
 		}
@@ -23,21 +23,22 @@ public abstract class SynchronousTransportLayer implements Protocol {
 		}
 	}
 	
-	private List<Message> incoming = null;
-	private List<SendQueueItem> outgoing = null;
+	private List<T> incoming = null;
+	private List<SendQueueItem<T>> outgoing = null;
 	
 	public SynchronousTransportLayer(String prefix) {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object clone() {
-		SynchronousTransportLayer smd = null;
+		SynchronousTransportLayer<T> smd = null;
 		try { 
-			smd = (SynchronousTransportLayer) super.clone();
+			smd = (SynchronousTransportLayer<T>) super.clone();
 		} catch (CloneNotSupportedException e) { e.printStackTrace(); }
-		smd.incoming = new LinkedList<Message>();
-		smd.outgoing = new LinkedList<SendQueueItem>();
+		smd.incoming = new LinkedList<T>();
+		smd.outgoing = new LinkedList<SendQueueItem<T>>();
 		return smd;
 	}
 	
@@ -45,25 +46,26 @@ public abstract class SynchronousTransportLayer implements Protocol {
 		return !outgoing.isEmpty();
 	}
 	
-	public void addToSendQueue(Message msg, Node destination) {
-		outgoing.add(new SendQueueItem(msg, destination));
+	public void addToSendQueue(T msg, Node destination) {
+		outgoing.add(new SendQueueItem<T>(msg, destination));
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void transferOutgoingMessages(int protocolID) {
-		Iterator<SendQueueItem> it = outgoing.iterator();
+		Iterator<SendQueueItem<T>> it = outgoing.iterator();
 		while (it.hasNext()) {
-			SendQueueItem sqi = it.next();
-			SynchronousTransportLayer receiver = (SynchronousTransportLayer) sqi.destination.getProtocol(protocolID);
+			SendQueueItem<T> sqi = it.next();
+			SynchronousTransportLayer<T> receiver = (SynchronousTransportLayer<T>) sqi.destination.getProtocol(protocolID);
 			receiver.receive(sqi.message);
 			it.remove();
 		}
 	}
 	
-	private void receive(Message msg) {
+	private void receive(T msg) {
 		incoming.add(msg);
 	}
 	
-	public Iterator<Message> getIncomingMessageIterator() {
+	public Iterator<T> getIncomingMessageIterator() {
 		return incoming.iterator();
 	}
 
