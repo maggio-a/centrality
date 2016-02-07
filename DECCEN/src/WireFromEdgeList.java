@@ -31,9 +31,19 @@ public class WireFromEdgeList implements Control {
 		NeighbourListGraph model = new NeighbourListGraph(false); // undirected
 		try {
 			Scanner s = new Scanner(new FileReader(filename));
+			int ln = 0;
 			while (s.hasNextLine()) {
+				ln++;
 				String line = s.nextLine();
-				String[] id = line.split(",");
+				if (line.startsWith("#") || line.startsWith("%"))
+					continue; // ignore comments
+				String[] id = line.split("\\s"); // whitespace delimiter
+				if (id.length < 2) {
+					System.err.println(getClass().getName() + " Error (line " + ln + "): missing edge endpoint");
+					System.exit(-1);
+				}
+				if (id.length > 2)
+					System.err.println(getClass().getName() + " Warning (line " + ln + "): tokens ignored");
 				// if a "node" was previously added, NeighbourListGraph.addNode() simply returns its id
 				model.setEdge(model.addNode(id[0]), model.addNode(id[1]));
 			}

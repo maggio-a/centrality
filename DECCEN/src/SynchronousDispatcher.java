@@ -14,15 +14,13 @@ public class SynchronousDispatcher implements Control {
 		protocolID = Configuration.getPid(prefix + "." + PAR_PROTOCOL);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean execute() {
 		for (int i = 0; i < Network.size(); ++i) {
 			Node n = Network.get(i);
-			SynchronousTransportLayer stl = (SynchronousTransportLayer) n.getProtocol(protocolID);
-			if (stl.hasOutgoingMessages()) {
-				System.out.println("transfering messages from " + n);
-				stl.transferOutgoingMessages(protocolID);
-			}
+			SynchronousTransportLayer<Message> stl = (SynchronousTransportLayer<Message>) n.getProtocol(protocolID);
+			if (stl.hasOutgoingMessages()) stl.transferOutgoingMessages(protocolID);
 		}
 		return false;
 	}

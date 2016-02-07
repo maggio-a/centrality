@@ -59,12 +59,17 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		super(prefix);
 		linkableProtocolID = Configuration.getPid(prefix + "." + PAR_LINKABLE);
 	}
+	
+	public static int c = 0;
 
 	@Override
 	public void nextCycle(Node self, int protocolID) {
+		System.out.println(c++);
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		
 		Map<Node, List<Message>> mmap = parseIncomingMessages();
+		
+		System.out.println("BEGINNING " + lnk.degree());
 		
 		for (Map.Entry<Node, List<Message>> e : mmap.entrySet()) {
 			Node source = e.getKey();
@@ -94,6 +99,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 				for (Message m : messageList) state.siblings.add(m.get(Message.Attachment.SENDER, Node.class));
 			}
 		}
+		System.out.println("VISITS");
 		
 		/* FIXME potetntial issue here: if a neighbor that is a sibling in the bf tree
 		 * changed state from closed to open and then at the same cycle from open to done,
@@ -123,14 +129,14 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 					state.deltaSC = deltaSC;
 					state.deltaBC = deltaBC;
 					state.done = true;
-					System.out.println(self + " done, predecessors: " + state.predecessors);
-					if (state.source == self) System.out.println("Reported back to source");
+					//System.out.println(self + " done, predecessors: " + state.predecessors);
+					//if (state.source == self) System.out.println("Reported back to source");
 				}
 			}
 		}
 	}
 	
-	public void probe(Node self) {
+	public void initAccumulation(Node self) {
 		assert !visits.containsKey(self);
 		BFSNode state = new BFSNode(self, 0, 1, new LinkedList<Node>(), CommonState.getIntTime());
 		visits.put(self, state);
@@ -146,7 +152,9 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	public Map<Node, List<Message>> parseIncomingMessages() {
 		Map<Node, List<Message>> map = new HashMap<Node, List<Message>>();
 		java.util.Iterator<Message> it = this.getIncomingMessageIterator();
+		int c = 0;
 		while (it.hasNext()) {
+			c++;
 			Message msg = it.next();
 			it.remove();
 			Node source = msg.get(Message.Attachment.SOURCE, Node.class);
@@ -157,6 +165,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 			}
 			ls.add(msg);
 		}
+		System.out.println(c + " messages received");
 		return map;
 	}
 	
@@ -173,25 +182,26 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		return visits.containsKey(source) && visits.get(source).done == true;
 	}
 	
-	// FIXME the probability value should not be here !!!! need to be refactored out, bad encapsulation
-	public double getApproximatedBetweennessCentralityValue(Node self, double p) {
-		if (p > 1.0 || p <= 0.0) {
-			throw new IllegalArgumentException("ILLEGAL p");
-		}
+	public double getApproximatedBetweennessCentralityValue(Node self) {
 		double bc = 0.0;
 		for (BFSNode state : visits.values()) {
-			if (state.source != self && CommonState.r.nextDouble() <= p) bc += state.deltaBC;
+			if (state.source != self) bc += state.deltaBC;
 		}
 		return bc;
 	}
 	
-	public int getApproximatedStressCentralityValue(Node self, double p) {
-		if (p > 1.0 || p <= 0.0) {
-			throw new IllegalArgumentException("ILLEGAL p");
-		}
+	public int getApproximatedStressCentralityValue(Node self) {
 		int sc = 0;
 		for (BFSNode state : visits.values()) {
-			if (state.source != self && CommonState.r.nextDouble() <= p) sc += state.deltaSC;
+			if (state.source != self) sc += state.deltaSC;
+		}
+		return sc;
+	}
+	
+	public int getApproximatedStressCentralityValue(Node self, Set<Node> allowedSources) {
+		int sc = 0;
+		for (BFSNode state : visits.values()) {
+			if (state.source != self && allowedSources.contains(state.source)) sc += state.deltaSC;
 		}
 		return sc;
 	}
