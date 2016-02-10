@@ -17,7 +17,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	private static class BFSNode {
 		
 		public final Node source;
-		public List<Node> predecessors;
+		public Set<Node> predecessors;
 		public Set<Node> siblings;
 		public boolean done;
 		public int distanceFromSource;
@@ -28,7 +28,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		public int deltaSC;
 		public double deltaBC;
 		
-		public BFSNode(Node src, int d, int sig, List<Node> p, int t) {
+		public BFSNode(Node src, int d, int sig, Set<Node> p, int t) {
 			source = src;
 			distanceFromSource = d;
 			sigma = sig;
@@ -60,22 +60,22 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		linkableProtocolID = Configuration.getPid(prefix + "." + PAR_LINKABLE);
 	}
 	
-	public static int c = 0;
-
 	@Override
 	public void nextCycle(Node self, int protocolID) {
-		System.out.println(c++);
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		
 		Map<Node, List<Message>> mmap = parseIncomingMessages();
-		
-		System.out.println("BEGINNING " + lnk.degree());
+		/*
+		Map<Node, List<Message>> mmap = new HashMap<>();
+		int nm = parseIncomingMessages(mmap);
+				
+		long t0 = System.nanoTime();*/
 		
 		for (Map.Entry<Node, List<Message>> e : mmap.entrySet()) {
 			Node source = e.getKey();
 			List<Message> messageList = e.getValue();
 			if (isClosed(source)) {
-				LinkedList<Node> pred = new LinkedList<Node>();
+				Set<Node> pred = new HashSet<Node>();
 				int sigma = 0;
 				int distance = -1;
 				for (Message m : messageList) {
@@ -99,7 +99,12 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 				for (Message m : messageList) state.siblings.add(m.get(Message.Attachment.SENDER, Node.class));
 			}
 		}
-		System.out.println("VISITS");
+		/*
+		long t1 = System.nanoTime();
+		double secs = (t1-t0) * (1.0/1000000000.0);
+		
+		if (secs > 1.0) System.out.println("Took " + secs + " seconds (degree=" + lnk.degree() + ", nm = "+ nm +")");*/
+		
 		
 		/* FIXME potetntial issue here: if a neighbor that is a sibling in the bf tree
 		 * changed state from closed to open and then at the same cycle from open to done,
@@ -138,7 +143,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	
 	public void initAccumulation(Node self) {
 		assert !visits.containsKey(self);
-		BFSNode state = new BFSNode(self, 0, 1, new LinkedList<Node>(), CommonState.getIntTime());
+		BFSNode state = new BFSNode(self, 0, 1, new HashSet<Node>(0), CommonState.getIntTime());
 		visits.put(self, state);
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		for (int i = 0; i < lnk.degree(); ++i) {
@@ -151,6 +156,22 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	
 	public Map<Node, List<Message>> parseIncomingMessages() {
 		Map<Node, List<Message>> map = new HashMap<Node, List<Message>>();
+		java.util.Iterator<Message> it = this.getIncomingMessageIterator();
+		while (it.hasNext()) {
+			Message msg = it.next();
+			it.remove();
+			Node source = msg.get(Message.Attachment.SOURCE, Node.class);
+			List<Message> ls = map.get(source);
+			if (ls == null) {
+				ls = new LinkedList<Message>();
+				map.put(source, ls);
+			}
+			ls.add(msg);
+		}
+		return map;
+	}
+	
+	public int parseIncomingMessages2(Map<Node, List<Message>> map ) {
 		java.util.Iterator<Message> it = this.getIncomingMessageIterator();
 		int c = 0;
 		while (it.hasNext()) {
@@ -165,8 +186,8 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 			}
 			ls.add(msg);
 		}
-		System.out.println(c + " messages received");
-		return map;
+		//System.out.println(c + " messages received");
+		return c;
 	}
 	
 	// bfs state of this node wrt source (root of the bf tree) 
@@ -182,23 +203,36 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		return visits.containsKey(source) && visits.get(source).done == true;
 	}
 	
-	public double getApproximatedBetweennessCentralityValue(Node self) {
-		double bc = 0.0;
+	public double getApproximatedCC(Node self) {
+		return getApproximatedCC(self, visits.keySet());
+	}
+	
+	public double getApproximatedBC(Node self) {
+		return getApproximatedBC(self, visits.keySet());
+	}
+	
+	public int getApproximatedSC(Node self) {
+		return getApproximatedSC(self, visits.keySet());
+	}
+	
+	protected double getApproximatedCC(Node self, Set<Node> allowedSources) {
+		int c = 0, totd = 0;
 		for (BFSNode state : visits.values()) {
-			if (state.source != self) bc += state.deltaBC;
+			if (state.source != self && allowedSources.contains(self)) totd += state.sigma;
+			c++;
+		}
+		return totd / (double) c;
+	}
+	
+	protected double getApproximatedBC(Node self, Set<Node> allowedSources) {
+		double bc = 0;
+		for (BFSNode state : visits.values()) {
+			if (state.source != self && allowedSources.contains(self)) bc += state.deltaBC;
 		}
 		return bc;
 	}
-	
-	public int getApproximatedStressCentralityValue(Node self) {
-		int sc = 0;
-		for (BFSNode state : visits.values()) {
-			if (state.source != self) sc += state.deltaSC;
-		}
-		return sc;
-	}
-	
-	public int getApproximatedStressCentralityValue(Node self, Set<Node> allowedSources) {
+		
+	protected int getApproximatedSC(Node self, Set<Node> allowedSources) {
 		int sc = 0;
 		for (BFSNode state : visits.values()) {
 			if (state.source != self && allowedSources.contains(state.source)) sc += state.deltaSC;

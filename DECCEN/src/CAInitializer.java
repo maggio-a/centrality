@@ -16,7 +16,7 @@ public class CAInitializer implements Control {
 	
 	private static double defaultFraction = 1.0;
 	
-	private static Set<Node> sources = new HashSet<Node>();
+	private static Set<Node> sources = null;
 	
 	public static void addSource(Node s) { sources.add(s); }
 	public static Set<Node> getSources() { return sources; }
@@ -34,17 +34,16 @@ public class CAInitializer implements Control {
 	
 	@Override
 	public boolean execute() {
-		int c = 0;
+		sources = new HashSet<Node>();
 		for (int i = 0; i < Network.size(); ++i) {
 			Node node = Network.get(i);
 			if (CommonState.r.nextDouble() <= fraction) {
 				CentralityApproximation ca = (CentralityApproximation) node.getProtocol(protocolID);
-				ca.initAccumulation(node);
+				//ca.initAccumulation(node);
 				addSource(node);
-				c++;
 			}
 		}
-		System.out.println(getClass().getName() + ": accumulating from " + c + " sources");
+		System.out.println(getClass().getName() + ": accumulating from " + sources.size() + " sources");
 		return false;
 	}
 
