@@ -1,0 +1,197 @@
+Simulator: loading configuration
+ConfigProperties: File run/ca_dolphins.cfg loaded.
+Simulator: starting experiment 0 invoking peersim.cdsim.CDSimulator
+Random seed: 1455191563230
+
+
+
+CDSimulator: resetting
+CDSimulator: running initializers
+- Running initializer init.connector: class centrality.WireFromEdgeList
+- Running initializer init.initializer: class centrality.CAInitializer
+centrality.CAInitializer: accumulating from 4941 sources
+CDSimulator: loaded controls [control.accumulator, control.transport]
+CDSimulator: starting simulation
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 0 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 1 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 2 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 3 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 4 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 5 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 6 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 7 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 8 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 9 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 10 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 11 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 12 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 13 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 14 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 15 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 16 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 17 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 18 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 19 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 20 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 21 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 22 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 23 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 24 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 25 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 26 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 27 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 28 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 29 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 30 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 31 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 32 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 33 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 34 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 35 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 36 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 37 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 38 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 39 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 40 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 41 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 42 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 43 done
+0 out of 4941 sources completed the accumulation
+CDSimulator: cycle 44 done
+3 out of 4941 sources completed the accumulation
+CDSimulator: cycle 45 done
+7 out of 4941 sources completed the accumulation
+CDSimulator: cycle 46 done
+10 out of 4941 sources completed the accumulation
+CDSimulator: cycle 47 done
+16 out of 4941 sources completed the accumulation
+CDSimulator: cycle 48 done
+26 out of 4941 sources completed the accumulation
+CDSimulator: cycle 49 done
+31 out of 4941 sources completed the accumulation
+CDSimulator: cycle 50 done
+38 out of 4941 sources completed the accumulation
+CDSimulator: cycle 51 done
+47 out of 4941 sources completed the accumulation
+CDSimulator: cycle 52 done
+66 out of 4941 sources completed the accumulation
+CDSimulator: cycle 53 done
+88 out of 4941 sources completed the accumulation
+CDSimulator: cycle 54 done
+126 out of 4941 sources completed the accumulation
+CDSimulator: cycle 55 done
+170 out of 4941 sources completed the accumulation
+CDSimulator: cycle 56 done
+208 out of 4941 sources completed the accumulation
+CDSimulator: cycle 57 done
+260 out of 4941 sources completed the accumulation
+CDSimulator: cycle 58 done
+311 out of 4941 sources completed the accumulation
+CDSimulator: cycle 59 done
+363 out of 4941 sources completed the accumulation
+CDSimulator: cycle 60 done
+400 out of 4941 sources completed the accumulation
+CDSimulator: cycle 61 done
+428 out of 4941 sources completed the accumulation
+CDSimulator: cycle 62 done
+441 out of 4941 sources completed the accumulation
+CDSimulator: cycle 63 done
+458 out of 4941 sources completed the accumulation
+CDSimulator: cycle 64 done
+472 out of 4941 sources completed the accumulation
+CDSimulator: cycle 65 done
+482 out of 4941 sources completed the accumulation
+CDSimulator: cycle 66 done
+491 out of 4941 sources completed the accumulation
+CDSimulator: cycle 67 done
+496 out of 4941 sources completed the accumulation
+CDSimulator: cycle 68 done
+499 out of 4941 sources completed the accumulation
+CDSimulator: cycle 69 done
+499 out of 4941 sources completed the accumulation
+CDSimulator: cycle 70 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 71 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 72 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 73 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 74 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 75 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 76 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 77 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 78 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 79 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 80 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 81 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 82 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 83 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 84 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 85 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 86 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 87 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 88 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 89 done
+500 out of 4941 sources completed the accumulation
+CDSimulator: cycle 90 done
+500 out of 4941 sources completed the accumulation

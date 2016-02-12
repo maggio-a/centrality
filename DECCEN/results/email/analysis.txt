@@ -1,0 +1,40 @@
+Aggregate data
+CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv
+0.021297 2.017503 0.020460 2.919467 0.015435 2.721191
+==================
+Aggregate data
+CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv
+0.014919 1.375051 0.014208 2.421454 0.010975 2.255441
+==================
+Aggregate data
+CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv
+0.011230 1.006553 0.011423 2.040043 0.008399 1.887380
+==================
+Aggregate data
+CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv
+0.008494 0.813571 0.009570 1.752688 0.007137 1.637316
+==================
+Aggregate data
+CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv
+0.006632 0.625267 0.007421 1.451056 0.005579 1.352237
+==================
+Aggregate data
+CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv
+0.006293 0.521482 0.006540 1.206427 0.004880 1.125440
+==================
+Aggregate data
+CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv
+0.004852 0.419943 0.004765 0.903407 0.003743 0.849772
+==================
+Aggregate data
+CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv
+0.003494 0.337030 0.003614 0.695260 0.003041 0.653718
+==================
+Aggregate data
+CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv
+0.002909 0.226782 0.002349 0.377917 0.001641 0.353139
+==================
+Aggregate data
+CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv
+     NaN 44.973054      NaN 43.629814      NaN 43.628551
+==================
