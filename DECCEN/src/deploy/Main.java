@@ -22,8 +22,8 @@ public class Main {
 			else Simulator.main(new String[]{args[1]});
 			break;
 		case "-a":
-			if (args.length < 3) usage();
-			else analysis(args[1], args[2]);
+			if (args.length < 4) usage();
+			else analysis(args[1], args[2], Integer.parseInt(args[3]));
 			break;
 		default:
 			usage();
@@ -32,10 +32,10 @@ public class Main {
 	
 	private static void usage() {
 		System.err.println("To run a simulation invoke with option \"-s cfg\"");
-		System.err.println("To run error analysis invoke with option \"-a indices data\"");
+		System.err.println("To run error analysis invoke with option \"-a indices data runs\"");
 	}
 
-	public static void analysis(String indicesFile, String dataFile) throws FileNotFoundException {
+	public static void analysis(String indicesFile, String dataFile, int runs) throws FileNotFoundException {
 		
 		//TODO normalize indices
 		
@@ -69,9 +69,9 @@ public class Main {
 		
 		// Read data file with experiment results
 		
-		double[][] runCC = new double[n][10];
-		long[][] runSC = new long[n][10];
-		double[][] runBC = new double[n][10];
+		double[][] runCC = new double[n][runs];
+		long[][] runSC = new long[n][runs];
+		double[][] runBC = new double[n][runs];
 		
 		sc = new Scanner(new File(dataFile));
 		int c = 0;
@@ -101,7 +101,7 @@ public class Main {
 		IncrementalStats betweennessInversionPerc = new IncrementalStats();
 		IncrementalStats stressInversionPerc = new IncrementalStats();
 		
-		for (int k = 0; k < 10; ++k) {
+		for (int k = 0; k < runs; ++k) {
 			
 			double runMaxCC = Double.NEGATIVE_INFINITY, runMinCC = Double.POSITIVE_INFINITY;
 			long runMaxSC = Long.MIN_VALUE, runMinSC = Long.MAX_VALUE;
@@ -127,7 +127,8 @@ public class Main {
 				double scaledSC = (maxSC - SC[i]) / (double) (maxSC - minSC);
 				double scaledApproxSC = (runMaxSC - runSC[i][k]) / (double) (runMaxSC - runMinSC);
 				
-				closenessError.add(Math.abs(scaledCC - scaledApproxCC));
+				//closenessError.add(Math.abs(scaledCC - scaledApproxCC));
+				closenessError.add(Math.abs(CC[i] - runCC[i][k]));
 				betweennessError.add(Math.abs(scaledBC - scaledApproxBC));
 				stressError.add(Math.abs(scaledSC - scaledApproxSC));
 				
@@ -164,9 +165,10 @@ public class Main {
 				}
 			}
 			
-			closenessInversionPerc.add(100.0 * (closenessInversion / (double) (n*(n-1))));
-			stressInversionPerc.add(100.0 * (stressInversion / (double) (n*(n-1))));
-			betweennessInversionPerc.add(100.0 * (betweennessInversion / (double) (n*(n-1))));
+			double totPairs = n * (n-1) / 2.0;
+			closenessInversionPerc.add(100.0 * (closenessInversion / totPairs));
+			stressInversionPerc.add(100.0 * (stressInversion / totPairs));
+			betweennessInversionPerc.add(100.0 * (betweennessInversion / totPairs));
 		}
 		
 		System.out.println("Aggregate data");
