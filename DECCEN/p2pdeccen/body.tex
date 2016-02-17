@@ -1,15 +1,15 @@
 % !TeX root = p2p.tex
 
 \newcommand{\deccen}{\textsc{Deccen}}
-\newcommand{\mdisc}{\textnormal{\textsf{{\footnotesize DIS\-CO\-VE\-RY}}}}
+\newcommand{\mdisc}{\textsf{{\footnotesize DIS\-CO\-VE\-RY}}}
 \newcommand{\mdiscargs}[3]{\mdisc$\langle #1,#2,#3, \sigma_{#1 #2} \rangle$}
-\newcommand{\mrep}{\textnormal{\textsf{{\footnotesize REPORT}}}}
+\newcommand{\mrep}{\textsf{{\footnotesize REPORT}}}
 \newcommand{\mrepargs}[2]{\mrep$\langle #1,#2, \delta(#1|#2), \sigma(#1|#2), \sigma_{#1 #2} \rangle$}
 \newcommand{\mrepleaf}[2]{\mrep$\langle #1,#2, 0, 0, \sigma_{#1 #2} \rangle$}
 
-\newcommand{\swait}[1]{\textnormal{\textsf{{\footnotesize WAITING}}}$(#1)$}
-\newcommand{\sact}[1]{\textnormal{\textsf{{\footnotesize ACTIVE}}}$(#1)$}
-\newcommand{\scomp}[1]{\textnormal{\textsf{{\footnotesize COMPLETED}}}$(#1)$}
+\newcommand{\swait}[1]{\textsf{{\footnotesize WAITING}}$(#1)$}
+\newcommand{\sact}[1]{\textsf{{\footnotesize ACTIVE}}$(#1)$}
+\newcommand{\scomp}[1]{\textsf{{\footnotesize COMPLETED}}$(#1)$}
 
 
 \section{Introduction}
@@ -126,30 +126,32 @@ In this section the algorithm is detailed. The only parameter of the algorithm i
 
 \subsubsection{Visit states}
 
-Visit states are parametric with respect to the discovery from a source $s \in V$:
-
-\paragraph{\swait{s}} A node $v$ that has not yet received any \mdisc{} message with source $s$.
-
-
-\paragraph{\sact{s}} A node $v$ that has received one or more \mdisc{} messages with source $s$ and has not yet computed the contributions of $s$ to its centrality indices.
-
-
-\paragraph{\scomp{s}} A node $v$ that has computed the contributions of $s$ to its centrality indices, updated them accordingly, and reported the contributions to each predecessor in $P_s(v)$ by sending the appropriate \mrep{} messages.
+Visit states are parametric with respect to the discovery from a source $s \in V$. A node $v$ is in state:
+\begin{description}
+\item[\swait{s}] if it has not yet received any \mdisc{} having $s$ as source.
+\item[\sact{s}] if it has received one or more \mdisc{} messages with source $s$ and has not yet computed the contributions of $s$ to its centrality indices.
+\item[\scomp{s}] if it has computed the contributions of $s$ to its centrality indices, updated them accordingly, and reported the contributions to each predecessor in $P_s(v)$ by sending the appropriate \mrep{} messages.
+\end{description}
 
 \subsubsection{Actions}
+TODO detail better how the states evolve and change, maybe change perspective from messages to states ? <<<<<<<<<<<<<<<<<<<<
 
 \paragraph{Initiate a visit} With probability $p$ a node $s$ sends to all its neighbors a \mdiscargs{s}{s}{0} message and sets $P_s(s) = \{s\}$.
 
 \paragraph{Receiving a \mdiscargs{s}{u}{d} message} If $v$ receives a \mdiscargs{s}{u}{d} message the actions depend on its current state:
 
-\subparagraph{\swait{s}} Under the synchronous model assumption all the predecessors will contact 
+\begin{description}
+
+\item[$v$ is in state \swait{s}] Under the synchronous model assumption all the predecessors will contact 
 $v$ at the same time step. Group all the messages with the same source $s$ together and collect all the senders $u$ in the predecessor set $P_s(v)$. Then
-\begin{itemize}
-\item[-] Initialize the local contribution to the closeness and stress centrality estimators to $0$, while the contribution to the closeness centrality estimator is $d+1$. Let $\sigma_{sv} = \sum_{u \in P_s(v)} \sigma_{su}$.
-\item[-] If $P_s(v) = N_v$ send a \mrepleaf{s}{v} message to all the predecessors $u \in P_s(v)$ and change state to \scomp{s}. 
-\item[-] Otherwise, send to all $w \in N_v \setminus P_s(v)$ a \mdiscargs{s}{v}{d+1} message and change state to \sact{s}.
-\end{itemize}
+\begin{enumerate}
+\item Initialize the local contribution to the closeness and stress centrality estimators to $0$, while the contribution to the closeness centrality estimator is $d+1$. Let $\sigma_{sv} = \sum_{u \in P_s(v)} \sigma_{su}$.
+\item If $P_s(v) = N_v$ send a \mrepleaf{s}{v} message to all the predecessors $u \in P_s(v)$ and change state to \scomp{s}. 
+\item Otherwise, send to all $w \in N_v \setminus P_s(v)$ a \mdiscargs{s}{v}{d+1} message and change state to \sact{s}.
+\end{enumerate}
 
-\subparagraph{\sact{s}} Under the synchronous model assumption $v$ can only receive \mdiscargs{s}{u}{d} messages from nodes $u$ such that $d(s,u) = d(s,v)$. These nodes are collected in the set $S_s(v)$ of the siblings of $v$ with respect to the source node $s$. Note that these messages are received exactly one step after $v$ has been contacted by its predecessors.
+\item[$v$ is in state \sact{s}] Under the synchronous model assumption $v$ can only receive \mdiscargs{s}{u}{d} messages from nodes $u$ such that $d(s,u) = d(s,v)$. These nodes are collected in the set $S_s(v)$ of the siblings of $v$ with respect to the source node $s$. Note that these messages are received exactly one step after $v$ has been contacted by its predecessors.
 
-\paragraph{Receiving a \mrep{} message} If $v$ receives a report from $w$, first it adds $w$ to the children set $C_s(v)$; then it updates the local contributions by accumulating the terms that depend on $w$ in the recursive relations for betweenness and stress centrality. If $P_s(v) \cup S_s(v) \cup C_s(v) = N_v$ the local contributions are summed to the centrality estimators and a \mrepargs{s}{v} message is sent to all the predecessors $u \in P_s(v)$.
+\end{description}
+
+\paragraph{Receiving a \mrep{} message} If $v$ receives a report from $w$, it first adds $w$ to the set of children $C_s(v)$; then it updates the local contributions by accumulating the terms that depend on $w$ in the recursive relations for betweenness and stress centrality. Finally, if $P_s(v) \cup S_s(v) \cup C_s(v) = N_v$ the local contributions are summed to the centrality estimators and a \mrepargs{s}{v} message is sent to all the predecessors $u \in P_s(v)$.

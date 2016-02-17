@@ -1,12 +1,12 @@
 package centrality;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import centrality.Message.Attachment;
 import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
@@ -17,30 +17,38 @@ import peersim.core.Node;
 
 public class CentralityApproximation extends SynchronousTransportLayer<Message> implements CDProtocol {
 	
-	private static class BFSNode {
+	// FIXME distanceFromSource is handled differently from the report
+	
+	private static class VisitState {
 		
 		public final Node source;
 		public Set<Node> predecessors;
 		public Set<Node> siblings;
-		public boolean done;
+		public Set<Node> children;
 		public int distanceFromSource;
 		
 		public int timestamp;
 		
 		public int sigma;
-		public int deltaSC;
-		public double deltaBC;
+		public long stressContribution;
+		public double betweennessContribution;
 		
-		public BFSNode(Node src, int d, int sig, Set<Node> p, int t) {
+		public VisitState(Node src, int d, int sig, Set<Node> p, int t) {
 			source = src;
 			distanceFromSource = d;
 			sigma = sig;
 			predecessors = p;
 			timestamp = t;
 			siblings = new HashSet<Node>();
-			done = false;
-			deltaSC = -1;
-			deltaBC = -1.0;
+			children = new HashSet<Node>();
+			stressContribution = 0;
+			betweennessContribution = 0.0;
+		}
+		
+		public void accumulate(Node child, double bcc, long scc, int numSP) {
+			children.add(child);
+			stressContribution += (long) (sigma * (1 + (scc / (double) numSP))); // can safely cast to integer
+			betweennessContribution += (sigma / (double) numSP) * (1.0 + bcc);
 		}
 	}
 	
@@ -50,9 +58,9 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	private final int linkableProtocolID;
 	private final boolean ignoreCorrectEstimate;
 	
-	private Map<Node, BFSNode> visits;
+	private Map<Node, VisitState> visits;
 	private double betweenness;
-	private int stress;
+	private long stress;
 	private int closenessSum;
 	private int numSamples;
 	
@@ -63,7 +71,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	}
 	
 	protected void reset() {
-		visits = new HashMap<Node, BFSNode>();
+		visits = new HashMap<Node, VisitState>();
 		betweenness = 0.0;
 		stress = 0;
 		closenessSum = 0;
@@ -81,86 +89,81 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	public void nextCycle(Node self, int protocolID) {
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		
-		Map<Node, List<Message>> mmap = parseIncomingMessages();
+		Map<Message.Type, List<Message>> mmap = parseIncomingMessages();
 		
-		for (Map.Entry<Node, List<Message>> e : mmap.entrySet()) {
-			Node source = e.getKey();
-			List<Message> messageList = e.getValue();
-			if (isClosed(source)) {
-				Set<Node> pred = new HashSet<Node>();
-				int sigma = 0;
-				int distance = -1;
-				for (Message m : messageList) {
-					if (distance == -1) distance = m.get(Message.Attachment.SP_LENGTH, Integer.class);
-					assert distance == m.get(Message.Attachment.SP_LENGTH, Integer.class) : "distance mismatch";
-					sigma += m.get(Message.Attachment.SP_COUNT, Integer.class);
-					pred.add(m.get(Message.Attachment.SENDER, Node.class));
-				}
-				BFSNode state = new BFSNode(source, distance, sigma, pred, CommonState.getIntTime());
-				visits.put(source, state);
-				for (int i = 0; i < lnk.degree(); ++i) {
-					Node n = lnk.getNeighbor(i);
-					if (!state.predecessors.contains(n)) {
-						addToSendQueue(Message.createProbeMessage(self, source, state.sigma, state.distanceFromSource + 1), n);
+		if (mmap.containsKey(Message.Type.BFS_PROBE)) {
+			Map<Node, List<Message>> mbs = groupBySource(mmap.get(Message.Type.BFS_PROBE));
+			for (Map.Entry<Node, List<Message>> e : mbs.entrySet()) {
+				Node s = e.getKey();
+				if (isWaiting(s)) {
+					Set<Node> predecessors = new HashSet<Node>();
+					int sigma = 0;
+					int distance = -1;
+					for (Message m : e.getValue()) {
+						if (distance == -1) distance = m.get(Message.Attachment.SP_LENGTH, Integer.class) + 1;
+						assert distance == m.get(Message.Attachment.SP_LENGTH, Integer.class) : "distance mismatch";
+						sigma += m.get(Message.Attachment.SP_COUNT, Integer.class);
+						predecessors.add(m.get(Message.Attachment.SENDER, Node.class));
 					}
+					VisitState state = new VisitState(s, distance, sigma, predecessors, CommonState.getIntTime());
+					visits.put(s, state);
+					for (int i = 0; i < lnk.degree(); ++i) {
+						Node n = lnk.getNeighbor(i);
+						if (!state.predecessors.contains(n)) {
+							addToSendQueue(Message.createProbeMessage(self, s, state.sigma, state.distanceFromSource + 1), n);
+						}
+					}
+				} else if (isActive(s)) {
+					VisitState state = visits.get(s);
+					assert state != null && state.siblings.isEmpty() : "sibling set not empty";
+					assert state.timestamp + 1 == CommonState.getIntTime() : "timestamp issue"; 
+					for (Message m : e.getValue()) state.siblings.add(m.get(Message.Attachment.SENDER, Node.class));
 				}
-			} else if (isOpen(source)) {
-				BFSNode state = visits.get(source);
-				assert state != null && state.siblings.isEmpty() : "sibling set not empty";
-				assert state.timestamp + 1 == CommonState.getIntTime() : "timestamp issue"; 
-				for (Message m : messageList) state.siblings.add(m.get(Message.Attachment.SENDER, Node.class));
 			}
 		}
-
-		for (Node source : visits.keySet()) {
-			BFSNode state = visits.get(source);
-			if (isOpen(source) && CommonState.getIntTime() - state.timestamp >= 1) {
-				boolean allDone = true;
-				int deltaSC = 0;
-				double deltaBC = 0.0;
-				for (int i = 0; i < lnk.degree() && allDone; ++i) {
-					Node n = lnk.getNeighbor(i);
-					if (state.predecessors.contains(n) || state.siblings.contains(n)) continue;
-					else {
-						CentralityApproximation ca = (CentralityApproximation) n.getProtocol(protocolID);
-						BFSNode childState = ca.visits.get(source);
-						if (ca.isDone(source)) {
-							assert childState.predecessors.contains(self) : "self not in predecessors list";
-							deltaSC += (int) state.sigma * (1 + (childState.deltaSC / (double) childState.sigma));
-							deltaBC += (state.sigma / (double) childState.sigma) * (1.0 + childState.deltaBC);
-						} else allDone = false;
+		
+		if (mmap.containsKey(Message.Type.BFS_REPORT)) {
+			Map<Node, List<Message>> mbs = groupBySource(mmap.get(Message.Type.BFS_PROBE));
+			for (Map.Entry<Node, List<Message>> e : mbs.entrySet()) {
+				Node s = e.getKey();
+				if (isActive(s)) {
+					VisitState state = visits.get(s);
+					for (Message m : e.getValue()) {
+						Node child = m.get(Attachment.SENDER, Node.class);
+						double bcc = m.get(Attachment.BETWEENNESS_CONTRIBUTION, Double.class);
+						long scc = m.get(Attachment.STRESS_CONTRIBUTION, Long.class);
+						int spc = m.get(Attachment.SP_COUNT, Integer.class);
+						state.accumulate(child, bcc, scc, spc);
 					}
+ 				} 
+			}
+		}
+		
+		// check for reportable nodes
+		for (Map.Entry<Node, VisitState> e : visits.entrySet()) {
+			Node s = e.getKey();
+			VisitState state = e.getValue();
+			if (isActive(s)) {
+				boolean canReport = true;
+				for (int i = 0; i < lnk.degree() && canReport; ++i) {
+					Node n = lnk.getNeighbor(i);
+					if (!(state.predecessors.contains(n) || state.siblings.contains(n) || state.children.contains(n)))
+						canReport = false;
 				}
-				if (allDone) {
-					state.deltaSC = deltaSC;
-					state.deltaBC = deltaBC;
-					state.done = true;
+				if (canReport) {
 					numSamples++;
-					
-					if (source != self) {
+					if (s != self) {
+						for (Node predecessor : state.predecessors) {
+							addToSendQueue(Message.createSampleReportMessage(
+									self, s, state.betweennessContribution, state.stressContribution, state.sigma),
+									predecessor);
+						}
 						closenessSum += state.distanceFromSource;
-						stress += deltaSC;
-						betweenness += deltaBC;
-						//System.out.println(self + " done, predecessors: " + state.predecessors);
-						//if (state.source == self) System.out.println("Reported back to source");
+						betweenness += state.betweennessContribution;
+						stress += state.stressContribution;
 					}
+					e.setValue(null);
 				}
-			}
-		}
-		
-		Iterator<Map.Entry<Node, BFSNode>> vit = visits.entrySet().iterator();
-		while (vit.hasNext()) {
-			Map.Entry<Node, BFSNode> entry = vit.next();
-			if (entry.getKey() != self) {
-				BFSNode state = entry.getValue();
-				Iterator<Node> pit = state.predecessors.iterator();
-				boolean predecessorsDone = true;
-				while (predecessorsDone && pit.hasNext()) {
-					Node predecessor = pit.next();
-					CentralityApproximation ca = (CentralityApproximation) predecessor.getProtocol(protocolID);
-					if (!ca.isDone(state.source)) predecessorsDone = false;
-				}
-				if (predecessorsDone) vit.remove();
 			}
 		}
 	}
@@ -169,55 +172,49 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		if (visits.containsKey(self)) {
 			throw new IllegalStateException("Protocol already initiated accumulation");
 		}
-		BFSNode state = new BFSNode(self, 0, 1, new HashSet<Node>(0), CommonState.getIntTime());
+		VisitState state = new VisitState(self, 0, 1, new HashSet<Node>(0), CommonState.getIntTime());
 		visits.put(self, state);
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		for (int i = 0; i < lnk.degree(); ++i) {
 			Node n = lnk.getNeighbor(i);
 			if (!state.predecessors.contains(n)) {
-				addToSendQueue(Message.createProbeMessage(self, self, state.sigma, state.distanceFromSource + 1), n);
+				addToSendQueue(Message.createProbeMessage(self, self, state.sigma, state.distanceFromSource), n);
 			}
 		}
 	}
 	
-	public Map<Node, List<Message>> parseIncomingMessages() {
-		Map<Node, List<Message>> map = new HashMap<Node, List<Message>>();
+	private Map<Node, List<Message>> groupBySource(List<Message> list) {
+		Map<Node, List<Message>> msgBySource= new HashMap<Node, List<Message>>();
+		for (Message m : list) {
+			Node s = m.get(Attachment.SOURCE, Node.class);
+			List<Message> ml = msgBySource.get(s);
+			if (ml == null) {
+				ml = new LinkedList<Message>();
+				msgBySource.put(s, ml);
+			}
+			ml.add(m);
+		}
+		return msgBySource;
+	}
+	
+	private Map<Message.Type, List<Message>> parseIncomingMessages() {
+		Map<Message.Type, List<Message>> map = new HashMap<Message.Type, List<Message>>();
 		java.util.Iterator<Message> it = this.getIncomingMessageIterator();
 		while (it.hasNext()) {
-			Message msg = it.next();
+			Message m = it.next();
 			it.remove();
-			Node source = msg.get(Message.Attachment.SOURCE, Node.class);
-			List<Message> ls = map.get(source);
-			if (ls == null) {
-				ls = new LinkedList<Message>();
-				map.put(source, ls);
+			List<Message> ml = map.get(m.type);
+			if (ml == null) {
+				ml = new LinkedList<Message>();
+				map.put(m.type, ml);
 			}
-			ls.add(msg);
+			ml.add(m);
 		}
 		return map;
 	}
 	
-	public int parseIncomingMessages2(Map<Node, List<Message>> map ) {
-		java.util.Iterator<Message> it = this.getIncomingMessageIterator();
-		int c = 0;
-		while (it.hasNext()) {
-			c++;
-			Message msg = it.next();
-			it.remove();
-			Node source = msg.get(Message.Attachment.SOURCE, Node.class);
-			List<Message> ls = map.get(source);
-			if (ls == null) {
-				ls = new LinkedList<Message>();
-				map.put(source, ls);
-			}
-			ls.add(msg);
-		}
-		//System.out.println(c + " messages received");
-		return c;
-	}
-	
-	public int getSC() { 
-		return ignoreCorrectEstimate ? stress : (int) ((Network.size()/(double)numSamples)*stress);
+	public long getSC() { 
+		return ignoreCorrectEstimate ? stress : (long) ((Network.size()/(double)numSamples)*stress);
 	}
 	
 	public double getBC() {
@@ -230,15 +227,15 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	}
 	
 	// bfs state of this node wrt source (root of the bf tree) 
-	public boolean isClosed(Node source) {
+	public boolean isWaiting(Node source) {
 		return visits.containsKey(source) == false;
 	}
 	
-	public boolean isOpen(Node source) {
-		return visits.containsKey(source) && visits.get(source).done == false;
+	public boolean isActive(Node source) {
+		return visits.containsKey(source) && visits.get(source) != null;
 	}
 	
-	public boolean isDone(Node source) {
-		return visits.containsKey(source) && visits.get(source).done == true;
+	public boolean isCompleted(Node source) {
+		return visits.containsKey(source) && visits.get(source) == null;
 	}
 }

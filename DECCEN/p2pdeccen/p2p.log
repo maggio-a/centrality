@@ -1,7 +1,7 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2015.5.28)  17 FEB 2016 01:57
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2015.5.28)  17 FEB 2016 17:08
 entering extended mode
-**C:/Users/Andrea/Desktop/p2pdeccen/p2p.tex
-(C:/Users/Andrea/Desktop/p2pdeccen/p2p.tex
+**C:/Users/Andrea/git/deccen/DECCEN/p2pdeccen/p2p.tex
+(C:/Users/Andrea/git/deccen/DECCEN/p2pdeccen/p2p.tex
 LaTeX2e <2011/06/27>
 Babel <v3.8m> and hyphenation patterns for english, afrikaans, ancientgreek, ar
 abic, armenian, assamese, basque, bengali, bokmal, bulgarian, catalan, coptic, 
@@ -30,7 +30,7 @@ File: size11.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 \belowcaptionskip=\skip42
 \bibindent=\dimen102
 )
-(C:\Users\Andrea\Desktop\p2pdeccen\natbib.sty
+(C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\natbib.sty
 Package: natbib 1999/05/28 7.0 (PWD)
 \bibhang=\skip43
 \bibsep=\skip44
@@ -813,7 +813,7 @@ File: tikzlibraryplotmarks.code.tex 2008/01/09 v3.0.1a (rcs-revision 1.1)
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\libraries\pgflibraryplotmar
 ks.code.tex"
 File: pgflibraryplotmarks.code.tex 2015/08/03 v3.0.1a (rcs-revision 1.14)
-))) (C:\Users\Andrea\Desktop\p2pdeccen\p2p.aux)
+))) (C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\p2p.aux)
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
 LaTeX Font Info:    ... okay on input line 29.
 LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 29.
@@ -894,7 +894,7 @@ LaTeX Font Info:    Try loading font information for T1+lmtt on input line 30.
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\t1lmtt.fd"
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-(C:\Users\Andrea\Desktop\p2pdeccen\body.tex
+(C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\body.tex
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <10.95> on input line 19.
 
@@ -911,20 +911,20 @@ LaTeX Font Info:    Try loading font information for T1+lmss on input line 123.
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\t1lmss.fd"
 File: t1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
 ) [4])
-(C:\Users\Andrea\Desktop\p2pdeccen\p2p.bbl) [5]
-(C:\Users\Andrea\Desktop\p2pdeccen\p2p.aux)
+(C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\p2p.bbl) [5]
+(C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\p2p.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 21646 strings out of 493921
- 542755 string characters out of 3144873
- 713124 words of memory out of 3000000
- 24541 multiletter control sequences out of 15000+200000
- 63727 words of font info for 52 fonts, out of 3000000 for 9000
+ 21649 strings out of 493921
+ 542928 string characters out of 3144873
+ 713125 words of memory out of 3000000
+ 24543 multiletter control sequences out of 15000+200000
+ 69263 words of font info for 54 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 62i,7n,77p,989b,609s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 62i,7n,77p,999b,609s stack positions out of 5000i,500n,10000p,200000b,50000s
 {C:/Program Files (x86)/MiKTeX 2.9/fonts/enc/dvips/lm/lm-ec.enc}{C:/Program F
 iles (x86)/MiKTeX 2.9/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program Files (x86)/MiKT
 eX 2.9/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Program Files (x86)/MiKTeX 2.9/font
@@ -941,11 +941,12 @@ rogram Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmr17.pfb><C:/Program Files
  (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmr8.pfb><C:/Program Files (x86)/MiKTeX
  2.9/fonts/type1/public/lm/lmri10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/
 type1/public/lm/lmss9.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public
-/lm/lmsy10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmsy8.p
-fb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmtt12.pfb>
-Output written on p2p.pdf (5 pages, 286896 bytes).
+/lm/lmssbx10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmsy1
+0.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmsy8.pfb><C:/Pr
+ogram Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmtt12.pfb>
+Output written on p2p.pdf (5 pages, 308774 bytes).
 PDF statistics:
- 94 PDF objects out of 1000 (max. 8388607)
+ 98 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

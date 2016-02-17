@@ -50,7 +50,7 @@ public class CAControl implements Control {
 		while (it.hasNext()) {
 			Node n = it.next();
 			CentralityApproximation ca = (CentralityApproximation) n.getProtocol(protocolID);
-			if (ca.isDone(n)) it.remove();
+			if (ca.isCompleted(n)) it.remove();
 		}
 		
 		if (visiting.size() == 0) {
@@ -65,7 +65,7 @@ public class CAControl implements Control {
 		Set<Node> sources = CAInitializer.getSources();
 		for (Node s : sources) {
 			CentralityApproximation ca = (CentralityApproximation) s.getProtocol(protocolID);
-			if (ca.isDone(s)) counter++;
+			if (ca.isCompleted(s)) counter++;
 		}
 		if (counter == sources.size()) {
 			print();
