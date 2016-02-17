@@ -1,0 +1,19 @@
+\begin{thebibliography}{}
+
+\bibitem[Brandes(2001)]{brandes2001}
+Brandes  U. (2001).
+\newblock A faster algorithm for betweenness centrality.
+\newblock {\em Journal of mathematical sociology}, {\bf 25}(2), 163--177.
+
+\bibitem[Brandes e Pich(2007)]{brandes2007}
+Brandes  U.; Pich  C. (2007).
+\newblock Centrality estimation in large networks.
+\newblock {\em International Journal of Bifurcation and Chaos}, {\bf 17}(07),
+  2303--2318.
+
+\bibitem[Eppstein e Wang(2004)]{ew2004}
+Eppstein  D.; Wang  J. (2004).
+\newblock Fast approximation of centrality.
+\newblock {\em J. Graph Algorithms Appl.}, {\bf 8}(1), 39--45.
+
+\end{thebibliography}

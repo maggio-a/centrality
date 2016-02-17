@@ -55,7 +55,7 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 	private List<Message>            REPORTMessageCache = null;
 	private Map<Node, ShortestPathData>    sp                 = null;
 	private Deque<SendQueueItem>           sendQueue          = null;
-	private boolean[][]                    reportMap          = null;
+	private boolean[][]                    reportMap          = null; //TODO FIXME convert to Set<Pair>
 	
 	public SynchronousDeccenProtocol(String prefix) {
 		linkableProtocolID = Configuration.getPid(prefix + "." + PAR_LINKABLE);

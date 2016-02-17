@@ -127,8 +127,8 @@ public class Main {
 				double scaledSC = (maxSC - SC[i]) / (double) (maxSC - minSC);
 				double scaledApproxSC = (runMaxSC - runSC[i][k]) / (double) (runMaxSC - runMinSC);
 				
-				//closenessError.add(Math.abs(scaledCC - scaledApproxCC));
-				closenessError.add(Math.abs(CC[i] - runCC[i][k]));
+				closenessError.add(Math.abs(scaledCC - scaledApproxCC));
+				//closenessError.add(Math.abs(CC[i] - runCC[i][k]));
 				betweennessError.add(Math.abs(scaledBC - scaledApproxBC));
 				stressError.add(Math.abs(scaledSC - scaledApproxSC));
 				
@@ -165,7 +165,7 @@ public class Main {
 				}
 			}
 			
-			double totPairs = n * (n-1) / 2.0;
+			double totPairs = (n*(n-1)) / 2.0;
 			closenessInversionPerc.add(100.0 * (closenessInversion / totPairs));
 			stressInversionPerc.add(100.0 * (stressInversion / totPairs));
 			betweennessInversionPerc.add(100.0 * (betweennessInversion / totPairs));

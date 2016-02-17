@@ -11,6 +11,7 @@ import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Linkable;
+import peersim.core.Network;
 import peersim.core.Node;
 
 
@@ -44,18 +45,21 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	}
 	
 	private static final String PAR_LINKABLE = "lnk";
+	private static final String PAR_IGNORE_CORRECT_ESTIMATE = "ignoreCorrectEstimate";
 	
 	private final int linkableProtocolID;
+	private final boolean ignoreCorrectEstimate;
 	
 	private Map<Node, BFSNode> visits;
 	private double betweenness;
 	private int stress;
 	private int closenessSum;
-	private int closenessCount;
+	private int numSamples;
 	
 	public CentralityApproximation(String prefix) {
 		super(prefix);
 		linkableProtocolID = Configuration.getPid(prefix + "." + PAR_LINKABLE);
+		ignoreCorrectEstimate = Configuration.getBoolean(prefix + "." + PAR_IGNORE_CORRECT_ESTIMATE);
 	}
 	
 	protected void reset() {
@@ -63,7 +67,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		betweenness = 0.0;
 		stress = 0;
 		closenessSum = 0;
-		closenessCount = 0;
+		numSamples = 0;
 	}
 	
 	@Override
@@ -131,9 +135,9 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 					state.deltaSC = deltaSC;
 					state.deltaBC = deltaBC;
 					state.done = true;
+					numSamples++;
 					
 					if (source != self) {
-						closenessCount++;
 						closenessSum += state.distanceFromSource;
 						stress += deltaSC;
 						betweenness += deltaBC;
@@ -212,9 +216,18 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		return c;
 	}
 	
-	public int getSC() { return stress; }
-	public double getBC() { return betweenness; }
-	public double getCC() { return closenessSum == 0 ? 0.0 : (1.0/closenessSum);/* / (double) closenessCount;*/ }
+	public int getSC() { 
+		return ignoreCorrectEstimate ? stress : (int) ((Network.size()/(double)numSamples)*stress);
+	}
+	
+	public double getBC() {
+		return ignoreCorrectEstimate ? betweenness : ((Network.size()/(double)numSamples)*betweenness);
+	}
+	
+	public double getCC() {
+		if (closenessSum == 0) return 0.0;
+		else return ignoreCorrectEstimate ? (1.0 / closenessSum) : (1.0 / ((Network.size()/(double)numSamples)*closenessSum)); 
+	}
 	
 	// bfs state of this node wrt source (root of the bf tree) 
 	public boolean isClosed(Node source) {
@@ -228,42 +241,4 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	public boolean isDone(Node source) {
 		return visits.containsKey(source) && visits.get(source).done == true;
 	}
-	
-	public double getApproximatedCC(Node self) {
-		return getApproximatedCC(self, visits.keySet());
-	}
-	
-	public double getApproximatedBC(Node self) {
-		return getApproximatedBC(self, visits.keySet());
-	}
-	
-	public int getApproximatedSC(Node self) {
-		return getApproximatedSC(self, visits.keySet());
-	}
-	
-	protected double getApproximatedCC(Node self, Set<Node> allowedSources) {
-		int c = 0, totd = 0;
-		for (BFSNode state : visits.values()) {
-			if (state.source != self && allowedSources.contains(self)) totd += state.sigma;
-			c++;
-		}
-		return totd / (double) c;
-	}
-	
-	protected double getApproximatedBC(Node self, Set<Node> allowedSources) {
-		double bc = 0;
-		for (BFSNode state : visits.values()) {
-			if (state.source != self && allowedSources.contains(self)) bc += state.deltaBC;
-		}
-		return bc;
-	}
-		
-	protected int getApproximatedSC(Node self, Set<Node> allowedSources) {
-		int sc = 0;
-		for (BFSNode state : visits.values()) {
-			if (state.source != self && allowedSources.contains(state.source)) sc += state.deltaSC;
-		}
-		return sc;
-	}
-
 }
