@@ -12,7 +12,7 @@ import peersim.core.Linkable;
 import peersim.core.Node;
 
 
-public class SynchronousDeccenProtocol implements CDProtocol {
+public class SynchronousDeccenProtocol implements CDProtocol, CentralityInterface {
 	
 	private static class SendQueueItem {
 		public final Node destination;
@@ -61,6 +61,7 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 		linkableProtocolID = Configuration.getPid(prefix + "." + PAR_LINKABLE);
 	}
 	
+	//FIXME
 	@Override
 	public Object clone() {
 		SynchronousDeccenProtocol sdp = null;
@@ -240,16 +241,16 @@ public class SynchronousDeccenProtocol implements CDProtocol {
 		}
 	}
 	
-	public long getStressCentralityValue() {
+	public long getSC() {
 		return stressCentralityValue;
 	}
 	
-	public double getClosenessCentralityValue() {
+	public double getCC() {
 		//return closenessCentralityValue / (double) closenessCount;
 		return 1.0 / closenessCentralityValue;
 	}
 	
-	public double getBetweennessCentralityValue() {
+	public double getBC() {
 		return betweennessCentralityValue;
 	}
 

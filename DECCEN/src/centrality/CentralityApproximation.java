@@ -15,10 +15,8 @@ import peersim.core.Network;
 import peersim.core.Node;
 
 
-public class CentralityApproximation extends SynchronousTransportLayer<Message> implements CDProtocol {
-	
-	// FIXME distanceFromSource is handled differently from the report
-	
+public class CentralityApproximation extends SynchronousTransportLayer<Message> implements CDProtocol, CentralityInterface {
+		
 	private static class VisitState {
 		
 		public final Node source;
@@ -68,6 +66,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		super(prefix);
 		linkableProtocolID = Configuration.getPid(prefix + "." + PAR_LINKABLE);
 		ignoreCorrectEstimate = Configuration.getBoolean(prefix + "." + PAR_IGNORE_CORRECT_ESTIMATE);
+		reset();
 	}
 	
 	protected void reset() {
@@ -81,7 +80,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	@Override
 	public Object clone() {
 		CentralityApproximation ca = (CentralityApproximation) super.clone();
-		ca.reset();
+		ca.visits = new HashMap<Node, VisitState>(visits);
 		return ca;
 	}
 	
@@ -100,17 +99,17 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 					int sigma = 0;
 					int distance = -1;
 					for (Message m : e.getValue()) {
-						if (distance == -1) distance = m.get(Message.Attachment.SP_LENGTH, Integer.class) + 1;
+						if (distance == -1) distance = m.get(Message.Attachment.SP_LENGTH, Integer.class);
 						assert distance == m.get(Message.Attachment.SP_LENGTH, Integer.class) : "distance mismatch";
 						sigma += m.get(Message.Attachment.SP_COUNT, Integer.class);
 						predecessors.add(m.get(Message.Attachment.SENDER, Node.class));
 					}
-					VisitState state = new VisitState(s, distance, sigma, predecessors, CommonState.getIntTime());
+					VisitState state = new VisitState(s, distance + 1, sigma, predecessors, CommonState.getIntTime());
 					visits.put(s, state);
 					for (int i = 0; i < lnk.degree(); ++i) {
 						Node n = lnk.getNeighbor(i);
 						if (!state.predecessors.contains(n)) {
-							addToSendQueue(Message.createProbeMessage(self, s, state.sigma, state.distanceFromSource + 1), n);
+							addToSendQueue(Message.createProbeMessage(self, s, state.sigma, state.distanceFromSource), n);
 						}
 					}
 				} else if (isActive(s)) {
@@ -123,7 +122,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		}
 		
 		if (mmap.containsKey(Message.Type.BFS_REPORT)) {
-			Map<Node, List<Message>> mbs = groupBySource(mmap.get(Message.Type.BFS_PROBE));
+			Map<Node, List<Message>> mbs = groupBySource(mmap.get(Message.Type.BFS_REPORT));
 			for (Map.Entry<Node, List<Message>> e : mbs.entrySet()) {
 				Node s = e.getKey();
 				if (isActive(s)) {
@@ -168,21 +167,6 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		}
 	}
 	
-	public void initAccumulation(Node self) {
-		if (visits.containsKey(self)) {
-			throw new IllegalStateException("Protocol already initiated accumulation");
-		}
-		VisitState state = new VisitState(self, 0, 1, new HashSet<Node>(0), CommonState.getIntTime());
-		visits.put(self, state);
-		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
-		for (int i = 0; i < lnk.degree(); ++i) {
-			Node n = lnk.getNeighbor(i);
-			if (!state.predecessors.contains(n)) {
-				addToSendQueue(Message.createProbeMessage(self, self, state.sigma, state.distanceFromSource), n);
-			}
-		}
-	}
-	
 	private Map<Node, List<Message>> groupBySource(List<Message> list) {
 		Map<Node, List<Message>> msgBySource= new HashMap<Node, List<Message>>();
 		for (Message m : list) {
@@ -211,6 +195,21 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 			ml.add(m);
 		}
 		return map;
+	}
+	
+	public void initAccumulation(Node self) {
+		if (visits.containsKey(self)) {
+			throw new IllegalStateException("Protocol already initiated accumulation");
+		}
+		VisitState state = new VisitState(self, 0, 1, new HashSet<Node>(0), CommonState.getIntTime());
+		visits.put(self, state);
+		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
+		for (int i = 0; i < lnk.degree(); ++i) {
+			Node n = lnk.getNeighbor(i);
+			if (!state.predecessors.contains(n)) {
+				addToSendQueue(Message.createProbeMessage(self, self, state.sigma, state.distanceFromSource), n);
+			}
+		}
 	}
 	
 	public long getSC() { 
