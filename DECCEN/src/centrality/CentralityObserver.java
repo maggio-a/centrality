@@ -22,7 +22,7 @@ public class CentralityObserver implements Control {
 		System.out.println("## Centrality indices at time " + CommonState.getTime() + " ####");
 		for (int i = 0; i < Network.size(); ++i) {
 			Node node = Network.get(i);
-			SynchronousDeccenProtocol sdp = (SynchronousDeccenProtocol) node.getProtocol(protocolID);
+			Deccen sdp = (Deccen) node.getProtocol(protocolID);
 			System.out.printf("%s: SC = %6d, CC = %12.10f, BC = %16.11f \n", node.toString(), sdp.getSC(),
 					sdp.getCC(), sdp.getBC());
 		}

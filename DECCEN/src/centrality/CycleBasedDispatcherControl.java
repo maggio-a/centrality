@@ -1,11 +1,14 @@
 package centrality;
+import java.util.Iterator;
+
+import centrality.CycleBasedDispatcherSupport.SendQueueEntry;
 import peersim.config.Configuration;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
 
 
-public class SynchronousDispatcher implements Control {
+public class CycleBasedDispatcherControl implements Control {
 	
 	private static final String PAR_PROTOCOL = "protocol";
 	private static final String PAR_STATISTICS = "printStatistics";
@@ -16,7 +19,7 @@ public class SynchronousDispatcher implements Control {
 	private boolean terminate;
 	private int numMessages;
 	
-	public SynchronousDispatcher(String prefix) {
+	public CycleBasedDispatcherControl(String prefix) {
 		protocolID = Configuration.getPid(prefix + "." + PAR_PROTOCOL);
 		stats = Configuration.contains(prefix + "." + PAR_STATISTICS);
 		terminate = Configuration.contains(prefix + "." + PAR_TERMINATE);
@@ -29,8 +32,14 @@ public class SynchronousDispatcher implements Control {
 		int nm = 0;
 		for (int i = 0; i < Network.size(); ++i) {
 			Node n = Network.get(i);
-			SynchronousTransportLayer<Message> stl = (SynchronousTransportLayer<Message>) n.getProtocol(protocolID);
-			if (stl.hasOutgoingMessages()) nm += stl.transferOutgoingMessages(protocolID);
+			CycleBasedDispatcherSupport<Message> tr = (CycleBasedDispatcherSupport<Message>) n.getProtocol(protocolID);
+			Iterator<SendQueueEntry<Message>> it = tr.getSendQueueIterator();
+			while (it.hasNext()) {
+				SendQueueEntry<Message> e = it.next();
+				it.remove();
+				e.getDestination().addToIncoming(e.getMessage());
+				nm++;
+			}
 		}
 		numMessages += nm;
 		if (stats) {

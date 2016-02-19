@@ -15,11 +15,10 @@ import peersim.core.Network;
 import peersim.core.Node;
 
 
-public class CentralityApproximation extends SynchronousTransportLayer<Message> implements CDProtocol, CentralityInterface {
+public class CentralityApproximation extends SynchronousCentralityProtocol implements CDProtocol, CentralityInterface {
 		
 	private static class VisitState {
 		
-		public final Node source;
 		public Set<Node> predecessors;
 		public Set<Node> siblings;
 		public Set<Node> children;
@@ -31,8 +30,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		public long stressContribution;
 		public double betweennessContribution;
 		
-		public VisitState(Node src, int d, int sig, Set<Node> p, int t) {
-			source = src;
+		public VisitState(int d, int sig, Set<Node> p, int t) {
 			distanceFromSource = d;
 			sigma = sig;
 			predecessors = p;
@@ -104,12 +102,13 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 						sigma += m.get(Message.Attachment.SP_COUNT, Integer.class);
 						predecessors.add(m.get(Message.Attachment.SENDER, Node.class));
 					}
-					VisitState state = new VisitState(s, distance + 1, sigma, predecessors, CommonState.getIntTime());
+					VisitState state = new VisitState(distance + 1, sigma, predecessors, CommonState.getIntTime());
 					visits.put(s, state);
 					for (int i = 0; i < lnk.degree(); ++i) {
 						Node n = lnk.getNeighbor(i);
 						if (!state.predecessors.contains(n)) {
-							addToSendQueue(Message.createProbeMessage(self, s, state.sigma, state.distanceFromSource), n);
+							CentralityApproximation next = (CentralityApproximation) n.getProtocol(protocolID);
+							addToSendQueue(Message.createProbeMessage(self, s, state.sigma, state.distanceFromSource), next);
 						}
 					}
 				} else if (isActive(s)) {
@@ -152,7 +151,8 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 				if (canReport) {
 					numSamples++;
 					if (s != self) {
-						for (Node predecessor : state.predecessors) {
+						for (Node p : state.predecessors) {
+							CentralityApproximation predecessor = (CentralityApproximation) p.getProtocol(protocolID);
 							addToSendQueue(Message.createContributionReportMessage(
 									self, s, state.betweennessContribution, state.stressContribution, state.sigma),
 									predecessor);
@@ -183,7 +183,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	
 	private Map<Message.Type, List<Message>> parseIncomingMessages() {
 		Map<Message.Type, List<Message>> map = new HashMap<Message.Type, List<Message>>();
-		java.util.Iterator<Message> it = this.getIncomingMessageIterator();
+		java.util.Iterator<Message> it = this.getIncomingMessagesIterator();
 		while (it.hasNext()) {
 			Message m = it.next();
 			it.remove();
@@ -197,17 +197,18 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		return map;
 	}
 	
-	public void initAccumulation(Node self) {
+	public void initAccumulation(Node self, int pid) {
 		if (visits.containsKey(self)) {
 			throw new IllegalStateException("Protocol already initiated accumulation");
 		}
-		VisitState state = new VisitState(self, 0, 1, new HashSet<Node>(0), CommonState.getIntTime());
+		VisitState state = new VisitState(0, 1, new HashSet<Node>(0), CommonState.getIntTime());
 		visits.put(self, state);
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		for (int i = 0; i < lnk.degree(); ++i) {
 			Node n = lnk.getNeighbor(i);
 			if (!state.predecessors.contains(n)) {
-				addToSendQueue(Message.createProbeMessage(self, self, state.sigma, state.distanceFromSource), n);
+				CentralityApproximation next = (CentralityApproximation) n.getProtocol(pid);
+				addToSendQueue(Message.createProbeMessage(self, self, state.sigma, state.distanceFromSource), next);
 			}
 		}
 	}

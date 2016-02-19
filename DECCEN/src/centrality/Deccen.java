@@ -15,7 +15,7 @@ import peersim.config.Configuration;
 import peersim.core.Linkable;
 import peersim.core.Node;
 
-public class SynchronousDeccenProtocol extends SynchronousTransportLayer<Message> implements CDProtocol, CentralityInterface {
+public class Deccen extends SynchronousCentralityProtocol implements CDProtocol, CentralityInterface {
 	
 	private static class ShortestPathData {
 		public final int count;
@@ -54,8 +54,10 @@ public class SynchronousDeccenProtocol extends SynchronousTransportLayer<Message
 	}
 	
 	private static String PAR_LINKABLE = "lnk";
+	private static String PAR_CC_ALT = "useClosenessVariant";
 	
 	private int linkableProtocolID;
+	private boolean useClosenessVariant;
 	
 	private long stress;
 	private long closenessSum;
@@ -65,9 +67,10 @@ public class SynchronousDeccenProtocol extends SynchronousTransportLayer<Message
 	private Map<Node, ShortestPathData> shortestPathMap;
 	private Set<Pair<Long,Long>> handledReports;
 	
-	public SynchronousDeccenProtocol(String prefix) {
+	public Deccen(String prefix) {
 		super(prefix);
 		linkableProtocolID = Configuration.getPid(prefix + "." + PAR_LINKABLE);
+		useClosenessVariant = Configuration.contains(prefix + "." + PAR_CC_ALT);
 		reset();
 	}
 	
@@ -82,13 +85,13 @@ public class SynchronousDeccenProtocol extends SynchronousTransportLayer<Message
 	
 	@Override
 	public Object clone() {
-		SynchronousDeccenProtocol sdp = (SynchronousDeccenProtocol) super.clone();
+		Deccen sdp = (Deccen) super.clone();
 		sdp.reset();
 		return sdp;
 	}
 	
 	private void parseIncomingMessages(Map<Node,List<Message>> probeMap, List<Message> reportList) {
-		Iterator<Message> it = getIncomingMessageIterator();
+		Iterator<Message> it = getIncomingMessagesIterator();
 		while (it.hasNext()) {
 			Message m = it.next();
 			if (m.type == Message.Type.PROBE) {
@@ -111,9 +114,8 @@ public class SynchronousDeccenProtocol extends SynchronousTransportLayer<Message
 		Map<Node,List<Message>> probeMap = new HashMap<Node,List<Message>>();
 		List<Message> reportList = new LinkedList<Message>();
 		parseIncomingMessages(probeMap, reportList);
-		if (!probeMap.isEmpty()) processNOSPMessages(self, probeMap);
-		if (!reportList.isEmpty()) processReportMessages(self, reportList);
-		
+		if (!probeMap.isEmpty()) processNOSPMessages(self, protocolID, probeMap);
+		if (!reportList.isEmpty()) processReportMessages(self, protocolID, reportList);
 	}
 	
 	public void initCount(Node self, int pid) {
@@ -121,7 +123,8 @@ public class SynchronousDeccenProtocol extends SynchronousTransportLayer<Message
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		for (int i = 0; i < lnk.degree(); ++i) {
 			Node n = lnk.getNeighbor(i);
-			addToSendQueue(Message.createProbeMessage(self, self, 1, 0), n);
+			Deccen sdp = (Deccen) n.getProtocol(pid);
+			addToSendQueue(Message.createProbeMessage(self, self, 1, 0), sdp);
 		}
 	}
 	
@@ -129,7 +132,7 @@ public class SynchronousDeccenProtocol extends SynchronousTransportLayer<Message
 		return handledReports.contains(new Pair<Long,Long>(s.getID(), t.getID()));
 	}
 	
-	private void processNOSPMessages(Node self, Map<Node,List<Message>> messageMap) {
+	private void processNOSPMessages(Node self, int pid, Map<Node,List<Message>> messageMap) {
 		for (Map.Entry<Node,List<Message>> e : messageMap.entrySet()) {
 			Node s = e.getKey();
 			if (!shortestPathMap.containsKey(s)) {
@@ -151,15 +154,16 @@ public class SynchronousDeccenProtocol extends SynchronousTransportLayer<Message
 				Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 				for (int i = 0; i < lnk.degree(); ++i) {
 					Node n = lnk.getNeighbor(i);
+					Deccen sdp = (Deccen) n.getProtocol(pid);
 					if (!senders.contains(n))
-						addToSendQueue(Message.createProbeMessage(self, s, spCount, distance), n);
-					addToSendQueue(Message.createReportMessage(self, s, self, spCount, distance), n);
+						addToSendQueue(Message.createProbeMessage(self, s, spCount, distance), sdp);
+					addToSendQueue(Message.createReportMessage(self, s, self, spCount, distance), sdp);
 				}
 			}
 		}
 	}
 	
-	private void processReportMessages(Node self, List<Message> messageList) {
+	private void processReportMessages(Node self, int pid, List<Message> messageList) {
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		for (Message m : messageList) {
 			Node s = m.get(Attachment.SOURCE, Node.class);
@@ -171,8 +175,9 @@ public class SynchronousDeccenProtocol extends SynchronousTransportLayer<Message
 				updateCentralitiesFromReport(self, s, t, spCount, distance);
 				for (int i = 0; i < lnk.degree(); ++i) {
 					Node n = lnk.getNeighbor(i);
+					Deccen sdp = (Deccen) n.getProtocol(pid);
 					if (n.getID() != sender.getID())
-						addToSendQueue(Message.createReportMessage(self, s, t, spCount, distance), n);
+						addToSendQueue(Message.createReportMessage(self, s, t, spCount, distance), sdp);
 				}
 			}
 		}
@@ -203,7 +208,8 @@ public class SynchronousDeccenProtocol extends SynchronousTransportLayer<Message
 	}
 	
 	public double getCC() {
-		return 1.0 / closenessSum;
+		if (closenessCount == 0) return 0.0;
+		else return useClosenessVariant ? (closenessSum / (double) closenessCount) :  (1.0 / closenessSum);
 	}
 	
 	public double getBC() {

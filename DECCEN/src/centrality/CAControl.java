@@ -57,7 +57,7 @@ public class CAControl implements Control {
 			while (visiting.size() < degree && sourcesIterator.hasNext()) {
 				Node s = sourcesIterator.next();
 				CentralityApproximation ca = (CentralityApproximation) s.getProtocol(protocolID);
-				ca.initAccumulation(s);
+				ca.initAccumulation(s, protocolID);
 				visiting.add(s);
 			}
 		}

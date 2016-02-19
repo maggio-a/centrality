@@ -21,7 +21,7 @@ public class DeccenInitializer implements Control {
 		System.out.println(this.getClass().getName() + ": initializing protocol");
 		for (int i = 0; i < Network.size(); ++i) {
 			Node n = Network.get(i);
-			SynchronousDeccenProtocol sdp = (SynchronousDeccenProtocol) n.getProtocol(protocolID);
+			Deccen sdp = (Deccen) n.getProtocol(protocolID);
 			sdp.reset();
 			sdp.initCount(n, protocolID);
 		}
