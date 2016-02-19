@@ -6,11 +6,7 @@ import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
 
-/**
- *  TODO report on the different kinds of centrality computed by the protcol
- * @author Andrea
- *
- */
+
 public class CentralityObserver implements Control {
 	
 	public static String PAR_PROTOCOL = "protocol";

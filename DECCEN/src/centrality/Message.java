@@ -8,7 +8,9 @@ import peersim.core.Node;
 
 public class Message {
 	
-	public enum Type { NOSP, REPORT, BFS_PROBE, BFS_REPORT }
+	public enum Type {
+		PROBE, REPORT, CONTRIBUTION_REPORT
+	}
 	
 	public enum Attachment {
 		SENDER, SOURCE, DESTINATION, SP_COUNT, SP_LENGTH, STRESS_CONTRIBUTION, BETWEENNESS_CONTRIBUTION
@@ -22,8 +24,8 @@ public class Message {
 		attachments = new HashMap<Attachment, Object>(8);
 	}
 	
-	public static Message createNOSPMessage(Node sender, Node source, int count, int length) {
-		Message m = new Message(Type.NOSP);
+	public static Message createProbeMessage(Node sender, Node source, int count, int length) {
+		Message m = new Message(Type.PROBE);
 		m.attachments.put(Attachment.SENDER, sender);
 		m.attachments.put(Attachment.SOURCE, source);
 		m.attachments.put(Attachment.SP_COUNT, count);
@@ -41,17 +43,8 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createProbeMessage(Node sender, Node source, int count, int length) {
-		Message m = new Message(Type.BFS_PROBE);
-		m.attachments.put(Attachment.SENDER, sender);
-		m.attachments.put(Attachment.SOURCE, source);
-		m.attachments.put(Attachment.SP_COUNT, count);
-		m.attachments.put(Attachment.SP_LENGTH, length);
-		return m;
-	}
-	
-	public static Message createSampleReportMessage(Node sender, Node source, double bc, long sc, int count) {
-		Message m = new Message(Type.BFS_REPORT);
+	public static Message createContributionReportMessage(Node sender, Node source, double bc, long sc, int count) {
+		Message m = new Message(Type.CONTRIBUTION_REPORT);
 		m.attachments.put(Attachment.SENDER, sender);
 		m.attachments.put(Attachment.SOURCE, source);
 		m.attachments.put(Attachment.BETWEENNESS_CONTRIBUTION, bc);

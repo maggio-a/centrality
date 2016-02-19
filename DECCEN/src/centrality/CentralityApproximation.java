@@ -80,7 +80,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 	@Override
 	public Object clone() {
 		CentralityApproximation ca = (CentralityApproximation) super.clone();
-		ca.visits = new HashMap<Node, VisitState>(visits);
+		ca.reset();
 		return ca;
 	}
 	
@@ -90,8 +90,8 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 		
 		Map<Message.Type, List<Message>> mmap = parseIncomingMessages();
 		
-		if (mmap.containsKey(Message.Type.BFS_PROBE)) {
-			Map<Node, List<Message>> mbs = groupBySource(mmap.get(Message.Type.BFS_PROBE));
+		if (mmap.containsKey(Message.Type.PROBE)) {
+			Map<Node, List<Message>> mbs = groupBySource(mmap.get(Message.Type.PROBE));
 			for (Map.Entry<Node, List<Message>> e : mbs.entrySet()) {
 				Node s = e.getKey();
 				if (isWaiting(s)) {
@@ -121,8 +121,8 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 			}
 		}
 		
-		if (mmap.containsKey(Message.Type.BFS_REPORT)) {
-			Map<Node, List<Message>> mbs = groupBySource(mmap.get(Message.Type.BFS_REPORT));
+		if (mmap.containsKey(Message.Type.CONTRIBUTION_REPORT)) {
+			Map<Node, List<Message>> mbs = groupBySource(mmap.get(Message.Type.CONTRIBUTION_REPORT));
 			for (Map.Entry<Node, List<Message>> e : mbs.entrySet()) {
 				Node s = e.getKey();
 				if (isActive(s)) {
@@ -153,7 +153,7 @@ public class CentralityApproximation extends SynchronousTransportLayer<Message> 
 					numSamples++;
 					if (s != self) {
 						for (Node predecessor : state.predecessors) {
-							addToSendQueue(Message.createSampleReportMessage(
+							addToSendQueue(Message.createContributionReportMessage(
 									self, s, state.betweennessContribution, state.stressContribution, state.sigma),
 									predecessor);
 						}

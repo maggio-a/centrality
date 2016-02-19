@@ -7,7 +7,7 @@ import peersim.core.Node;
 import peersim.core.Protocol;
 
 //FIXME interface
-public abstract class SynchronousTransportLayer<T> implements Protocol {
+public abstract class SynchronousTransportLayer<T> {
 
 	private static class SendQueueItem<T> {
 		public final T message;
