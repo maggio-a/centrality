@@ -9,7 +9,8 @@ import peersim.core.Node;
 
 public class CentralityObserver implements Control {
 	
-	public static String PAR_PROTOCOL = "protocol";
+	public static final String PAR_PROTOCOL = "protocol";
+	public static final String TABLE_END_MARKER = "%END%";
 	
 	private int protocolID;
 	
@@ -19,15 +20,17 @@ public class CentralityObserver implements Control {
 
 	@Override
 	public boolean execute() {
-		System.out.println("## Centrality indices at time " + CommonState.getTime() + " ####");
+		System.out.println("# Centrality indices at time " + CommonState.getIntTime());
+		System.out.println("# Label Closeness Stress Betweenness");
 		for (int i = 0; i < Network.size(); ++i) {
-			Node node = Network.get(i);
-			Deccen sdp = (Deccen) node.getProtocol(protocolID);
-			System.out.printf("%s: SC = %6d, CC = %12.10f, BC = %16.11f \n", node.toString(), sdp.getSC(),
-					sdp.getCC(), sdp.getBC());
+			MyNode node = (MyNode) Network.get(i);
+			SynchronousCentralityProtocol centrality = (SynchronousCentralityProtocol) node.getProtocol(protocolID);
+			System.out.printf("%s %.16f %d %.16f\n",
+					node.getLabel(), centrality.getCC(), centrality.getSC(), centrality.getBC());
 		}
-		System.out.println("##############################################");
+		System.out.println(TABLE_END_MARKER);
 		return false;
 	}
+
 
 }

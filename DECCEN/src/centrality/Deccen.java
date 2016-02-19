@@ -15,7 +15,7 @@ import peersim.config.Configuration;
 import peersim.core.Linkable;
 import peersim.core.Node;
 
-public class Deccen extends SynchronousCentralityProtocol implements CDProtocol, CentralityInterface {
+public class Deccen extends SynchronousCentralityProtocol implements CDProtocol {
 	
 	private static class ShortestPathData {
 		public final int count;

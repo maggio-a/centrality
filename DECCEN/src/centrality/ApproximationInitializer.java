@@ -10,10 +10,10 @@ import peersim.core.Network;
 import peersim.core.Node;
 
 
-public class CAInitializer implements Control {
+public class ApproximationInitializer implements Control {
 	
-	private static String PAR_PROTOCOL = "protocol";
-	private static String PAR_FRACTION = "fraction";
+	private static final String PAR_PROTOCOL = "protocol";
+	private static final String PAR_FRACTION = "fraction";
 	
 	private static double defaultFraction = 1.0;
 	
@@ -25,7 +25,7 @@ public class CAInitializer implements Control {
 	private int protocolID;
 	private double fraction;
 	
-	public CAInitializer(String prefix) {
+	public ApproximationInitializer(String prefix) {
 		protocolID = Configuration.getPid(prefix + "." + PAR_PROTOCOL);
 		fraction = Configuration.getDouble(prefix + "." + PAR_FRACTION, defaultFraction);
 		if (fraction < 0.0 || fraction > 1.0)

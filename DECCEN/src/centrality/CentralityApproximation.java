@@ -15,7 +15,7 @@ import peersim.core.Network;
 import peersim.core.Node;
 
 
-public class CentralityApproximation extends SynchronousCentralityProtocol implements CDProtocol, CentralityInterface {
+public class CentralityApproximation extends SynchronousCentralityProtocol implements CDProtocol {
 		
 	private static class VisitState {
 		

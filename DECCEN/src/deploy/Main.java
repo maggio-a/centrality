@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-import centrality.CAControl;
+import centrality.CentralityObserver;
 import peersim.Simulator;
 import peersim.util.IncrementalStats;
 
@@ -77,7 +77,7 @@ public class Main {
 		int c = 0;
 		while (sc.hasNextLine()) {
 			String s = sc.nextLine();
-			if (s.startsWith(CAControl.TABLE_END_MARKER)) {
+			if (s.startsWith(CentralityObserver.TABLE_END_MARKER)) {
 				c++;
 			} else if (s.startsWith("#")){
 				continue;

@@ -8,42 +8,42 @@ import java.util.Set;
 
 import peersim.config.Configuration;
 import peersim.config.IllegalParameterException;
-import peersim.core.CommonState;
 import peersim.core.Control;
-import peersim.core.Network;
 import peersim.core.Node;
 
 
-public class CAControl implements Control {
+public class ApproximationControl implements Control {
 	
-	public static final String TABLE_END_MARKER = "%END%";
-	
-	private static String PAR_PROTOCOL = "protocol";
-	private static String PAR_DEGREE = "degree";
-	private static String PAR_PRINT = "printIndices";
+	private static final String PAR_PROTOCOL = "protocol";
+	private static final String PAR_DEGREE = "degree";
 	
 	private int protocolID;
 	private int degree;
-	private boolean printIndices;
 	
-	private static Iterator<Node> sourcesIterator = null;
-	private static List<Node> visiting = new LinkedList<Node>();
+	private static Iterator<Node> sourcesIterator;
+	private static List<Node> visiting;
 	
-	public CAControl(String prefix) {
+	private static void reset() {
+		sourcesIterator = null;
+		visiting = new LinkedList<Node>();
+	}
+	
+	static { 
+		reset();
+	}
+	
+	public ApproximationControl(String prefix) {
 		protocolID = Configuration.getPid(prefix + "." + PAR_PROTOCOL);
 		degree = Configuration.getInt(prefix + "." + PAR_DEGREE);
 		if (degree <= 0)
 			throw new IllegalParameterException(prefix + "." + PAR_DEGREE, "only positive values allowed");
-		printIndices = Configuration.contains(prefix + "." + PAR_PRINT);
 	}
 
 	@Override
 	public boolean execute() {
-		
-		if (printIndices) print();
 				
 		if (sourcesIterator == null) {
-			sourcesIterator = CAInitializer.getSources().iterator();
+			sourcesIterator = ApproximationInitializer.getSources().iterator();
 		}
 		
 		Iterator<Node> it = visiting.iterator();
@@ -62,16 +62,14 @@ public class CAControl implements Control {
 			}
 		}
 		int counter = 0;
-		Set<Node> sources = CAInitializer.getSources();
+		Set<Node> sources = ApproximationInitializer.getSources();
 		for (Node s : sources) {
 			CentralityApproximation ca = (CentralityApproximation) s.getProtocol(protocolID);
 			if (ca.isCompleted(s)) counter++;
 		}
 		if (counter == sources.size()) {
-			print();
 			System.err.println("All sources completed the accumulation, stopping the simulation");
-			sourcesIterator = null;
-			if (!visiting.isEmpty()) visiting = new LinkedList<Node>();
+			reset();
 			return true;
 		} else {
 			System.err.println(counter + " out of " + sources.size() + " sources completed the accumulation");
@@ -79,16 +77,4 @@ public class CAControl implements Control {
 		}
 	}
 	
-	private void print() {
-		System.out.println("# Centrality indices at time " + CommonState.getIntTime());
-		System.out.println("# Label Closeness Stress Betweenness");
-		for (int i = 0; i < Network.size(); ++i) {
-			MyNode node = (MyNode) Network.get(i);
-			CentralityApproximation ca = (CentralityApproximation) node.getProtocol(protocolID);
-			String s = "%s %.16f %d %.16f\n";
-			System.out.printf(s, node.getLabel(), ca.getCC(), ca.getSC(), ca.getBC());
-		}
-		System.out.println(TABLE_END_MARKER);
-	}
-
 }
