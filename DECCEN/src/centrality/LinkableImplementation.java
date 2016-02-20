@@ -46,4 +46,5 @@ public class LinkableImplementation implements Linkable, Protocol {
 	
 	@Override
 	public void pack() { neighbors.trimToSize(); }
+	
 }

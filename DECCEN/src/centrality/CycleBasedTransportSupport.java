@@ -2,14 +2,14 @@ package centrality;
 
 import java.util.Iterator;
 
-public interface CycleBasedDispatcherSupport<T> {
+public interface CycleBasedTransportSupport<T> {
 	
 	interface SendQueueEntry<T> {
 		T getMessage();
-		CycleBasedDispatcherSupport<T> getDestination();
+		CycleBasedTransportSupport<T> getDestination();
 	}
 	
-	void addToSendQueue(T message, CycleBasedDispatcherSupport<T> destination);
+	void addToSendQueue(T message, CycleBasedTransportSupport<T> destination);
 	
 	boolean hasOutgoingMessages();
 	

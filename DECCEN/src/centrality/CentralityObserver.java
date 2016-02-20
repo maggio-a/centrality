@@ -31,5 +31,4 @@ public class CentralityObserver implements Control {
 		return false;
 	}
 
-
 }

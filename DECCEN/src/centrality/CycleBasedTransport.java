@@ -1,14 +1,14 @@
 package centrality;
 import java.util.Iterator;
 
-import centrality.CycleBasedDispatcherSupport.SendQueueEntry;
+import centrality.CycleBasedTransportSupport.SendQueueEntry;
 import peersim.config.Configuration;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
 
 
-public class CycleBasedDispatcherControl implements Control {
+public class CycleBasedTransport implements Control {
 	
 	private static final String PAR_PROTOCOL = "protocol";
 	private static final String PAR_STATISTICS = "printStatistics";
@@ -19,7 +19,7 @@ public class CycleBasedDispatcherControl implements Control {
 	private boolean terminate;
 	private int numMessages;
 	
-	public CycleBasedDispatcherControl(String prefix) {
+	public CycleBasedTransport(String prefix) {
 		protocolID = Configuration.getPid(prefix + "." + PAR_PROTOCOL);
 		stats = Configuration.contains(prefix + "." + PAR_STATISTICS);
 		terminate = Configuration.contains(prefix + "." + PAR_TERMINATE);
@@ -32,7 +32,7 @@ public class CycleBasedDispatcherControl implements Control {
 		int nm = 0;
 		for (int i = 0; i < Network.size(); ++i) {
 			Node n = Network.get(i);
-			CycleBasedDispatcherSupport<Message> tr = (CycleBasedDispatcherSupport<Message>) n.getProtocol(protocolID);
+			CycleBasedTransportSupport<Message> tr = (CycleBasedTransportSupport<Message>) n.getProtocol(protocolID);
 			Iterator<SendQueueEntry<Message>> it = tr.getSendQueueIterator();
 			while (it.hasNext()) {
 				SendQueueEntry<Message> e = it.next();

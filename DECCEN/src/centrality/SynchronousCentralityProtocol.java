@@ -4,14 +4,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public abstract class SynchronousCentralityProtocol implements CycleBasedDispatcherSupport<Message> {
+public abstract class SynchronousCentralityProtocol implements CycleBasedTransportSupport<Message> {
 
 	private static class SQEntry implements SendQueueEntry<Message> {
 		
 		public Message message;
-		public CycleBasedDispatcherSupport<Message> destination;
+		public CycleBasedTransportSupport<Message> destination;
 
-		public SQEntry(Message m, CycleBasedDispatcherSupport<Message> d) {
+		public SQEntry(Message m, CycleBasedTransportSupport<Message> d) {
 			message = m;
 			destination = d;
 		}
@@ -22,7 +22,7 @@ public abstract class SynchronousCentralityProtocol implements CycleBasedDispatc
 		}
 
 		@Override
-		public CycleBasedDispatcherSupport<Message> getDestination() {
+		public CycleBasedTransportSupport<Message> getDestination() {
 			return destination;
 		}
 		
@@ -50,7 +50,7 @@ public abstract class SynchronousCentralityProtocol implements CycleBasedDispatc
 		return !outgoing.isEmpty();
 	}
 	
-	public void addToSendQueue(Message msg, CycleBasedDispatcherSupport<Message> destination) {
+	public void addToSendQueue(Message msg, CycleBasedTransportSupport<Message> destination) {
 		outgoing.add(new SQEntry(msg, destination));
 	}
 	

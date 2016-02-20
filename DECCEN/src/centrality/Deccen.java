@@ -53,8 +53,8 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 		}
 	}
 	
-	private static String PAR_LINKABLE = "lnk";
-	private static String PAR_CC_ALT = "useClosenessVariant";
+	private static final String PAR_LINKABLE = "lnk";
+	private static final String PAR_CC_ALT = "useClosenessVariant";
 	
 	private int linkableProtocolID;
 	private boolean useClosenessVariant;
