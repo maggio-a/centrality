@@ -28,7 +28,7 @@ public class ApproximationInitializer implements Control {
 	public ApproximationInitializer(String prefix) {
 		protocolID = Configuration.getPid(prefix + "." + PAR_PROTOCOL);
 		fraction = Configuration.getDouble(prefix + "." + PAR_FRACTION, defaultFraction);
-		if (fraction < 0.0 || fraction > 1.0)
+		if (fraction <= 0.0 || fraction > 1.0)
 			throw new IllegalParameterException(prefix + "." + PAR_FRACTION, "out of allowed interval (0.0, 1.0]");
 		
 	}

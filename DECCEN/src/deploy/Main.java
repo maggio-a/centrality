@@ -171,8 +171,8 @@ public class Main {
 			betweennessInversionPerc.add(100.0 * (betweennessInversion / totPairs));
 		}
 		
-		System.out.println("Aggregate data");
-		System.out.println("CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv");
+		//System.out.println("Aggregate data");
+		//System.out.println("CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv");
 		//for (int k= 0; k < nbuckets; ++k) {
 			double ccErr = closenessError.getAverage();
 			double ccPercInv = closenessInversionPerc.getAverage();
@@ -180,11 +180,11 @@ public class Main {
 			double bcPercInv = betweennessInversionPerc.getAverage();
 			double scErr = stressError.getAverage();
 			double scPercInv = stressInversionPerc.getAverage();
-			System.out.printf("%8f %8f %8f %8f %8f %8f\n", ccErr, ccPercInv, bcErr, bcPercInv, scErr, scPercInv);
+			System.out.printf("%16f %16f %16f %16f %16f %16f\n", ccErr, ccPercInv, bcErr, bcPercInv, scErr, scPercInv);
 
 			//System.out.printf("%4d %8f %8f %8f %8f %8f %8f %8f\n", k, (k+1)*step, ccErr, ccPercInv, bcErr, bcPercInv, scErr, scPercInv);
 		//}
-		System.out.println("==================");
+		//System.out.println("==================");
 		
 		
 		

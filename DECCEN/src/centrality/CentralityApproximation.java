@@ -213,20 +213,6 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 		}
 	}
 	
-	public long getSC() { 
-		return ignoreCorrectEstimate ? stress : (long) ((Network.size()/(double)numSamples)*stress);
-	}
-	
-	public double getBC() {
-		return ignoreCorrectEstimate ? betweenness : ((Network.size()/(double)numSamples)*betweenness);
-	}
-	
-	public double getCC() {
-		if (closenessSum == 0) return 0.0;
-		else return ignoreCorrectEstimate ? (1.0 / closenessSum) : (1.0 / ((Network.size()/(double)numSamples)*closenessSum)); 
-	}
-	
-	// bfs state of this node wrt source (root of the bf tree) 
 	public boolean isWaiting(Node source) {
 		return visits.containsKey(source) == false;
 	}
@@ -237,5 +223,21 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 	
 	public boolean isCompleted(Node source) {
 		return visits.containsKey(source) && visits.get(source) == null;
+	}
+	
+	@Override
+	public long getSC() { 
+		return ignoreCorrectEstimate ? stress : (long) ((Network.size()/(double)numSamples)*stress);
+	}
+	
+	@Override
+	public double getBC() {
+		return ignoreCorrectEstimate ? betweenness : ((Network.size()/(double)numSamples)*betweenness);
+	}
+	
+	@Override
+	public double getCC() {
+		if (closenessSum == 0) return 0.0;
+		else return ignoreCorrectEstimate ? (1.0 / closenessSum) : (1.0 / ((Network.size()/(double)numSamples)*closenessSum)); 
 	}
 }

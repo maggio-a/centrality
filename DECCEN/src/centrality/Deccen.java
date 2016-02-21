@@ -27,11 +27,11 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 		}
 	}
 	
-	private static class Pair<T1,T2> {
+	private static class OrderedPair<T1,T2> {
 		public final T1 first;
 		public final T2 second;
 		
-		public Pair(T1 first, T2 second) {
+		public OrderedPair(T1 first, T2 second) {
 			this.first = first;
 			this.second = second;
 		}
@@ -40,8 +40,8 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 		public boolean equals(Object o) {
 			if (o == this) return true;
 			if (o == null) return false;
-			if (o.getClass() == Pair.class) {
-				Pair<?,?> p = (Pair<?,?>) o;
+			if (o.getClass() == OrderedPair.class) {
+				OrderedPair<?,?> p = (OrderedPair<?,?>) o;
 				if (Objects.equals(first, p.first) && Objects.equals(second, p.second)) return true;
 			}
 			return false;
@@ -65,7 +65,7 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 	private double betweenness;
 	
 	private Map<Node, ShortestPathData> shortestPathMap;
-	private Set<Pair<Long,Long>> handledReports;
+	private Set<OrderedPair<Long,Long>> handledReports;
 	
 	public Deccen(String prefix) {
 		super(prefix);
@@ -80,7 +80,7 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 		closenessCount = 0;
 		betweenness = 0.0;
 		shortestPathMap = new HashMap<Node, ShortestPathData>();
-		handledReports = new HashSet<Pair<Long,Long>>();
+		handledReports = new HashSet<OrderedPair<Long,Long>>();
 	}
 	
 	@Override
@@ -129,7 +129,7 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 	}
 	
 	private boolean alreadyReported(Node s, Node t) {
-		return handledReports.contains(new Pair<Long,Long>(s.getID(), t.getID()));
+		return handledReports.contains(new OrderedPair<Long,Long>(s.getID(), t.getID()));
 	}
 	
 	private void processNOSPMessages(Node self, int pid, Map<Node,List<Message>> messageMap) {
@@ -204,18 +204,21 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 			}
 		}
 		
-		handledReports.add(new Pair<Long,Long>(s.getID(), t.getID()));
+		handledReports.add(new OrderedPair<Long,Long>(s.getID(), t.getID()));
 	}
 	
+	@Override
 	public double getCC() {
 		if (closenessCount == 0) return 0.0;
 		else return useClosenessVariant ? (closenessSum / (double) closenessCount) :  (1.0 / closenessSum);
 	}
 	
+	@Override
 	public double getBC() {
 		return betweenness;
 	}
 	
+	@Override
 	public long getSC() {
 		return stress;
 	}

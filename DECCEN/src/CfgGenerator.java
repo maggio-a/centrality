@@ -13,9 +13,9 @@ public class CfgGenerator {
 	
 	private static boolean correct = true;
 
-	private static String name = "dolphins";
-	private static int _netSize = 62;
-	private static int _deg = 1500;
+	private static String name = "opsahl-powergrid";
+	private static int _netSize = 4941;
+	private static int _deg = 500;
 
 	public static void main(String[] args) throws Exception {
 		
@@ -32,20 +32,24 @@ public class CfgGenerator {
 		
 		String experimentPath = "experiments/" + name + "/";
 		
+		analysis.println("echo Fraction > results/" + name + "/analysis_" + name + ".txt");
+		analysis.println("echo CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv >>"
+				+ " results/" + name + "/analysis_" + name + ".txt");
+		
 		for (int i = 0; i < fractions.length; ++i) {
 			
 			String filename = "approximation_" + name + suffixes[i];
 			if (!correct) filename = filename + "_incorrectEstimators";
 			PrintStream ps = new PrintStream(new File(experimentPath + filename + ".cfg"));
 			boolean exact = (i == fractions.length -1);
-			
+			int _runs = exact ? 1 : 10;
 			
 			// write out the cfg file
 			ps.println("#SIMULATION");
 			ps.println("");
 			if (exact) ps.println("random.seed 1234567890");
 			ps.println("simulation.cycles 10000000");
-			ps.println("simulation.experiments " + (exact ? "1" : "10"));
+			ps.println("simulation.experiments " + _runs);
 			ps.println("network.size " + _netSize);
 			ps.println("network.node MyNode");
 			ps.println("");
@@ -67,7 +71,7 @@ public class CfgGenerator {
 			ps.println("init.wire.protocol linkable");
 			ps.println("init.wire.undirected");
 			ps.println("init.wire.pack");
-			ps.println("init.wire.filename /data/" + name + "/out." + name);
+			ps.println("init.wire.filename data/" + name + "/out." + name);
 			ps.println("init.wire.setLabels");
 			ps.println("");
 			ps.println("# Initializes the values");
@@ -85,12 +89,11 @@ public class CfgGenerator {
 			ps.println("control.ac ApproximationControl");
 			ps.println("control.ac.protocol approximation");
 			ps.println("control.ac.degree " + _deg);
-			ps.println("#control.acc.printIndices");
 			ps.println("");
 			ps.println("control.transport CycleBasedTransport");
 			ps.println("control.transport.protocol approximation");
-			ps.println("control.transport.printStatistics");
-			ps.println("control.transport.terminateOnEmptyQueues");
+			ps.println("#control.transport.printStatistics");
+			ps.println("#control.transport.terminateOnEmptyQueues");
 			ps.println("");
 			ps.println("control.observer CentralityObserver");
 			ps.println("control.observer.protocol approximation");
@@ -100,12 +103,14 @@ public class CfgGenerator {
 			
 			ps.close();
 			
-			script.println("java -jar centrality.jar -s " + experimentPath + filename + ".cfg > "
+			script.println("java -Xmx4g -Xms2g -jar centrality.jar -s " + experimentPath + filename + ".cfg > "
 					+ "results/" + name + "/" + filename + ".txt");
 			
-			String redirect = (i == 0) ? ">" : ">>";
-			analysis.println("java -jar centrality.jar -a results/" + name + "/" + filename + ".txt "
-					+ redirect + " results/" + name + "/analysis_" + filename + ".txt");
+			analysis.println("echo " + fractions[i] + " >> results/" + name + "/analysis_" + name + ".txt");
+			
+			analysis.println("java -jar centrality.jar -a results/" + name + "/" + name
+					+ ".indices results/" + name + "/" + filename + ".txt " + _runs
+					+ " >> results/" + name + "/analysis_" + name + ".txt");
 		}
 		
 		script.close();

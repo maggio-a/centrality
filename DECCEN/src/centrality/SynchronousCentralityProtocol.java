@@ -46,10 +46,12 @@ public abstract class SynchronousCentralityProtocol implements CycleBasedTranspo
 		return smd;
 	}
 	
+	@Override
 	public boolean hasOutgoingMessages() {
 		return !outgoing.isEmpty();
 	}
 	
+	@Override
 	public void addToSendQueue(Message msg, CycleBasedTransportSupport<Message> destination) {
 		outgoing.add(new SQEntry(msg, destination));
 	}
