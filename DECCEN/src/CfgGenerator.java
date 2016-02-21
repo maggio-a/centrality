@@ -19,14 +19,23 @@ public class CfgGenerator {
 
 	public static void main(String[] args) throws Exception {
 		
-		PrintStream script = new PrintStream("approximation_" + name + ".cmd");
-		PrintStream analysis = new PrintStream("analysis_" + name + ".cmd");
+		String scriptName = "approximation_" + name;
+		String analysisScriptName = "analysis_" + name;
+		
+		if (!correct) {
+			scriptName = scriptName + "_incorrect_estimators";
+			analysisScriptName = analysisScriptName + "_incorrect_estimators";
+		}
+		
+		PrintStream script = new PrintStream(scriptName + ".cmd");
+		PrintStream analysis = new PrintStream(analysisScriptName + ".cmd");
 		
 		String experimentPath = "experiments/" + name + "/";
 		
 		for (int i = 0; i < fractions.length; ++i) {
 			
-			String filename = "approximation_" + name + suffixes[i] + "_" + correct; 
+			String filename = "approximation_" + name + suffixes[i];
+			if (!correct) filename = filename + "_incorrectEstimators";
 			PrintStream ps = new PrintStream(new File(experimentPath + filename + ".cfg"));
 			boolean exact = (i == fractions.length -1);
 			
@@ -58,7 +67,7 @@ public class CfgGenerator {
 			ps.println("init.wire.protocol linkable");
 			ps.println("init.wire.undirected");
 			ps.println("init.wire.pack");
-			ps.println("init.wire.filename /data/" + name + "/" + name + ".out");
+			ps.println("init.wire.filename /data/" + name + "/out." + name);
 			ps.println("init.wire.setLabels");
 			ps.println("");
 			ps.println("# Initializes the values");
