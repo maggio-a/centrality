@@ -16,4 +16,9 @@ Eppstein  D.; Wang  J. (2004).
 \newblock Fast approximation of centrality.
 \newblock {\em J. Graph Algorithms Appl.}, {\bf 8}(1), 39--45.
 
+\bibitem[Lehmann e Kaufmann(2003)]{lehmann2003}
+Lehmann  K.~A.; Kaufmann  M. (2003).
+\newblock Decentralized algorithms for evaluating centrality in complex
+  networks.
+
 \end{thebibliography}

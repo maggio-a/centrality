@@ -8,6 +8,8 @@
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{pgfplots}
 
+\usepackage{enumitem}
+
 %\usepackage{graphicx}
 
 %\usepackage{minted}
@@ -21,6 +23,10 @@
 %\usemintedstyle{vs}
 
 \newtheorem*{theorem}{Theorem}
+\newtheorem*{lemma}{Lemma}
+
+\newlist{algosteps}{enumerate}{10}
+\setlist[algosteps]{label*=\arabic*.}
 
 \title{Peer-to-Peer Systems}
 \author{Andrea Maggiordomo -- \texttt{mggndr89[at]gmail.com} \\[1mm] Laurea Magistrale in Informatica, Università di Pisa}

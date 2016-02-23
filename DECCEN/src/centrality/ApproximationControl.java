@@ -41,6 +41,12 @@ public class ApproximationControl implements Control {
 
 	@Override
 	public boolean execute() {
+		
+		//System.err.printf("Times: %f \t %f \t %f \t %f", CentralityApproximation._t1,CentralityApproximation._t2,
+		//		CentralityApproximation._t3,CentralityApproximation._t4);
+		//System.err.println();
+		//CentralityApproximation.resetTimes();
+		
 		if (sourcesIterator == null) {
 			sourcesIterator = ApproximationInitializer.getSources().iterator();
 		}

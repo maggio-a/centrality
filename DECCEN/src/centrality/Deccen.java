@@ -145,11 +145,8 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 					assert distance == m.get(Message.Attachment.SP_LENGTH, Integer.class) : "Distance mismatch";
 					senders.add(m.get(Attachment.SENDER, Node.class));
 				}
-				
 				++distance;
 				shortestPathMap.put(s, new ShortestPathData(spCount, distance));
-				
-				// Note: closeness centrality could added computed here
 				
 				Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 				for (int i = 0; i < lnk.degree(); ++i) {
@@ -173,6 +170,7 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 				int spCount = m.get(Attachment.SP_COUNT, Integer.class);
 				int distance = m.get(Attachment.SP_LENGTH, Integer.class);
 				updateCentralitiesFromReport(self, s, t, spCount, distance);
+				
 				for (int i = 0; i < lnk.degree(); ++i) {
 					Node n = lnk.getNeighbor(i);
 					Deccen sdp = (Deccen) n.getProtocol(pid);

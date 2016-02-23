@@ -1,8 +1,10 @@
 % !TeX root = p2p.tex
 
 \newcommand{\deccen}{\textsc{Deccen}}
-\newcommand{\mdisc}{\textsf{{\footnotesize DIS\-CO\-VE\-RY}}}
+\newcommand{\mdisc}{\textsf{{\footnotesize DIS\-COV\-E\-RY}}}
 \newcommand{\mdiscargs}[3]{\mdisc$\langle #1,#2,#3, \sigma_{#1 #2} \rangle$}
+\newcommand{\mdiscargsfull}[4]{\mdisc$\langle #1,#2,#3, #4 \rangle$}
+\newcommand{\mdiscstart}[1]{\mdisc$\langle #1,#1,0,1 \rangle$}
 \newcommand{\mrep}{\textsf{{\footnotesize REPORT}}}
 \newcommand{\mrepargs}[2]{\mrep$\langle #1,#2, \delta(#1|#2), \sigma(#1|#2), \sigma_{#1 #2} \rangle$}
 \newcommand{\mrepleaf}[2]{\mrep$\langle #1,#2, 0, 0, \sigma_{#1 #2} \rangle$}
@@ -18,9 +20,11 @@
 
 The task is to compute centrality indices for a given undirected graph $G = (V,E)$, which is assumed to be connected. Each node $v$ represents an independent agent with some given computational power, and that can communicate only with its neighbors $N_v = \{u \in V : \{u,v\} \in E\}$. A path $p(s,t)$ from a source $s$ to a destination $t$ is a sequence of edges that connects the two endpoints. The distance $d(u,v)$ between two nodes is the length of the shortest path that connects them, while the diameter $\Delta$ of the network is the maximum distance between any pair of nodes. Note that $d(u,v) = d(v,u)$ since the network is assumed to be connected, and $d(u,u) = 0$. A node $v$ is a predecessor of $w$ with respect to a source $s$ if $\{v,w\} \in E$ and $d(s,v) +1 = d(s,w)$. The \emph{predecessor set} $P_s(w)$ of $w$ is the set of all predecessors of $w$ with respect to $s$.
 
-The algorithms described in this report all assume an underlying synchronous model where the computation evolves in steps: at each step all the agents perform their computations independently and autonomously, and the messages they send at step $t$ are delivered to the destination at step $t+1$.
+The algorithms described in this report all assume an underlying synchronous model where the computation evolves in steps: at each step all the agents perform their computations independently and autonomously, and the messages they send at step $t$ are delivered to the destination and processed at step $t+1$.
 
 \section{The \deccen{} algorithm}
+
+\input{deccen.tex}
 
 \section{Approximation of centrality indices}
 
@@ -114,7 +118,7 @@ The expected value of the centrality estimators are the centrality values, that 
 \end{eqnarray*}
 \end{theorem}
 
-\subsection{Approximation algorithm}
+\subsection{Algorithm specification}
 
 In this section the algorithm is detailed. The only parameter of the algorithm is the probability $p$ with which each independent node decides to begin a visit of the network. The network size $n$ is assumed to be known to all the agents in the network. Initially, every node sets to zero the estimation of each centrality index.
 
@@ -133,25 +137,52 @@ Visit states are parametric with respect to the discovery from a source $s \in V
 \item[\scomp{s}] if it has computed the contributions of $s$ to its centrality indices, updated them accordingly, and reported the contributions to each predecessor in $P_s(v)$ by sending the appropriate \mrep{} messages.
 \end{description}
 
-\subsubsection{Actions}
-TODO detail better how the states evolve and change, maybe change perspective from messages to states ? <<<<<<<<<<<<<<<<<<<<
+\subsubsection{Node state}
+Each node $v$ maintains three centrality accumulators $C_C$, $C_B$ and $C_S$ like in \deccen{}, and a counter $k$ to track the number of sample nodes involved in the protocol.
 
-\paragraph{Initiate a visit} With probability $p$ a node $s$ sends to all its neighbors a \mdiscargs{s}{s}{0} message and sets $P_s(s) = \{s\}$.
+Furthermore, while a node is in state \sact{s} when dealing with a visit from $s$ it will need to partition the set of neighbors $N_v$ in three subsets: the set of predecessors $P_s(v)$, the set of siblings $S_s(v)$ and the set of children $C_s(v)$, as well as track contributions of $s$ to its centrality scores with three parametric accumulators $C_C(s)$, $C_B(s)$ and $C_S(s)$.
 
-\paragraph{Receiving a \mdiscargs{s}{u}{d} message} If $v$ receives a \mdiscargs{s}{u}{d} message the actions depend on its current state:
+\subsubsection{Protocol initialization}
+Upon initialization, a node $v$ clears its centrality accumulators and the counter $k$, and enters state \swait{s} for all $s \in V$. Then, with probability $p$ initiates a visit by entering state \sact{v}, sending a \mdiscargsfull{v}{v}{0}{1} to every neighbor and letting $P_v(v) = \emptyset$.
 
-\begin{description}
+\subsubsection{Step actions}
+The actions performed by a node $v$ at each step are the following:
 
-\item[$v$ is in state \swait{s}] Under the synchronous model assumption all the predecessors will contact 
-$v$ at the same time step. Group all the messages with the same source $s$ together and collect all the senders $u$ in the predecessor set $P_s(v)$. Then
-\begin{enumerate}
-\item Initialize the local contribution to the closeness and stress centrality estimators to $0$, while the contribution to the closeness centrality estimator is $d+1$. Let $\sigma_{sv} = \sum_{u \in P_s(v)} \sigma_{su}$.
-\item If $P_s(v) = N_v$ send a \mrepleaf{s}{v} message to all the predecessors $u \in P_s(v)$ and change state to \scomp{s}. 
-\item Otherwise, send to all $w \in N_v \setminus P_s(v)$ a \mdiscargs{s}{v}{d+1} message and change state to \sact{s}.
-\end{enumerate}
+\begin{algosteps}
+  \item The messages received at the current step are divided by type and then grouped together by source.
+  \item For each group of \mdiscargs{s}{u}{d} messages having source $s$ and distance $d$ with $v$ in state \swait{s}:
+  \begin{algosteps}
+    \item Change state to \sact{s}, let $C_C(s) \gets d+1$, $C_B(s) \gets 0$, $C_S(s) \gets 0$, collect all the senders $u$ in the predecessor set $P_s(v)$. Let $\sigma_{sv} = \sum_{u \in P_s(v)} \sigma_{su}$.
+    \item If $P_s(v) = N_v$ send a \mrepleaf{s}{v} message to all the predecessors $u \in P_s(v)$ and change state to \scomp{s}. 
+    \item Otherwise, send to all $w \in N_v \setminus P_s(v)$ a \mdiscargs{s}{v}{d+1} message and change state to \sact{s}.
+  \end{algosteps}
+    \item For each group of \mdiscargs{s}{u}{d} messages having source $s$ and distance $d$ with $v$ in state \sact{s}:
+    \begin{algosteps}
+      \item Under the synchronous model assumption $v$ can only receive such messages from nodes $u$ such that $d(s,u) = d(s,v)$. Collect these nodes in the set $S_s(v)$ of the siblings of $v$ with respect to $s$. (Note that these messages are received exactly one step after $v$ has been contacted by its predecessors).
+    \end{algosteps}
+  \item For each \mrepargs{s}{w} message received with $v$ in state \sact{s}:
+  \begin{algosteps}
+      \item Add $w$ to the children set $C_s(v)$.
+      \item Update $C_B(s) \gets C_B(s) + \frac{\sigma_{sv}}{\sigma_{sw}} \cdot (1 + \delta(s|w))$.
+      \item Update $C_B(s) \gets C_B(s) + \sigma_{sw} \cdot ( 1 + \sigma(s|w)/\sigma_{sw} )$.
+    \end{algosteps}
+  \item For any $s \in V$ such that $v$ is in state \sact{s}, if $P_s(v) \cup S_s(v) \cup C_s(v) = N_v$ then:
+  \begin{algosteps}
+      \item If $s \neq v$ update the accumulators:
+      \begin{itemize}
+        \item[-] $C_C \gets C_C + C_C(s)$
+        \item[-] $C_B \gets C_B + C_B(s)$
+        \item[-] $C_S \gets C_S + C_S(s)$
+      \end{itemize}
+      and send a \mrepargs{s}{v} message to all the predecessors contained in $P_s(v)$.
+      \item Increment the counter $k$ and change state to \scomp{s}.
+    \end{algosteps}
+\end{algosteps}
+A node $v$ can obtain the value of the estimators in the following way:
+\begin{eqnarray*}
+\widehat{C}_C(v) =  \left( \frac{n}{k} \, C_C \right)^{-1}, \quad
+\widehat{C}_B(v) = \frac{n}{k} \, C_B, \quad
+\widehat{C}_S(v) = \frac{n}{k} \, C_S .
+\end{eqnarray*}
 
-\item[$v$ is in state \sact{s}] Under the synchronous model assumption $v$ can only receive \mdiscargs{s}{u}{d} messages from nodes $u$ such that $d(s,u) = d(s,v)$. These nodes are collected in the set $S_s(v)$ of the siblings of $v$ with respect to the source node $s$. Note that these messages are received exactly one step after $v$ has been contacted by its predecessors.
-
-\end{description}
-
-\paragraph{Receiving a \mrep{} message} If $v$ receives a report from $w$, it first adds $w$ to the set of children $C_s(v)$; then it updates the local contributions by accumulating the terms that depend on $w$ in the recursive relations for betweenness and stress centrality. Finally, if $P_s(v) \cup S_s(v) \cup C_s(v) = N_v$ the local contributions are summed to the centrality estimators and a \mrepargs{s}{v} message is sent to all the predecessors $u \in P_s(v)$.
+Note that if the algorithm is executed with $p=1$ this is basically the decentralized version of the algorithm described in \cite{brandes2001}, and the estimators are actually the exact centrality indices.

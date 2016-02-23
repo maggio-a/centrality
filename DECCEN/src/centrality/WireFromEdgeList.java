@@ -25,8 +25,7 @@ public class WireFromEdgeList extends WireGraph {
 
 	@Override
 	public void wire(Graph g) {
-		try {
-			Scanner s = new Scanner(new FileReader(filename));
+		try (Scanner s = new Scanner(new FileReader(filename))) {
 			int ln = 0;
 			int n = Network.size();
 			while (s.hasNextLine()) {
@@ -53,7 +52,6 @@ public class WireFromEdgeList extends WireGraph {
 					}
 				}
 			}
-			s.close();
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		}

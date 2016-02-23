@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2015.5.28)  17 FEB 2016 17:08
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2015.5.28)  23 FEB 2016 19:11
 entering extended mode
 **C:/Users/Andrea/git/deccen/DECCEN/p2pdeccen/p2p.tex
 (C:/Users/Andrea/git/deccen/DECCEN/p2pdeccen/p2p.tex
@@ -813,20 +813,41 @@ File: tikzlibraryplotmarks.code.tex 2008/01/09 v3.0.1a (rcs-revision 1.1)
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\libraries\pgflibraryplotmar
 ks.code.tex"
 File: pgflibraryplotmarks.code.tex 2015/08/03 v3.0.1a (rcs-revision 1.14)
-))) (C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\p2p.aux)
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 29.
-LaTeX Font Info:    ... okay on input line 29.
-LaTeX Font Info:    Try loading font information for T1+lmr on input line 29.
+)))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\enumitem\enumitem.sty"
+Package: enumitem 2011/09/28 v3.5.2 Customized lists
+\labelindent=\skip51
+\enit@outerparindent=\dimen174
+\enit@toks=\toks44
+\enit@inbox=\box40
+\enitdp@description=\count127
+)
+\c@algostepsi=\count128
+\c@algostepsii=\count129
+\c@algostepsiii=\count130
+\c@algostepsiv=\count131
+\c@algostepsv=\count132
+\c@algostepsvi=\count133
+\c@algostepsvii=\count134
+\c@algostepsviii=\count135
+\c@algostepsix=\count136
+\c@algostepsx=\count137
+\enitdp@algosteps=\count138
+
+(C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\p2p.aux)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Try loading font information for T1+lmr on input line 35.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\t1lmr.fd"
 File: t1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
@@ -834,102 +855,101 @@ File: t1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 ABD: EveryShipout initializing macros
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count127
-\scratchdimen=\dimen174
-\scratchbox=\box40
-\nofMPsegments=\count128
-\nofMParguments=\count129
-\everyMPshowfont=\toks44
-\MPscratchCnt=\count130
-\MPscratchDim=\dimen175
-\MPnumerator=\count131
-\makeMPintoPDFobject=\count132
-\everyMPtoPDFconversion=\toks45
+\scratchcounter=\count139
+\scratchdimen=\dimen175
+\scratchbox=\box41
+\nofMPsegments=\count140
+\nofMParguments=\count141
+\everyMPshowfont=\toks45
+\MPscratchCnt=\count142
+\MPscratchDim=\dimen176
+\MPnumerator=\count143
+\makeMPintoPDFobject=\count144
+\everyMPtoPDFconversion=\toks46
 )
 
 Package pgfplots Warning: running in backwards compatibility mode (unsuitable t
 ick labels; missing features). Consider writing \pgfplotsset{compat=1.12} into 
 your preamble.
- on input line 29.
+ on input line 35.
 
-LaTeX Font Info:    Try loading font information for OT1+lmr on input line 30.
+LaTeX Font Info:    Try loading font information for OT1+lmr on input line 36.
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\ot1lmr.fd"
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OML+lmm on input line 30.
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 36.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\omllmm.fd"
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 30.
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 36.
 
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\omslmsy.fd"
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMX+lmex on input line 30.
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 36.
 
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\omxlmex.fd"
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 30.
+(Font)              <12> on input line 36.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 30.
+(Font)              <8> on input line 36.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 30.
-LaTeX Font Info:    Try loading font information for U+msa on input line 30.
+(Font)              <6> on input line 36.
+LaTeX Font Info:    Try loading font information for U+msa on input line 36.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 30.
+LaTeX Font Info:    Try loading font information for U+msb on input line 36.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for T1+lmtt on input line 30.
+LaTeX Font Info:    Try loading font information for T1+lmtt on input line 36.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\t1lmtt.fd"
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 (C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\body.tex
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 19.
+(Font)              <10.95> on input line 21.
 
 
 LaTeX Font Warning: Font shape `T1/lmr/bx/sc' undefined
-(Font)              using `T1/lmr/bx/n' instead on input line 23.
+(Font)              using `T1/lmr/bx/n' instead on input line 25.
 
-[1
+(C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\deccen.tex [1
 
-{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}] [2] [3]
-LaTeX Font Info:    Try loading font information for T1+lmss on input line 123.
-
+{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}]
+LaTeX Font Info:    Try loading font information for T1+lmss on input line 16.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\t1lmss.fd"
 File: t1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [4])
-(C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\p2p.bbl) [5]
+) [2]) [3] [4]
+[5] [6]) [7] (C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\p2p.bbl) [8]
 (C:\Users\Andrea\git\deccen\DECCEN\p2pdeccen\p2p.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 21649 strings out of 493921
- 542928 string characters out of 3144873
- 713125 words of memory out of 3000000
- 24543 multiletter control sequences out of 15000+200000
+ 21999 strings out of 493921
+ 548731 string characters out of 3144873
+ 715125 words of memory out of 3000000
+ 24887 multiletter control sequences out of 15000+200000
  69263 words of font info for 54 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
- 62i,7n,77p,999b,609s stack positions out of 5000i,500n,10000p,200000b,50000s
-{C:/Program Files (x86)/MiKTeX 2.9/fonts/enc/dvips/lm/lm-ec.enc}{C:/Program F
-iles (x86)/MiKTeX 2.9/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program Files (x86)/MiKT
-eX 2.9/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Program Files (x86)/MiKTeX 2.9/font
-s/enc/dvips/lm/lm-mathsy.enc}{C:/Program Files (x86)/MiKTeX 2.9/fonts/enc/dvips
-/lm/lm-mathex.enc}<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmbx
+ 62i,8n,77p,999b,609s stack positions out of 5000i,500n,10000p,200000b,50000s
+{C:/Program Files (x86)/MiKTeX 2.9/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program F
+iles (x86)/MiKTeX 2.9/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Program Files (x86)/
+MiKTeX 2.9/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Program Files (x86)/MiKTeX 2.9/
+fonts/enc/dvips/lm/lm-mathex.enc}{C:/Program Files (x86)/MiKTeX 2.9/fonts/enc/d
+vips/lm/lm-ec.enc}<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmbx
 10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmbx12.pfb><C:/
 Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmcsc10.pfb><C:/Program Fi
 les (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmex10.pfb><C:/Program Files (x86)/M
@@ -944,9 +964,9 @@ type1/public/lm/lmss9.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public
 /lm/lmssbx10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmsy1
 0.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmsy8.pfb><C:/Pr
 ogram Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmtt12.pfb>
-Output written on p2p.pdf (5 pages, 308774 bytes).
+Output written on p2p.pdf (8 pages, 322407 bytes).
 PDF statistics:
- 98 PDF objects out of 1000 (max. 8388607)
+ 109 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

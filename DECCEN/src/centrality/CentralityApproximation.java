@@ -1,6 +1,7 @@
 package centrality;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,8 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 	private final int linkableProtocolID;
 	private final boolean ignoreCorrectEstimate;
 	
-	private Map<Node, VisitState> visits;
+	private Map<Node, VisitState> activeVisits;
+	private Set<Node> completed;
 	private double betweenness;
 	private long stress;
 	private int closenessSum;
@@ -68,7 +70,8 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 	}
 	
 	protected void reset() {
-		visits = new HashMap<Node, VisitState>();
+		activeVisits = new HashMap<Node, VisitState>();
+		completed = new HashSet<Node>();
 		betweenness = 0.0;
 		stress = 0;
 		closenessSum = 0;
@@ -82,11 +85,19 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 		return ca;
 	}
 	
+	//public static double _t1 = 0.0, _t2 = 0.0, _t3 = 0.0, _t4 = 0.0;
+	//public static void resetTimes() { _t1 = 0.0; _t2 = 0.0; _t3 = 0.0; _t4 = 0.0;}
+	
 	@Override
 	public void nextCycle(Node self, int protocolID) {
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		
+		//long t_start = System.nanoTime();
+		
 		Map<Message.Type, List<Message>> mmap = parseIncomingMessages();
+		
+		//_t1 += (System.nanoTime() - t_start) / 1000000000.0;
+		//t_start = System.nanoTime();
 		
 		if (mmap.containsKey(Message.Type.PROBE)) {
 			Map<Node, List<Message>> mbs = groupBySource(mmap.get(Message.Type.PROBE));
@@ -103,7 +114,8 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 						predecessors.add(m.get(Message.Attachment.SENDER, Node.class));
 					}
 					VisitState state = new VisitState(distance + 1, sigma, predecessors, CommonState.getIntTime());
-					visits.put(s, state);
+					activeVisits.put(s, state);
+					
 					for (int i = 0; i < lnk.degree(); ++i) {
 						Node n = lnk.getNeighbor(i);
 						if (!state.predecessors.contains(n)) {
@@ -112,7 +124,7 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 						}
 					}
 				} else if (isActive(s)) {
-					VisitState state = visits.get(s);
+					VisitState state = activeVisits.get(s);
 					assert state != null && state.siblings.isEmpty() : "sibling set not empty";
 					assert state.timestamp + 1 == CommonState.getIntTime() : "timestamp issue"; 
 					for (Message m : e.getValue()) state.siblings.add(m.get(Message.Attachment.SENDER, Node.class));
@@ -120,7 +132,10 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 			}
 		}
 		
-		if (mmap.containsKey(Message.Type.CONTRIBUTION_REPORT)) {
+		//_t2 += (System.nanoTime() - t_start) / 1000000000.0;
+		//t_start = System.nanoTime();
+		
+		/*if (mmap.containsKey(Message.Type.CONTRIBUTION_REPORT)) {
 			Map<Node, List<Message>> mbs = groupBySource(mmap.get(Message.Type.CONTRIBUTION_REPORT));
 			for (Map.Entry<Node, List<Message>> e : mbs.entrySet()) {
 				Node s = e.getKey();
@@ -135,36 +150,58 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 					}
  				} 
 			}
-		}
+		}*/
 		
-		// check for reportable nodes
-		for (Map.Entry<Node, VisitState> e : visits.entrySet()) {
-			Node s = e.getKey();
-			VisitState state = e.getValue();
-			if (isActive(s)) {
-				boolean canReport = true;
-				for (int i = 0; i < lnk.degree() && canReport; ++i) {
-					Node n = lnk.getNeighbor(i);
-					if (!(state.predecessors.contains(n) || state.siblings.contains(n) || state.children.contains(n)))
-						canReport = false;
-				}
-				if (canReport) {
-					numSamples++;
-					if (s != self) {
-						for (Node p : state.predecessors) {
-							CentralityApproximation predecessor = (CentralityApproximation) p.getProtocol(protocolID);
-							addToSendQueue(Message.createContributionReportMessage(
-									self, s, state.betweennessContribution, state.stressContribution, state.sigma),
-									predecessor);
-						}
-						closenessSum += state.distanceFromSource;
-						betweenness += state.betweennessContribution;
-						stress += state.stressContribution;
-					}
-					e.setValue(null);
+		if (mmap.containsKey(Message.Type.CONTRIBUTION_REPORT)) {
+			for (Message m : mmap.get(Message.Type.CONTRIBUTION_REPORT)) {
+				Node s = m.get(Attachment.SOURCE, Node.class);
+				if (isActive(s)) {
+					VisitState state = activeVisits.get(s);
+					Node child = m.get(Attachment.SENDER, Node.class);
+					double bcc = m.get(Attachment.BETWEENNESS_CONTRIBUTION, Double.class);
+					long scc = m.get(Attachment.STRESS_CONTRIBUTION, Long.class);
+					int spc = m.get(Attachment.SP_COUNT, Integer.class);
+					state.accumulate(child, bcc, scc, spc);
 				}
 			}
 		}
+		
+		//_t3 += (System.nanoTime() - t_start) / 1000000000.0;
+		//t_start = System.nanoTime();
+		
+		// check for reportable nodes
+		Iterator<Map.Entry<Node, VisitState>> it = activeVisits.entrySet().iterator();
+		//for (Map.Entry<Node, VisitState> e : visits.entrySet()) {
+		while (it.hasNext()) {
+			Map.Entry<Node, VisitState> e = it.next();
+			Node s = e.getKey();
+			VisitState state = e.getValue();
+			boolean canReport = true;
+			for (int i = 0; i < lnk.degree() && canReport; ++i) {
+				Node n = lnk.getNeighbor(i);
+				if (!(state.predecessors.contains(n) || state.siblings.contains(n) || state.children.contains(n)))
+					canReport = false;
+			}
+			if (canReport) {
+				numSamples++;
+				if (s != self) {
+					for (Node p : state.predecessors) {
+						CentralityApproximation predecessor = (CentralityApproximation) p.getProtocol(protocolID);
+						addToSendQueue(Message.createContributionReportMessage(
+								self, s, state.betweennessContribution, state.stressContribution, state.sigma),
+								predecessor);
+					}
+					closenessSum += state.distanceFromSource;
+					betweenness += state.betweennessContribution;
+					stress += state.stressContribution;
+				}
+				it.remove();
+				completed.add(s);
+				//e.setValue(null);
+			}
+		}
+		
+		//_t4 += (System.nanoTime() - t_start) / 1000000000.0;
 	}
 	
 	private Map<Node, List<Message>> groupBySource(List<Message> list) {
@@ -183,7 +220,7 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 	
 	private Map<Message.Type, List<Message>> parseIncomingMessages() {
 		Map<Message.Type, List<Message>> map = new HashMap<Message.Type, List<Message>>();
-		java.util.Iterator<Message> it = this.getIncomingMessagesIterator();
+		Iterator<Message> it = this.getIncomingMessagesIterator();
 		while (it.hasNext()) {
 			Message m = it.next();
 			it.remove();
@@ -198,11 +235,12 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 	}
 	
 	public void initAccumulation(Node self, int pid) {
-		if (visits.containsKey(self)) {
+		if (activeVisits.containsKey(self)) {
 			throw new IllegalStateException("Protocol already initiated accumulation");
 		}
 		VisitState state = new VisitState(0, 1, new HashSet<Node>(0), CommonState.getIntTime());
-		visits.put(self, state);
+		activeVisits.put(self, state);
+		
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		for (int i = 0; i < lnk.degree(); ++i) {
 			Node n = lnk.getNeighbor(i);
@@ -214,15 +252,16 @@ public class CentralityApproximation extends SynchronousCentralityProtocol imple
 	}
 	
 	public boolean isWaiting(Node source) {
-		return visits.containsKey(source) == false;
+		return activeVisits.containsKey(source) == false && completed.contains(source) == false;
 	}
 	
 	public boolean isActive(Node source) {
-		return visits.containsKey(source) && visits.get(source) != null;
+		return activeVisits.containsKey(source);
 	}
 	
 	public boolean isCompleted(Node source) {
-		return visits.containsKey(source) && visits.get(source) == null;
+		return completed.contains(source);
+		//return visits.containsKey(source) && visits.get(source) == null;
 	}
 	
 	@Override

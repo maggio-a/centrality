@@ -1,5 +1,5 @@
 Simulator: loading configuration
-ConfigProperties: File run/deccen_dolphins.cfg loaded.
+ConfigProperties: File run/ca_dolphins.cfg loaded.
 Simulator: starting experiment 0 invoking peersim.cdsim.CDSimulator
 Random seed: 1234567890
 
@@ -8,144 +8,158 @@ Random seed: 1234567890
 CDSimulator: resetting
 CDSimulator: running initializers
 - Running initializer init.wire: class centrality.WireFromEdgeList
-- Running initializer init.start: class centrality.DeccenInitializer
-centrality.DeccenInitializer: initializing protocol
-CDSimulator: loaded controls [control.observer, control.transport]
+- Running initializer init.ai: class centrality.ApproximationInitializer
+centrality.ApproximationInitializer: accumulating from 62 sources
+CDSimulator: loaded controls [control.ac, control.observer, control.transport]
 CDSimulator: starting simulation
+0 out of 62 sources completed the accumulation
 # Message statistics
 318 messages transfered at the end of this cycle
 318 messages transfered since beginning the simulation
 CDSimulator: cycle 0 done
+0 out of 62 sources completed the accumulation
 # Message statistics
-4010 messages transfered at the end of this cycle
-4328 messages transfered since beginning the simulation
+1855 messages transfered at the end of this cycle
+2173 messages transfered since beginning the simulation
 CDSimulator: cycle 1 done
+0 out of 62 sources completed the accumulation
 # Message statistics
-21856 messages transfered at the end of this cycle
-26184 messages transfered since beginning the simulation
+4154 messages transfered at the end of this cycle
+6327 messages transfered since beginning the simulation
 CDSimulator: cycle 2 done
+0 out of 62 sources completed the accumulation
 # Message statistics
-65592 messages transfered at the end of this cycle
-91776 messages transfered since beginning the simulation
+3614 messages transfered at the end of this cycle
+9941 messages transfered since beginning the simulation
 CDSimulator: cycle 3 done
+0 out of 62 sources completed the accumulation
 # Message statistics
-128106 messages transfered at the end of this cycle
-219882 messages transfered since beginning the simulation
+3181 messages transfered at the end of this cycle
+13122 messages transfered since beginning the simulation
 CDSimulator: cycle 4 done
+0 out of 62 sources completed the accumulation
 # Message statistics
-169542 messages transfered at the end of this cycle
-389424 messages transfered since beginning the simulation
+2614 messages transfered at the end of this cycle
+15736 messages transfered since beginning the simulation
 CDSimulator: cycle 5 done
+0 out of 62 sources completed the accumulation
 # Message statistics
-176889 messages transfered at the end of this cycle
-566313 messages transfered since beginning the simulation
+1443 messages transfered at the end of this cycle
+17179 messages transfered since beginning the simulation
 CDSimulator: cycle 6 done
+0 out of 62 sources completed the accumulation
 # Message statistics
-147949 messages transfered at the end of this cycle
-714262 messages transfered since beginning the simulation
+870 messages transfered at the end of this cycle
+18049 messages transfered since beginning the simulation
 CDSimulator: cycle 7 done
+0 out of 62 sources completed the accumulation
 # Message statistics
-106065 messages transfered at the end of this cycle
-820327 messages transfered since beginning the simulation
+560 messages transfered at the end of this cycle
+18609 messages transfered since beginning the simulation
 CDSimulator: cycle 8 done
+0 out of 62 sources completed the accumulation
 # Message statistics
-71491 messages transfered at the end of this cycle
-891818 messages transfered since beginning the simulation
+378 messages transfered at the end of this cycle
+18987 messages transfered since beginning the simulation
 CDSimulator: cycle 9 done
+6 out of 62 sources completed the accumulation
 # Message statistics
-47266 messages transfered at the end of this cycle
-939084 messages transfered since beginning the simulation
+276 messages transfered at the end of this cycle
+19263 messages transfered since beginning the simulation
 CDSimulator: cycle 10 done
+10 out of 62 sources completed the accumulation
 # Message statistics
-26650 messages transfered at the end of this cycle
-965734 messages transfered since beginning the simulation
+186 messages transfered at the end of this cycle
+19449 messages transfered since beginning the simulation
 CDSimulator: cycle 11 done
+26 out of 62 sources completed the accumulation
 # Message statistics
-11480 messages transfered at the end of this cycle
-977214 messages transfered since beginning the simulation
+134 messages transfered at the end of this cycle
+19583 messages transfered since beginning the simulation
 CDSimulator: cycle 12 done
+29 out of 62 sources completed the accumulation
 # Message statistics
-5051 messages transfered at the end of this cycle
-982265 messages transfered since beginning the simulation
+94 messages transfered at the end of this cycle
+19677 messages transfered since beginning the simulation
 CDSimulator: cycle 13 done
+52 out of 62 sources completed the accumulation
 # Message statistics
-2431 messages transfered at the end of this cycle
-984696 messages transfered since beginning the simulation
+28 messages transfered at the end of this cycle
+19705 messages transfered since beginning the simulation
 CDSimulator: cycle 14 done
+54 out of 62 sources completed the accumulation
 # Message statistics
-686 messages transfered at the end of this cycle
-985382 messages transfered since beginning the simulation
+10 messages transfered at the end of this cycle
+19715 messages transfered since beginning the simulation
 CDSimulator: cycle 15 done
+61 out of 62 sources completed the accumulation
 # Message statistics
-21 messages transfered at the end of this cycle
-985403 messages transfered since beginning the simulation
+1 messages transfered at the end of this cycle
+19716 messages transfered since beginning the simulation
 CDSimulator: cycle 16 done
-# Message statistics
-0 messages transfered at the end of this cycle
-985403 messages transfered since beginning the simulation
-centrality.CycleBasedTransport: no message to transfer, stopping the simulation.
-# Centrality indices at time 17
+All sources completed the accumulation, stopping the simulation# Centrality indices at time 17
+
 # Label Closeness Stress Betweenness
-1 0.0056818181818182 252 69.8423021423022200
-2 0.0060975609756098 3496 780.7674340500854000
-3 0.0046296296296296 86 33.2064935064935000
+1 0.0056818181818182 252 69.8423021423021500
+2 0.0060975609756098 3496 780.7674340500884000
+3 0.0046296296296296 86 33.2064935064935100
 4 0.0050505050505051 32 8.6880952380952380
 5 0.0040816326530612 0 0.0000000000000000
-6 0.0039062500000000 78 16.0318986568986440
-7 0.0043859649122807 442 107.5034844965332500
-8 0.0059880239520958 1488 432.7533465259428000
-9 0.0059523809523810 358 81.8585996101778200
+6 0.0039062500000000 78 16.0318986568986580
+7 0.0043859649122807 442 107.5034844965332600
+8 0.0059880239520958 1488 432.7533465259434000
+9 0.0059523809523810 358 81.8585996101777900
 10 0.0041322314049587 560 76.4734321234321000
-11 0.0051282051282051 202 58.8967965367966000
+11 0.0051282051282051 202 58.8967965367965400
 12 0.0040816326530612 0 0.0000000000000000
 13 0.0044052863436123 0 0.0000000000000000
-14 0.0044444444444444 1106 193.4175620856108500
-15 0.0061728395061728 912 226.8175377468056700
-16 0.0055555555555556 498 121.8495287949735700
-17 0.0054054054054054 68 12.0952380952380880
-18 0.0050761421319797 1676 418.3385962706182700
-19 0.0055248618784530 290 54.3689329640550000
-20 0.0051813471502591 220 48.7306826506826900
-21 0.0064102564102564 1558 375.6834073785296400
-22 0.0054644808743169 234 46.4843933843934900
+14 0.0044444444444444 1106 193.4175620856108800
+15 0.0061728395061728 912 226.8175377468060700
+16 0.0055555555555556 498 121.8495287949735800
+17 0.0054054054054054 68 12.0952380952380930
+18 0.0050761421319797 1676 418.3385962706193000
+19 0.0055248618784530 290 54.3689329640549200
+20 0.0051813471502591 220 48.7306826506826450
+21 0.0064102564102564 1558 375.6834073785294700
+22 0.0054644808743169 234 46.4843933843933800
 23 0.0038910505836576 0 0.0000000000000000
-24 0.0054644808743169 568 154.3889954378477400
-25 0.0051282051282051 160 27.0219391719391600
-26 0.0041841004184100 32 6.0174603174603180
+24 0.0054644808743169 568 154.3889954378476500
+25 0.0051282051282051 160 27.0219391719391740
+26 0.0041841004184100 32 6.0174603174603170
 27 0.0045454545454545 88 15.9666666666666650
-28 0.0051813471502591 398 107.0069094049581000
-29 0.0059880239520958 1182 244.3304540700814600
-30 0.0052910052910053 808 239.8371739371738700
-31 0.0052910052910053 484 120.9646864246865200
+28 0.0051813471502591 398 107.0069094049582100
+29 0.0059880239520958 1182 244.3304540700810600
+30 0.0052910052910053 808 239.8371739371739600
+31 0.0052910052910053 484 120.9646864246864200
 32 0.0038910505836576 0 0.0000000000000000
 33 0.0035460992907801 722 120.0000000000000000
-34 0.0059880239520958 752 209.2291708291702400
-35 0.0051813471502591 390 119.6628205128205300
+34 0.0059880239520958 752 209.2291708291708000
+35 0.0051813471502591 390 119.6628205128205000
 36 0.0040160642570281 0 0.0000000000000000
-37 0.0068493150684932 3580 908.5481374659150000
-38 0.0065359477124183 2000 507.1654264904550000
-39 0.0054054054054054 606 165.9891941391941500
-40 0.0054945054945055 1012 258.0914094561581000
-41 0.0066225165562914 1888 523.9272371339817000
-42 0.0048780487804878 728 85.1008584528815200
-43 0.0054054054054054 422 106.7181041181042400
+37 0.0068493150684932 3580 908.5481374659131000
+38 0.0065359477124183 2000 507.1654264904550500
+39 0.0054054054054054 606 165.9891941391941300
+40 0.0054945054945055 1012 258.0914094561584000
+41 0.0066225165562914 1888 523.9272371339802000
+42 0.0048780487804878 728 85.1008584528813700
+43 0.0054054054054054 422 106.7181041181041200
 44 0.0055248618784530 788 229.9600122100122500
 45 0.0051020408163265 154 44.0583694083694100
-46 0.0056818181818182 712 148.8538125830814400
-47 0.0042016806722689 24 11.0109890109890070
-48 0.0055555555555556 386 84.9174025974026100
+46 0.0056818181818182 712 148.8538125830809000
+47 0.0042016806722689 24 11.0109890109890110
+48 0.0055555555555556 386 84.9174025974026000
 49 0.0038167938931298 0 0.0000000000000000
-50 0.0040485829959514 6 3.4000000000000004
-51 0.0057471264367816 484 122.2843878343878600
-52 0.0054054054054054 958 309.9187523858251400
-53 0.0056179775280899 280 70.3977022977023700
+50 0.0040485829959514 6 3.4000000000000000
+51 0.0057471264367816 484 122.2843878343878300
+52 0.0054054054054054 958 309.9187523858255400
+53 0.0056179775280899 280 70.3977022977023000
 54 0.0042553191489362 16 4.3666666666666670
-55 0.0053191489361702 1538 362.7852271544807000
-56 0.0044444444444444 24 3.2115384615384630
+55 0.0053191489361702 1538 362.7852271544810000
+56 0.0044444444444444 24 3.2115384615384612
 57 0.0034965034965035 2 0.5000000000000000
-58 0.0049504950495050 1210 308.1891413719385000
+58 0.0049504950495050 1210 308.1891413719390600
 59 0.0040816326530612 0 0.0000000000000000
-60 0.0056179775280899 394 74.4179553668076200
+60 0.0056179775280899 394 74.4179553668075800
 61 0.0029239766081871 0 0.0000000000000000
-62 0.0049504950495050 228 51.9536363636363400
+62 0.0049504950495050 228 51.9536363636363500
 %END%
