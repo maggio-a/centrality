@@ -185,4 +185,10 @@ A node $v$ can obtain the value of the estimators in the following way:
 \widehat{C}_S(v) = \frac{n}{k} \, C_S .
 \end{eqnarray*}
 
-Note that if the algorithm is executed with $p=1$ this is basically the decentralized version of the algorithm described in \cite{brandes2001}, and the estimators are actually the exact centrality indices.
+Note that if the algorithm is executed with $p=1$ this is basically the decentralized version of the algorithm described in \cite{brandes2001}, and the estimators are actually the exact centrality indices.[FIXME move this at the beginning of the description]
+
+\subsection{Cost analysis}
+
+Each independent search requires $O(m)$ messages for the \mdisc{} phase and $O(m)$ messages to backtrack with \mrep{} messages. The parameter $p$ determines the fraction of nodes $pn$ that initiate a \mdisc{} search, so the total number of messages is $O(\lceil pn \rceil m)$.
+
+In terms of memory consumption, note that for each $v \in V$ there are at most $\lceil pn \rceil$ other nodes $s$ for which $v$ is in state \sact{s} and needs to partition its neighbor set $N_v$ in the three subsets $P_s(v)$, $S_s(v)$ and $C_s(v)$, so the cost is $O(\lceil pn \rceil deg(v))$.
