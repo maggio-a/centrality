@@ -9,57 +9,57 @@ import peersim.core.Node;
 public class Message {
 	
 	public enum Type {
-		PROBE, REPORT, CONTRIBUTION_REPORT
+		DISCOVERY, REPORT, MBFS_REPORT
 	}
 	
-	public enum Attachment {
-		SENDER, SOURCE, DESTINATION, SP_COUNT, SP_LENGTH, STRESS_CONTRIBUTION, BETWEENNESS_CONTRIBUTION
+	public enum Field {
+		SENDER, SOURCE, DESTINATION, SP_COUNT, SP_LENGTH, SC_CONTRIBUTION, BC_CONTRIBUTION
 	}
 	
-	private Map<Attachment, Object> attachments;
+	private Map<Field, Object> fields;
 	public final Type type;
 	
 	private Message(Type t) {
 		type = t;
-		attachments = new HashMap<Attachment, Object>(8);
+		fields = new HashMap<Field, Object>(8);
 	}
 	
-	public static Message createProbeMessage(Node sender, Node source, int count, int length) {
-		Message m = new Message(Type.PROBE);
-		m.attachments.put(Attachment.SENDER, sender);
-		m.attachments.put(Attachment.SOURCE, source);
-		m.attachments.put(Attachment.SP_COUNT, count);
-		m.attachments.put(Attachment.SP_LENGTH, length);
+	public static Message createDiscoveryMessage(Node sender, Node source, int count, int length) {
+		Message m = new Message(Type.DISCOVERY);
+		m.fields.put(Field.SENDER, sender);
+		m.fields.put(Field.SOURCE, source);
+		m.fields.put(Field.SP_COUNT, count);
+		m.fields.put(Field.SP_LENGTH, length);
 		return m;
 	}
 	
 	public static Message createReportMessage(Node sender, Node source, Node destination, int count, int length) {
 		Message m = new Message(Type.REPORT);
-		m.attachments.put(Attachment.SENDER, sender);
-		m.attachments.put(Attachment.SOURCE, source);
-		m.attachments.put(Attachment.DESTINATION, destination);
-		m.attachments.put(Attachment.SP_COUNT, count);
-		m.attachments.put(Attachment.SP_LENGTH, length);
+		m.fields.put(Field.SENDER, sender);
+		m.fields.put(Field.SOURCE, source);
+		m.fields.put(Field.DESTINATION, destination);
+		m.fields.put(Field.SP_COUNT, count);
+		m.fields.put(Field.SP_LENGTH, length);
 		return m;
 	}
 	
-	public static Message createContributionReportMessage(Node sender, Node source, double bc, long sc, int count) {
-		Message m = new Message(Type.CONTRIBUTION_REPORT);
-		m.attachments.put(Attachment.SENDER, sender);
-		m.attachments.put(Attachment.SOURCE, source);
-		m.attachments.put(Attachment.BETWEENNESS_CONTRIBUTION, bc);
-		m.attachments.put(Attachment.STRESS_CONTRIBUTION, sc);
-		m.attachments.put(Attachment.SP_COUNT, count);
+	public static Message createMBFSReportMessage(Node sender, Node source, double bc, long sc, int count) {
+		Message m = new Message(Type.MBFS_REPORT);
+		m.fields.put(Field.SENDER, sender);
+		m.fields.put(Field.SOURCE, source);
+		m.fields.put(Field.BC_CONTRIBUTION, bc);
+		m.fields.put(Field.SC_CONTRIBUTION, sc);
+		m.fields.put(Field.SP_COUNT, count);
 		return m;
 	}
 	
-	public <T> T get(Attachment a, Class<T> c) {
-		return c.cast(attachments.get(a));
+	public <T> T get(Field f, Class<T> c) {
+		return c.cast(fields.get(f));
 	}
 	
 	@Override
 	public String toString() {
-		return getClass().getName() + "[type=" + type + "][attachments=" + attachments + "]";
+		return getClass().getName() + "[type=" + type + "][fields=" + fields + "]";
 	}
 
 }

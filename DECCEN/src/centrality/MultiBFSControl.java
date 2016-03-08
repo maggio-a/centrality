@@ -12,7 +12,7 @@ import peersim.core.Control;
 import peersim.core.Node;
 
 
-public class ApproximationControl implements Control {
+public class MultiBFSControl implements Control {
 	
 	private static final String PAR_PROTOCOL = "protocol";
 	private static final String PAR_DEGREE = "degree";
@@ -32,7 +32,7 @@ public class ApproximationControl implements Control {
 		resetStaticFields();
 	}
 	
-	public ApproximationControl(String prefix) {
+	public MultiBFSControl(String prefix) {
 		protocolID = Configuration.getPid(prefix + "." + PAR_PROTOCOL);
 		degree = Configuration.getInt(prefix + "." + PAR_DEGREE);
 		if (degree <= 0)
@@ -41,35 +41,29 @@ public class ApproximationControl implements Control {
 
 	@Override
 	public boolean execute() {
-		
-		//System.err.printf("Times: %f \t %f \t %f \t %f", CentralityApproximation._t1,CentralityApproximation._t2,
-		//		CentralityApproximation._t3,CentralityApproximation._t4);
-		//System.err.println();
-		//CentralityApproximation.resetTimes();
-		
 		if (sourcesIterator == null) {
-			sourcesIterator = ApproximationInitializer.getSources().iterator();
+			sourcesIterator = MultiBFSInitializer.getSources().iterator();
 		}
 		Iterator<Node> it = visiting.iterator();
 		while (it.hasNext()) {
 			Node n = it.next();
-			CentralityApproximation ca = (CentralityApproximation) n.getProtocol(protocolID);
-			if (ca.isCompleted(n)) it.remove();
+			MultiBFS mbfs = (MultiBFS) n.getProtocol(protocolID);
+			if (mbfs.isCompleted(n)) it.remove();
 		}
 		
 		if (visiting.size() == 0) {
 			while (visiting.size() < degree && sourcesIterator.hasNext()) {
 				Node s = sourcesIterator.next();
-				CentralityApproximation ca = (CentralityApproximation) s.getProtocol(protocolID);
-				ca.initAccumulation(s, protocolID);
+				MultiBFS mbfs = (MultiBFS) s.getProtocol(protocolID);
+				mbfs.startAccumulation(s, protocolID);
 				visiting.add(s);
 			}
 		}
 		int counter = 0;
-		Set<Node> sources = ApproximationInitializer.getSources();
+		Set<Node> sources = MultiBFSInitializer.getSources();
 		for (Node s : sources) {
-			CentralityApproximation ca = (CentralityApproximation) s.getProtocol(protocolID);
-			if (ca.isCompleted(s)) counter++;
+			MultiBFS mbfs = (MultiBFS) s.getProtocol(protocolID);
+			if (mbfs.isCompleted(s)) counter++;
 		}
 		if (counter == sources.size()) {
 			System.err.println("All sources completed the accumulation, stopping the simulation");

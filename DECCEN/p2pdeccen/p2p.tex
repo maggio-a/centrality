@@ -1,41 +1,77 @@
-\documentclass[a4paper, 11pt, oneside, draft]{article}
+\documentclass[a4paper, 11pt, draft]{article}
+
 \usepackage[numbers]{natbib}
 
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{lmodern}
-
 \usepackage{amsmath,amssymb,amsthm}
+
+\usepackage[retainorgcmds]{IEEEtrantools}
+
+
 \usepackage{pgfplots}
 
 \usepackage{enumitem}
 
-%\usepackage{graphicx}
+\usepackage{booktabs}
 
-%\usepackage{minted}
+\usepackage{subcaption}
 
-%\usepackage{tikz}
-%\usetikzlibrary{shapes,arrows,backgrounds,fit,calc}
+\usepackage{graphicx}
 
-%\usepackage{fontspec}
-%\setmonofont{Consolas}
+\usepackage{minted}
 
-%\usemintedstyle{vs}
 
-\newtheorem*{theorem}{Theorem}
+%\usepackage[adobe-utopia]{mathdesign}
+%\usepackage{zi4}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{lmodern}
+
+%\usepackage{microtype}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem*{th_recall_contrib_sc}{Theorem \ref{th:contrib:sc}}
+\newtheorem*{th_recall_expect}{Theorem \ref{th:expect}}
 \newtheorem*{lemma}{Lemma}
 
 \newlist{algosteps}{enumerate}{10}
 \setlist[algosteps]{label*=\arabic*.}
 
+% macros
+\newcommand{\peersim}{PeerSim}
+
+\newcommand{\deccen}{\textsc{Deccen}}
+\newcommand{\multibfs}{\textsc{Multi-BFS}}
+
+\newcommand{\mdisc}{\textsf{{\footnotesize DIS\-COV\-E\-RY}}}
+\newcommand{\mdiscargs}[3]{\mdisc$\langle #1,#2,#3, \sigma_{#1 #2} \rangle$}
+\newcommand{\mdiscargsfull}[4]{\mdisc$\langle #1,#2,#3, #4 \rangle$}
+\newcommand{\mdiscstart}[1]{\mdisc$\langle #1,#1,0,1 \rangle$}
+\newcommand{\mrep}{\textsf{{\footnotesize REPORT}}}
+\newcommand{\mrepargs}[2]{\mrep$\langle #1,#2, \delta(#1|#2), \sigma(#1|#2), \sigma_{#1 #2} \rangle$}
+\newcommand{\mrepleaf}[2]{\mrep$\langle #1,#2, 0, 0, \sigma_{#1 #2} \rangle$}
+\newcommand{\mdecrepargs}[2]{\mrep$\langle (#1,#2), \sigma_{#1 #2}, d_{#1 #2}\rangle$}
+\newcommand{\mdecrepargsfull}[3]{\mrep$\langle (#1,#2), \sigma_{#1 #2}, #3\rangle$}
+
+\newcommand{\swait}[1]{\textsf{{\footnotesize WAITING}}$(#1)$}
+\newcommand{\sact}[1]{\textsf{{\footnotesize ACTIVE}}$(#1)$}
+\newcommand{\scomp}[1]{\textsf{{\footnotesize COMPLETED}}$(#1)$}
+
+
 \title{Peer-to-Peer Systems}
-\author{Andrea Maggiordomo -- \texttt{mggndr89[at]gmail.com} \\[1mm] Laurea Magistrale in Informatica, Università di Pisa}
+\author{Andrea Maggiordomo -- \texttt{mggndr89[at]gmail.com} \\[1mm] Laurea Magistrale in Informatica, Universit\`a di Pisa}
 \date{2016}
 
 \begin{document}
 \maketitle
 
-\input{body.tex}
+\input{intro.tex}
+\input{deccen.tex}
+\input{approximation.tex}
+\input{experiments.tex}
+\input{proofs.tex}
+\input{code.tex}
 
 \bibliography{p2pbiblio}{}
 \bibliographystyle{natbib_ita}

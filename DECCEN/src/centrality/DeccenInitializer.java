@@ -23,7 +23,7 @@ public class DeccenInitializer implements Control {
 			Node n = Network.get(i);
 			Deccen sdp = (Deccen) n.getProtocol(protocolID);
 			sdp.reset();
-			sdp.initCount(n, protocolID);
+			sdp.startCount(n, protocolID);
 		}
 		
 		return false;

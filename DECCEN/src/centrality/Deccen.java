@@ -9,13 +9,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import centrality.Message.Attachment;
-import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
 import peersim.core.Linkable;
 import peersim.core.Node;
 
-public class Deccen extends SynchronousCentralityProtocol implements CDProtocol {
+
+public class Deccen extends SynchronousCentralityProtocol {
 	
 	private static class ShortestPathData {
 		public final int count;
@@ -54,32 +53,29 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 	}
 	
 	private static final String PAR_LINKABLE = "lnk";
-	private static final String PAR_CC_ALT = "useClosenessVariant";
 	
 	private int linkableProtocolID;
-	private boolean useClosenessVariant;
 	
-	private long stress;
-	private long closenessSum;
-	private int closenessCount;
-	private double betweenness;
+	private long accumulatorSC;
+	private long accumulatorCC;
+	private int nCC;
+	private double accumulatorBC;
 	
-	private Map<Node, ShortestPathData> shortestPathMap;
+	private Map<Node,ShortestPathData> shortestPathMap;
 	private Set<OrderedPair<Long,Long>> handledReports;
 	
 	public Deccen(String prefix) {
 		super(prefix);
 		linkableProtocolID = Configuration.getPid(prefix + "." + PAR_LINKABLE);
-		useClosenessVariant = Configuration.contains(prefix + "." + PAR_CC_ALT);
 		reset();
 	}
 	
 	protected void reset() {
-		stress = 0;
-		closenessSum = 0;
-		closenessCount = 0;
-		betweenness = 0.0;
-		shortestPathMap = new HashMap<Node, ShortestPathData>();
+		accumulatorSC = 0;
+		accumulatorCC = 0;
+		nCC = 0;
+		accumulatorBC = 0.0;
+		shortestPathMap = new HashMap<Node,ShortestPathData>();
 		handledReports = new HashSet<OrderedPair<Long,Long>>();
 	}
 	
@@ -90,16 +86,35 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 		return sdp;
 	}
 	
-	private void parseIncomingMessages(Map<Node,List<Message>> probeMap, List<Message> reportList) {
+	public void startCount(Node self, int pid) {
+		shortestPathMap.put(self, new ShortestPathData(1, 0));
+		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
+		for (int i = 0; i < lnk.degree(); ++i) {
+			Node n = lnk.getNeighbor(i);
+			Deccen sdp = (Deccen) n.getProtocol(pid);
+			addToSendQueue(Message.createDiscoveryMessage(self, self, 1, 0), sdp);
+		}
+	}
+	
+	@Override
+	public void nextCycle(Node self, int protocolID) {
+		Map<Node,List<Message>> discoveryMap = new HashMap<Node,List<Message>>();
+		List<Message> reportList = new LinkedList<Message>();
+		parseIncomingMessages(discoveryMap, reportList);
+		if (!discoveryMap.isEmpty()) processDiscoveryMessages(self, protocolID, discoveryMap);
+		if (!reportList.isEmpty()) processReportMessages(self, protocolID, reportList);
+	}
+	
+	private void parseIncomingMessages(Map<Node,List<Message>> discoveryMap, List<Message> reportList) {
 		Iterator<Message> it = getIncomingMessagesIterator();
 		while (it.hasNext()) {
 			Message m = it.next();
-			if (m.type == Message.Type.PROBE) {
-				Node s = m.get(Attachment.SOURCE, Node.class);
-				List<Message> ml = probeMap.get(s);
+			if (m.type == Message.Type.DISCOVERY) {
+				Node s = m.get(Message.Field.SOURCE, Node.class);
+				List<Message> ml = discoveryMap.get(s);
 				if (ml == null) {
 					ml = new LinkedList<Message>();
-					probeMap.put(s, ml);
+					discoveryMap.put(s, ml);
 				}
 				ml.add(m);
 			} else if (m.type == Message.Type.REPORT) {
@@ -109,51 +124,30 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 		}
 	}
 	
-	@Override
-	public void nextCycle(Node self, int protocolID) {
-		Map<Node,List<Message>> probeMap = new HashMap<Node,List<Message>>();
-		List<Message> reportList = new LinkedList<Message>();
-		parseIncomingMessages(probeMap, reportList);
-		if (!probeMap.isEmpty()) processNOSPMessages(self, protocolID, probeMap);
-		if (!reportList.isEmpty()) processReportMessages(self, protocolID, reportList);
-	}
-	
-	public void initCount(Node self, int pid) {
-		shortestPathMap.put(self, new ShortestPathData(1, 0));
+	private void processDiscoveryMessages(Node self, int pid, Map<Node, List<Message>> messageMap) {
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
-		for (int i = 0; i < lnk.degree(); ++i) {
-			Node n = lnk.getNeighbor(i);
-			Deccen sdp = (Deccen) n.getProtocol(pid);
-			addToSendQueue(Message.createProbeMessage(self, self, 1, 0), sdp);
-		}
-	}
-	
-	private boolean alreadyReported(Node s, Node t) {
-		return handledReports.contains(new OrderedPair<Long,Long>(s.getID(), t.getID()));
-	}
-	
-	private void processNOSPMessages(Node self, int pid, Map<Node,List<Message>> messageMap) {
 		for (Map.Entry<Node,List<Message>> e : messageMap.entrySet()) {
 			Node s = e.getKey();
 			if (!shortestPathMap.containsKey(s)) {
 				List<Message> ml = e.getValue();
 				int spCount = 0;
-				int distance = ml.get(0).get(Attachment.SP_LENGTH, Integer.class);
+				int distance = -1;
 				Set<Node> senders = new HashSet<Node>();
 				for (Message m : ml) {
-					spCount += m.get(Message.Attachment.SP_COUNT, Integer.class);
-					assert distance == m.get(Message.Attachment.SP_LENGTH, Integer.class) : "Distance mismatch";
-					senders.add(m.get(Attachment.SENDER, Node.class));
+					assert m.type == Message.Type.DISCOVERY;
+					if (distance == -1) distance = m.get(Message.Field.SP_LENGTH, Integer.class);
+					assert distance == m.get(Message.Field.SP_LENGTH, Integer.class) : "Distance mismatch";
+					spCount += m.get(Message.Field.SP_COUNT, Integer.class);
+					senders.add(m.get(Message.Field.SENDER, Node.class));
 				}
 				++distance;
 				shortestPathMap.put(s, new ShortestPathData(spCount, distance));
 				
-				Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 				for (int i = 0; i < lnk.degree(); ++i) {
 					Node n = lnk.getNeighbor(i);
 					Deccen sdp = (Deccen) n.getProtocol(pid);
 					if (!senders.contains(n))
-						addToSendQueue(Message.createProbeMessage(self, s, spCount, distance), sdp);
+						addToSendQueue(Message.createDiscoveryMessage(self, s, spCount, distance), sdp);
 					addToSendQueue(Message.createReportMessage(self, s, self, spCount, distance), sdp);
 				}
 			}
@@ -163,13 +157,14 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 	private void processReportMessages(Node self, int pid, List<Message> messageList) {
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		for (Message m : messageList) {
-			Node s = m.get(Attachment.SOURCE, Node.class);
-			Node t = m.get(Attachment.DESTINATION, Node.class);
+			assert m.type == Message.Type.REPORT;
+			Node s = m.get(Message.Field.SOURCE, Node.class);
+			Node t = m.get(Message.Field.DESTINATION, Node.class);
 			if (!alreadyReported(s, t)) {
-				Node sender = m.get(Attachment.SENDER, Node.class);
-				int spCount = m.get(Attachment.SP_COUNT, Integer.class);
-				int distance = m.get(Attachment.SP_LENGTH, Integer.class);
-				updateCentralitiesFromReport(self, s, t, spCount, distance);
+				Node sender = m.get(Message.Field.SENDER, Node.class);
+				int spCount = m.get(Message.Field.SP_COUNT, Integer.class);
+				int distance = m.get(Message.Field.SP_LENGTH, Integer.class);
+				updateCentralities(self, s, t, spCount, distance);
 				
 				for (int i = 0; i < lnk.degree(); ++i) {
 					Node n = lnk.getNeighbor(i);
@@ -180,13 +175,17 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 			}
 		}
 	}
+	
+	private boolean alreadyReported(Node s, Node t) {
+		return handledReports.contains(new OrderedPair<Long,Long>(s.getID(), t.getID()));
+	}
 
-	private void updateCentralitiesFromReport(Node self, Node s, Node t, int sigma_st, int d_st) {
+	private void updateCentralities(Node self, Node s, Node t, int sigma_st, int d_st) {
 		assert !alreadyReported(s, t) : "Handling report for (" + s + "," + t + ") twice.";
 		
 		if (self == s) {
-			closenessSum += d_st;
-			closenessCount++;
+			accumulatorCC += d_st;
+			nCC++;
 		}
 		
 		if (self != s && self != t) {
@@ -197,8 +196,8 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 			
 			if (pathToSource.length + pathToDestination.length == d_st) {
 				long sigma_self = pathToSource.count * pathToDestination.count;
-				stress += sigma_self;
-				betweenness += sigma_self / (double) sigma_st;
+				accumulatorSC += sigma_self;
+				accumulatorBC += sigma_self / (double) sigma_st;
 			}
 		}
 		
@@ -207,18 +206,18 @@ public class Deccen extends SynchronousCentralityProtocol implements CDProtocol 
 	
 	@Override
 	public double getCC() {
-		if (closenessCount == 0) return 0.0;
-		else return useClosenessVariant ? (closenessSum / (double) closenessCount) :  (1.0 / closenessSum);
+		if (nCC == 0) return 0.0;
+		else return (accumulatorCC / (double) nCC);
 	}
 	
 	@Override
 	public double getBC() {
-		return betweenness;
+		return accumulatorBC;
 	}
 	
 	@Override
 	public long getSC() {
-		return stress;
+		return accumulatorSC;
 	}
 
 }

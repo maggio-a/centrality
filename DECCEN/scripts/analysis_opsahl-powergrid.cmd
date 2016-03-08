@@ -1,5 +1,5 @@
 echo Fraction > results/opsahl-powergrid/analysis_opsahl-powergrid.txt
-echo CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv >> results/opsahl-powergrid/analysis_opsahl-powergrid.txt
+echo CCerr CCPercentileErr CCpercInv BCerr BCPercentileErr BCpercInv SCerr SCPercentileErr SCpercInv >> results/opsahl-powergrid/analysis_opsahl-powergrid.txt
 echo 0.05 >> results/opsahl-powergrid/analysis_opsahl-powergrid.txt
 java -jar centrality.jar -a results/opsahl-powergrid/opsahl-powergrid.indices results/opsahl-powergrid/approximation_opsahl-powergrid005.txt 10 >> results/opsahl-powergrid/analysis_opsahl-powergrid.txt
 echo 0.10 >> results/opsahl-powergrid/analysis_opsahl-powergrid.txt

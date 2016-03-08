@@ -1,0 +1,40 @@
+% !TeX root = p2p.tex
+
+\theoremstyle{definition}
+\newtheorem*{defcc}{Closeness centrality}
+\newtheorem*{defsc}{Stress centrality}
+\newtheorem*{defbc}{Betweenness centrality}
+
+\section{Introduction}
+
+The task of the project was to define \deccen{}, a decentralized algorithm able to compute the stress centrality values of a network (based on the ideas introduced in \cite{lehmann2003}), and study its behavior using the \emph{Peersim} simulator \cite{peersim}. Additionally -- given the high cost of the algorithm -- approximation techniques could be proposed in order to reduce the communication overhead and memory requirements, and the computation could be extended to also include closeness and betweenness centrality values.
+
+This report defines \deccen{} extended to compute the three centrality indices mentioned. Furthermore, a different decentralized algorithm is defined, based on the previous works of Brandes, and Eppstein and Wang \cite{brandes2001, ew2004, brandes2007}, to approximate centrality indices by involving only a limited amount of agents in the computation. This second algorithm, labeled \multibfs{}, has a significantly smaller communication overhead than \deccen{}.
+
+This document is organized as follows: in section 2 some preliminary definitions are given, while \deccen{} is defined in section 3 and \multibfs{} is defined in section 4. Experimental results are shown in section: the aims of the experiments were to compare the performance of the two algorithms, and to evaluate the quality of the estimates obtained with \multibfs{}. Follow a small overview of the most relevant choices made in the development of the project code, and the proofs of some results introduced in section 4.
+
+
+\section{Preliminary definitions and assumptions}
+
+The task is to compute centrality indices for a given undirected graph $G = (V,E)$, which is assumed to be connected. As usual, $n$ is the number of nodes $|V|$ and $m$ is the number of edges $|E|$. Each node $v \in V$ represents an independent agent with some given computational power, that can only communicate with its neighbors $N_v = \{u \in V : \{u,v\} \in E\}$. A path $p(s,t)$ from a source $s$ to a destination $t$ is a sequence of edges that connects the two endpoints. The distance $d(u,v)$ between two nodes is the length of the shortest path that connects them (with $d(u,u) = 0$) while the diameter $\Delta$ is the maximum distance between any pair of nodes. Note that $d(u,v) = d(v,u)$ since the graph is undirected. A node $v$ is a predecessor of $w$ with respect to a source $s$ if $\{v,w\} \in E$ and $d(s,v) +1 = d(s,w)$. The \emph{predecessor set} $P_s(w)$ of $w$ is the set of all predecessors of $w$ with respect to $s$.
+
+The number of different shortest paths that connect two nodes $s,t \in V$ is denoted by $\sigma_{st}$, while the quantity $\sigma_{st}(v)$ is the number of shortest paths between $s$ and $t$ that pass through $v$ (this means that if $v = s$ or $v = t$ then $\sigma_{st}(v)$ is always zero).
+
+The centrality indices relevant to this document are the following:
+\begin{defcc} The \emph{closeness centrality} $C_C(v)$ of a node $v \in V$ is defined as
+\begin{equation}
+ C_C(v) = \frac{\sum_{u \in V} d(u,v)}{n-1}
+\end{equation}
+\end{defcc}
+\begin{defsc} The \emph{stress centrality} $S_C(v)$ of a node $v \in V$ is defined as
+\begin{equation}
+ S_C(v) = \sum_{s \in V} \sum_{t \in V} \sigma_{st}(v)
+\end{equation}
+\end{defsc}
+\begin{defbc} The \emph{betweenness} centrality $B_C(v)$ of a node $v \in V$ is defined as
+\begin{equation}
+ B_C(v) = \sum_{s \in V} \sum_{t \in V} \frac{\sigma_{st}(v)}{\sigma_{st}}
+\end{equation}
+\end{defbc}
+
+The algorithms described in this report all assume an underlying synchronous model where the computation evolves in steps: at each step all the agents perform their computations independently and autonomously, and the messages they send at step $t$ are delivered to the destination and processed at step $t+1$.

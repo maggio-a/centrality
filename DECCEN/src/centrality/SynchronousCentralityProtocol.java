@@ -3,8 +3,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import peersim.cdsim.CDProtocol;
+import peersim.core.Node;
 
-public abstract class SynchronousCentralityProtocol implements CycleBasedTransportSupport<Message> {
+
+public abstract class SynchronousCentralityProtocol implements CycleBasedTransportSupport<Message>, CDProtocol {
 
 	private static class SQEntry implements SendQueueEntry<Message> {
 		
@@ -77,5 +80,8 @@ public abstract class SynchronousCentralityProtocol implements CycleBasedTranspo
 	public abstract double getBC();
 	
 	public abstract long getSC();
+	
+	@Override
+	public abstract void nextCycle(Node self, int protocolID);
 
 }

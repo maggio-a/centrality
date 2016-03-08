@@ -1,5 +1,5 @@
 echo Fraction > results/arenas-jazz/analysis_arenas-jazz.txt
-echo CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv >> results/arenas-jazz/analysis_arenas-jazz.txt
+echo CCerr CCPercentileErr CCpercInv BCerr BCPercentileErr BCpercInv SCerr SCPercentileErr SCpercInv >> results/arenas-jazz/analysis_arenas-jazz.txt
 echo 0.05 >> results/arenas-jazz/analysis_arenas-jazz.txt
 java -jar centrality.jar -a results/arenas-jazz/arenas-jazz.indices results/arenas-jazz/approximation_arenas-jazz005.txt 10 >> results/arenas-jazz/analysis_arenas-jazz.txt
 echo 0.10 >> results/arenas-jazz/analysis_arenas-jazz.txt

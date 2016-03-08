@@ -1,5 +1,5 @@
 echo Fraction > results/arenas-email/analysis_arenas-email.txt
-echo CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv >> results/arenas-email/analysis_arenas-email.txt
+echo CCerr CCPercentileErr CCpercInv BCerr BCPercentileErr BCpercInv SCerr SCPercentileErr SCpercInv >> results/arenas-email/analysis_arenas-email.txt
 echo 0.05 >> results/arenas-email/analysis_arenas-email.txt
 java -jar centrality.jar -a results/arenas-email/arenas-email.indices results/arenas-email/approximation_arenas-email005.txt 10 >> results/arenas-email/analysis_arenas-email.txt
 echo 0.10 >> results/arenas-email/analysis_arenas-email.txt

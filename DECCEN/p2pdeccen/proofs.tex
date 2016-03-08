@@ -1,0 +1,63 @@
+% !TeX root = p2p.tex
+
+\section*{Appendix A: theorem proofs}
+
+\begin{th_recall_contrib_sc}
+The stress centrality contribution of $s \in V$ on any $v \in V$ obeys
+\begin{equation*}
+\sigma(s|v) = \sum_{w : v \in P_s(w)} \sigma_{sv} \cdot \left( 1 + \frac{\sigma(s|w)}{\sigma_{sw}} \right) . \tag{5}
+\end{equation*}
+\end{th_recall_contrib_sc}
+
+\begin{proof}
+The proof is analogous to the one provided by Brandes in \cite{brandes2001} to prove Theorem \ref{th:contrib:bc}.
+
+Let $\sigma_{st}(v,e)$ be the number of shortest paths between $s$ and $t$ that pass through $v$ and across edge $e$. Observe that if a shortest path from $s$ to $t$ travels through $v$, then after $v$ it must immediately reach some other node $w$ that has $v$ in its predecessor set $P_s(w)$, so equation \eqref{eq:contrib:sc} can be rewritten as
+\begin{IEEEeqnarray}{rCl}
+\sigma(s|v) & = & \sum_{t \in V} \sigma_{st}(v) \nonumber =  \sum_{t \in V} \sum_{w : v \in P_s(w)} \sigma_{st}(v, \{v,w\}) \nonumber \\
+ & = & \sum_{w : v \in P_s(w)} \sum_{t \in V} \sigma_{st}(v, \{v,w\}) . \nonumber
+\end{IEEEeqnarray}
+Let $w$ be any node with $v \in P_s(w)$, then
+\begin{equation*}
+\sigma_{st}(v,\{v,w\}) = \left \{
+\begin{array}{ll}
+\sigma_{sv} & \text{if } t = w \\
+\frac{\sigma_{sv}}{\sigma_{sw}} \cdot \sigma_{st}(w) & \text{if } t \neq w \\
+\end{array} \right.
+\end{equation*}
+and substituting it in the previous expression yields
+\begin{IEEEeqnarray}{+rCl+x*}
+\sigma(s|v) & = & \sum_{w : v \in P_s(w)} \sum_{t \in V} \sigma_{st}(v, \{v,w\}) \nonumber \\
+ & = & \sum_{w : v \in P_s(w)} \left( \sigma_{sv} + \sum_{t \neq w} \frac{\sigma_{sv}}{\sigma_{sw}} \cdot \sigma_{st}(w) \right) \nonumber \\
+ & = & \sum_{w : v \in P_s(w)} \sigma_{sv} \cdot \left( 1 + \frac{\sigma(s|w)}{\sigma_{sw}} \right). & \qedhere \nonumber
+\end{IEEEeqnarray}
+\end{proof}
+
+\begin{th_recall_expect}[Unbiased estimators]
+The expected values of the centrality estimators are the exact centrality indices:
+ \begin{enumerate}[label=\textup{(\alph*)}]
+  \item \label{estimator:cc} $\mathbf{E}[\widehat{C}_C(u)] = C_C(u)$,
+  \item \label{estimator:sc} $\mathbf{E}[\widehat{C}_S(u)] = C_S(u)$,
+  \item \label{estimator:bc} $\mathbf{E}[\widehat{C}_B(u)] = C_B(u)$.
+  \end{enumerate}
+\end{th_recall_expect}
+\begin{proof}
+\ref{estimator:cc} Recall that for the estimation of closeness centrality, the result of sampling from a source $v_i$ at a node $u$ was modeled with the random variable $X_i(u) = \frac{n}{n-1} \cdot d(v_i,u)$. The derivation exploits the linearity of the expected value operator $\mathbf{E}$ and the fact that source nodes are random (that is, each node has equal probability $1/n$ of being a source).
+\begin{IEEEeqnarray}{+rCl+r*} 
+\mathbf{E}[\widehat{C}_C(u)] & = &
+\IEEEeqnarraymulticol{2}{l}{
+  \mathbf{E}\left[ \sum_{i=1}^k \frac{X_i(u)}{k} \right] = \mathbf{E}\left[ \sum_{i=1}^k \frac{ n \cdot d(v_i,u) }{k(n-1)} \right]
+} \nonumber \\
+ & = & \frac{n}{k(n-1)} \sum_{i=1}^k \mathbf{E} \left[ d(v_i,u) \right] & \text{(by linearity of expectation)}\nonumber \\
+ & = & \frac{n}{k(n-1)} \cdot k \cdot \frac{1}{n} \sum_{v \in V} d(v,u) & \text{(random source selection)} \nonumber \\
+ & = & \frac{\sum_{v \in V} d(v,u)}{n-1} = C_C(u) \nonumber
+\end{IEEEeqnarray}
+
+\ref{estimator:sc} To estimate stress centrality, the result of sampling from $v_i$ is modeled at $u$ with the random variable $Y_i(u) = n \cdot \sigma(v_i|u)$. The derivation relies again on the linearity of $\mathbf{E}$ and the uniform distribution of source nodes.
+\begin{IEEEeqnarray}{+rCl+r*}
+\mathbf{E}[\widehat{C}_S(u)] & = & \mathbf{E}\left[ \sum_{i=1}^k \frac{Y_i(u)}{k} \right] = \mathbf{E}\left[ \sum_{i=1}^k \frac{n \cdot \sigma(v_i|u)}{k}\right] \nonumber \\
+ & = & \frac{n}{k} \sum_{i=1}^k \mathbf{E} \left[ \sigma(v_i|u) \right] = \frac{n}{k} \cdot k \cdot \frac{1}{n} \sum_{v \in V} \sigma(v|u) = C_S(u) \nonumber
+\end{IEEEeqnarray}
+
+\ref{estimator:bc} The proof is the same as \ref{estimator:sc} with the substitution of $Z_i(u) = n \cdot \delta(v_i|u)$ for $Y_i(u)$. \qedhere
+\end{proof}

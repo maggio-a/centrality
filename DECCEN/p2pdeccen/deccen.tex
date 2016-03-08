@@ -1,7 +1,6 @@
 % !TeX root = p2p.tex
 
-\newcommand{\mdecrepargs}[2]{\mrep$\langle (#1,#2), \sigma_{#1 #2}, d_{#1 #2}\rangle$}
-\newcommand{\mdecrepargsfull}[3]{\mrep$\langle (#1,#2), \sigma_{#1 #2}, #3\rangle$}
+\section{The \deccen{} algorithm}
 
 The specification of \deccen{} is based on the algorithmic scheme outlined in \cite{lehmann2003}. Initially, each node broadcasts itself on the network. Exploiting the synchronous model, after $k$ steps any node $t \in V$ will know all the nodes $s \in V$ such that $d(s,t) = k$ and the number of shortest paths  $\sigma_{st}$ that links it to each of them. This information is stored locally and also reported in broadcast to allow other nodes $v \in V$ to compute the quantity $\sigma_{st}(u)$ necessary to compute the betweenness and stress centrality indices. The value $\sigma_{st}(u)$ can be determined by exploiting the following
 
@@ -26,6 +25,7 @@ Each node $v$ maintains three accumulators $C_C$, $C_B$ and $C_S$ for closeness,
 Each node $v \in V$ initializes the accumulators $C_C$, $C_B$ and $C_S$ to $0$, the set $R$ to the empty set, the dictionary $D$ so that it only contains the entry $(v,0)$ and $S$ so that it only contains the entry $(v,1)$. Furthermore, it sends to all its neighbors a \mdiscstart{v} message.
 
 \subsection{Step actions}
+\label{deccen:step}
 The processing performed by each node $v$ at each step is the following:
 
 \begin{algosteps}

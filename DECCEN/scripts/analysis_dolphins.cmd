@@ -1,5 +1,5 @@
 echo Fraction > results/dolphins/analysis_dolphins.txt
-echo CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv >> results/dolphins/analysis_dolphins.txt
+echo CCerr CCPercentileErr CCpercInv BCerr BCPercentileErr BCpercInv SCerr SCPercentileErr SCpercInv >> results/dolphins/analysis_dolphins.txt
 echo 0.05 >> results/dolphins/analysis_dolphins.txt
 java -jar centrality.jar -a results/dolphins/dolphins.indices results/dolphins/approximation_dolphins005.txt 10 >> results/dolphins/analysis_dolphins.txt
 echo 0.10 >> results/dolphins/analysis_dolphins.txt

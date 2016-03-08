@@ -1,5 +1,11 @@
 \begin{thebibliography}{}
 
+\bibitem[net(2003)]{network:dolphins}
+ (2003).
+\newblock The bottlenose dolphin community of {Doubtful Sound} features a large
+  proportion of long-lasting associations.
+\newblock {\em Behavioral Ecology and Sociobiology}, {\bf 54}, 396--405.
+
 \bibitem[Brandes(2001)]{brandes2001}
 Brandes  U. (2001).
 \newblock A faster algorithm for betweenness centrality.
@@ -16,9 +22,49 @@ Eppstein  D.; Wang  J. (2004).
 \newblock Fast approximation of centrality.
 \newblock {\em J. Graph Algorithms Appl.}, {\bf 8}(1), 39--45.
 
+\bibitem[Freeman et~al.(1988)]{network:surf}
+Freeman  L.~C.; Freeman  S.~C.; Michaelson  A.~G. (1988).
+\newblock On human social intelligence.
+\newblock {\em J. of Social and Biological Structures}, {\bf 11}(4), 415--425.
+
+\bibitem[Guimerà et~al.(2003)]{network:email}
+Guimerà  R.; Danon  L.; Díaz-Guilera  A.; Giralt  F.; Arenas  A. (2003).
+\newblock Self-similar community structure in a network of human interactions.
+\newblock {\em Phys. Rev. E}, {\bf 68}(6), 065103.
+
+\bibitem[Hayes(2006)]{network:train}
+Hayes  B. (2006).
+\newblock Connecting the dots. can the tools of graph theory and social-network
+  studies unravel the next big plot?
+\newblock {\em American Scientist}, {\bf 94}(5), 400--404.
+
+\bibitem[Kunegis(2013)]{konect}
+Kunegis  J. (2013).
+\newblock {KONECT} -- {The} {Koblenz} {Network} {Collection}.
+\newblock  In {\em Proc. Int. Conf. on World Wide Web Companion}, pp.
+  1343--1350.
+
 \bibitem[Lehmann e Kaufmann(2003)]{lehmann2003}
 Lehmann  K.~A.; Kaufmann  M. (2003).
 \newblock Decentralized algorithms for evaluating centrality in complex
   networks.
+
+\bibitem[Montresor e Jelasity(2009)]{peersim}
+Montresor  A.; Jelasity  M. (2009).
+\newblock {PeerSim}: A scalable {P2P} simulator.
+\newblock  In {\em Proc. of the 9th Int. Conference on Peer-to-Peer (P2P'09)},
+  pp. 99--100, Seattle, WA.
+
+\bibitem[Takahata(1991)]{network:mac}
+Takahata  Y. (1991).
+\newblock Diachronic changes in the dominance relations of adult female
+  {Japanese} monkeys of the {Arashiyama} {B} group.
+\newblock {\em The Monkeys of Arashiyama. State University of New York Press,
+  Albany}, pp. 123--139.
+
+\bibitem[Watts e Strogatz(1998)]{network:powergrid}
+Watts  D.~J.; Strogatz  S.~H. (1998).
+\newblock Collective dynamics of `small-world' networks.
+\newblock {\em Nature}, {\bf 393}(1), 440--442.
 
 \end{thebibliography}
