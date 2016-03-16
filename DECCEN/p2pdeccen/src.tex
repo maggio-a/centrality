@@ -1,0 +1,60 @@
+\documentclass[a4paper, 10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage[margin=2.2cm]{geometry}
+
+%\usepackage[scaled=0.8]{ulgothic}
+
+\usepackage{minted}
+
+\usemintedstyle{vs}
+
+\setminted[java]{linenos=true, breaklines, tabsize=4}
+
+\usepackage{fontspec}
+\setmonofont[Scale=0.8]{Consolas}
+
+\linespread{0.73}
+
+\usepackage[tt, bf, small]{titlesec}
+\titlelabel{\thetitle\quad}
+
+\begin{document}
+
+\section*{P2P course 2015/2016 Final Project source code.}
+\begin{verbatim}
+Author: Andrea Maggiordomo. Imports are omitted.
+\end{verbatim}
+\section{Protocol classes}
+\subsection*{Message.java}
+\inputminted[firstline=16]{java}{../src/centrality/Message.java}
+\subsection*{CycleBasedTransportSupport.java}
+\inputminted[firstline=13]{java}{../src/centrality/CycleBasedTransportSupport.java}
+\subsection*{SynchronousCentralityProtocol.java}
+\inputminted[firstline=18]{java}{../src/centrality/SynchronousCentralityProtocol.java}
+\subsection*{Deccen.java}
+\inputminted[firstline=24]{java}{../src/centrality/Deccen.java}
+\subsection*{MultiBFS.java}
+\inputminted[firstline=25]{java}{../src/centrality/MultiBFS.java}
+
+\section{Controls}
+
+\subsection*{CycleBasedTransport.java}
+\inputminted[firstline=19]{java}{../src/centrality/CycleBasedTransport.java}
+\subsection*{DeccenInitializer.java}
+\inputminted[firstline=16]{java}{../src/centrality/DeccenInitializer.java}
+\subsection*{MultiBFSInitializer.java}
+\inputminted[firstline=21]{java}{../src/centrality/MultiBFSInitializer.java}
+\subsection*{MultiBFSControl.java}
+\inputminted[firstline=21]{java}{../src/centrality/MultiBFSControl.java}
+\subsection*{CentralityObserver.java}
+\inputminted[firstline=16]{java}{../src/centrality/CentralityObserver.java}
+
+\section{Misc}
+
+\subsection*{MyNode.java}
+\inputminted[firstline=15]{java}{../src/centrality/MyNode.java}
+\subsection*{WireFromEdgeList.java}
+\inputminted[firstline=19]{java}{../src/centrality/WireFromEdgeList.java}
+\end{document}

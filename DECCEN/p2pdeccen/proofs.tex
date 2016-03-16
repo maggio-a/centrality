@@ -1,11 +1,11 @@
 % !TeX root = p2p.tex
 
-\section*{Appendix A: theorem proofs}
+\section*{Appendix: Theorem proofs}
 
 \begin{th_recall_contrib_sc}
 The stress centrality contribution of $s \in V$ on any $v \in V$ obeys
 \begin{equation*}
-\sigma(s|v) = \sum_{w : v \in P_s(w)} \sigma_{sv} \cdot \left( 1 + \frac{\sigma(s|w)}{\sigma_{sw}} \right) . \tag{5}
+\sigma(s|v) = \sum_{w : v \in P_s(w)} \sigma_{sv} \cdot \left( 1 + \frac{\sigma(s|w)}{\sigma_{sw}} \right) . \tag{\ref{eq:th:contrib:sc}}
 \end{equation*}
 \end{th_recall_contrib_sc}
 
@@ -34,17 +34,17 @@ and substituting it in the previous expression yields
 \end{proof}
 
 \begin{th_recall_expect}[Unbiased estimators]
-The expected values of the centrality estimators are the exact centrality indices:
+The expected values of the centrality estimators are the actual centrality indices:
  \begin{enumerate}[label=\textup{(\alph*)}]
-  \item \label{estimator:cc} $\mathbf{E}[\widehat{C}_C(u)] = C_C(u)$,
-  \item \label{estimator:sc} $\mathbf{E}[\widehat{C}_S(u)] = C_S(u)$,
-  \item \label{estimator:bc} $\mathbf{E}[\widehat{C}_B(u)] = C_B(u)$.
+  \item \label{estimator:cc} $\mathbf{E}[\widetilde{C}_C(u)] = C_C(u)$,
+  \item \label{estimator:sc} $\mathbf{E}[\widetilde{C}_S(u)] = C_S(u)$,
+  \item \label{estimator:bc} $\mathbf{E}[\widetilde{C}_B(u)] = C_B(u)$.
   \end{enumerate}
 \end{th_recall_expect}
 \begin{proof}
 \ref{estimator:cc} Recall that for the estimation of closeness centrality, the result of sampling from a source $v_i$ at a node $u$ was modeled with the random variable $X_i(u) = \frac{n}{n-1} \cdot d(v_i,u)$. The derivation exploits the linearity of the expected value operator $\mathbf{E}$ and the fact that source nodes are random (that is, each node has equal probability $1/n$ of being a source).
 \begin{IEEEeqnarray}{+rCl+r*} 
-\mathbf{E}[\widehat{C}_C(u)] & = &
+\mathbf{E}[\widetilde{C}_C(u)] & = &
 \IEEEeqnarraymulticol{2}{l}{
   \mathbf{E}\left[ \sum_{i=1}^k \frac{X_i(u)}{k} \right] = \mathbf{E}\left[ \sum_{i=1}^k \frac{ n \cdot d(v_i,u) }{k(n-1)} \right]
 } \nonumber \\
@@ -55,7 +55,7 @@ The expected values of the centrality estimators are the exact centrality indice
 
 \ref{estimator:sc} To estimate stress centrality, the result of sampling from $v_i$ is modeled at $u$ with the random variable $Y_i(u) = n \cdot \sigma(v_i|u)$. The derivation relies again on the linearity of $\mathbf{E}$ and the uniform distribution of source nodes.
 \begin{IEEEeqnarray}{+rCl+r*}
-\mathbf{E}[\widehat{C}_S(u)] & = & \mathbf{E}\left[ \sum_{i=1}^k \frac{Y_i(u)}{k} \right] = \mathbf{E}\left[ \sum_{i=1}^k \frac{n \cdot \sigma(v_i|u)}{k}\right] \nonumber \\
+\mathbf{E}[\widetilde{C}_S(u)] & = & \mathbf{E}\left[ \sum_{i=1}^k \frac{Y_i(u)}{k} \right] = \mathbf{E}\left[ \sum_{i=1}^k \frac{n \cdot \sigma(v_i|u)}{k}\right] \nonumber \\
  & = & \frac{n}{k} \sum_{i=1}^k \mathbf{E} \left[ \sigma(v_i|u) \right] = \frac{n}{k} \cdot k \cdot \frac{1}{n} \sum_{v \in V} \sigma(v|u) = C_S(u) \nonumber
 \end{IEEEeqnarray}
 

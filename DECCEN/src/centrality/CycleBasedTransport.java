@@ -1,4 +1,12 @@
+/*
+ * Peer-to-Peer Systems 2015/2016
+ * 
+ * Final project source code
+ * 
+ * Author: Andrea Maggiordomo - mggndr89@gmail.com
+ */
 package centrality;
+
 import java.util.Iterator;
 
 import centrality.CycleBasedTransportSupport.SendQueueEntry;
@@ -10,8 +18,13 @@ import peersim.core.Node;
 
 public class CycleBasedTransport implements Control {
 	
+	/** The {@link CycleBasedTransportSupport} protocol this transport operates on. */
 	private static final String PAR_PROTOCOL = "protocol";
+	
+	/** If defined, this control will print statistics about the messages transfered. */
 	private static final String PAR_STATISTICS = "printStatistics";
+	
+	/** If defined, this control stops the simulation if no messages are sent during a cycle. */
 	private static final String PAR_TERMINATE = "terminateOnEmptyQueues";
 	
 	private int protocolID;

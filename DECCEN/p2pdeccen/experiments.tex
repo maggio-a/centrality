@@ -1,11 +1,12 @@
 % !TeX root = p2p.tex
 
 \section{Experiments}
+\label{sec:exp}
 
 Simulations were performed to evaluate the performances of the algorithms, and to assess the quality of the estimations obtained by running \multibfs{} with different values of the parameter $p$.
 
 The networks used in the experiments (taken from the KONECT repository \cite{konect}) are:
-\begin{description}[style=standard]
+\begin{description}
  \item[\texttt{dolphins}] This is a social network of bottlenose dolphins. The nodes are the bottlenose dolphins (genus \emph{Tursiops}) of a bottlenose dolphin community living off Doubtful Sound, a fjord in New Zealand. An edge indicates a frequent association. The dolphins were observed between 1994 and 2001. ($n=62$, $m=159$, source \cite{network:dolphins}).
  \item[\texttt{surf}] This network contains interpersonal contacts between windsurfers in southern California during the fall of 1986. ($n=62$, $m=336$, source \cite{network:surf}).
  \item[\texttt{macaques}] This directed network contains dominance behaviour in a colony of 62 adult female Japanese macaques. An undirected version of the network (where edges are made symmetric) was used to run the experiments. ($n=62$, $m=1167$, source \cite{network:mac}).
@@ -27,10 +28,10 @@ The performance metrics used to evaluate the algorithms were the number of steps
 
 Network           & $n$ & $m$  & $\Delta$ & Steps  & Messages & Steps & Messages \\ \midrule
 
-\texttt{surf}     & 43  & 336  & 3        & 6      & 1160310  & 6     & 28896 \\
-\texttt{dolphins} & 62  & 159  & 8        & 16     & 985403   & 16    & 19716 \\
-\texttt{macaques}  & 62  & 1167 & 2        & 4      & 8708620  & 4     & 144708 \\
-\texttt{train}    & 64  & 243  & 6        & 12     & 1729397  & 12    & 31104 \\
+\texttt{surf}     & 43  & 336  & 3        & 6      & 181374  & 7     & 28896 \\
+\texttt{dolphins} & 62  & 159  & 8        & 16     & 140051   & 17    & 19716 \\
+\texttt{macaques}  & 62  & 1167 & 2        & 4      & 1458368  & 5     & 144708 \\
+\texttt{train}    & 64  & 243  & 6        & 12     & 272673  & 13    & 31104 \\
  
 \bottomrule
 
@@ -280,8 +281,7 @@ Figure \ref{fig:error} reports the average relative error $\epsilon_r$ yielded b
 \label{fig:error}
 \end{figure}
 
-
-The accuracy of the ranking is measured by counting among all the pair of nodes, the fraction of pairs in which the nodes are wrongly ordered with respect to the ranking induced by the exact centrality values. Results are reported in figures \ref{fig:inversion:dolphins}--\ref{fig:inversion:powergrid}. In this case, even for small values of $p$ the fraction of pairs wrongly ranked is relatively small. This is encouraging if the indices are used locally, to make decisions based on the values computed at a node and at its neighbors.
+The accuracy of the ranking in presence of approximated indices is measured by counting among all the pair of nodes, the fraction of pairs in which the nodes are wrongly ordered with respect to the ranking induced by the exact centrality values. Results are reported in figure \ref{fig:inversion}. In this case, even for small values of $p$ the fraction of pairs of nodes in wrong rank order is relatively small. This is encouraging if the estimated indices are used locally, to make decisions based on the values computed at a node and at its neighbors.
 
 \begin{figure}
 \centering
@@ -307,7 +307,7 @@ The accuracy of the ranking is measured by counting among all the pair of nodes,
   legend plot pos = left,
   legend cell align = left,
   legend entries = {$C_C$, $S_C$, $B_C$},
-  title = {Inversion},
+  title = {Pairs in wrong rank order in the \texttt{dolphins} network},
   title style = {
     font=\footnotesize
   }
@@ -344,7 +344,7 @@ The accuracy of the ranking is measured by counting among all the pair of nodes,
   legend plot pos = left,
   legend cell align = left,
   legend entries = {$C_C$, $S_C$, $B_C$},
-  title = {Inversion},
+  title = {Pairs in wrong rank order in the \texttt{email} network},
   title style = {
     font=\footnotesize
   }
@@ -381,7 +381,7 @@ The accuracy of the ranking is measured by counting among all the pair of nodes,
   legend plot pos = left,
   legend cell align = left,
   legend entries = {$C_C$, $S_C$, $B_C$},
-  title = {Inversion},
+  title = {Pairs in wrong rank order in the \texttt{powergrid} network},
   title style = {
     font=\footnotesize
   }

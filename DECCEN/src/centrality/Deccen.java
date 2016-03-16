@@ -1,3 +1,10 @@
+/*
+ * Peer-to-Peer Systems 2015/2016
+ * 
+ * Final project source code
+ * 
+ * Author: Andrea Maggiordomo - mggndr89@gmail.com
+ */
 package centrality;
 
 import java.util.HashMap;
@@ -164,13 +171,17 @@ public class Deccen extends SynchronousCentralityProtocol {
 				Node sender = m.get(Message.Field.SENDER, Node.class);
 				int spCount = m.get(Message.Field.SP_COUNT, Integer.class);
 				int distance = m.get(Message.Field.SP_LENGTH, Integer.class);
-				updateCentralities(self, s, t, spCount, distance);
 				
-				for (int i = 0; i < lnk.degree(); ++i) {
-					Node n = lnk.getNeighbor(i);
-					Deccen sdp = (Deccen) n.getProtocol(pid);
-					if (n.getID() != sender.getID())
-						addToSendQueue(Message.createReportMessage(self, s, t, spCount, distance), sdp);
+				boolean updated = updateCentralities(self, s, t, spCount, distance);
+				// Optimization: propagate the report only if the node lies on a 
+				// shortest path between s and t.
+				if (updated) {
+					for (int i = 0; i < lnk.degree(); ++i) {
+						Node n = lnk.getNeighbor(i);
+						Deccen sdp = (Deccen) n.getProtocol(pid);
+						if (n.getID() != sender.getID())
+							addToSendQueue(Message.createReportMessage(self, s, t, spCount, distance), sdp);
+					}
 				}
 			}
 		}
@@ -180,13 +191,20 @@ public class Deccen extends SynchronousCentralityProtocol {
 		return handledReports.contains(new OrderedPair<Long,Long>(s.getID(), t.getID()));
 	}
 
-	private void updateCentralities(Node self, Node s, Node t, int sigma_st, int d_st) {
+	/* 
+	 * Updates the centrality accumulators using the information obtained
+	 * from a report message. Returns true if the parameter self lies on a
+	 * shortest path between s and t, false otherwise.
+	 */
+	private boolean updateCentralities(Node self, Node s, Node t, int sigma_st, int d_st) {
 		assert !alreadyReported(s, t) : "Handling report for (" + s + "," + t + ") twice.";
 		
 		if (self == s) {
 			accumulatorCC += d_st;
 			nCC++;
 		}
+		
+		boolean updated = false;
 		
 		if (self != s && self != t) {
 			ShortestPathData pathToSource = shortestPathMap.get(s);
@@ -198,10 +216,12 @@ public class Deccen extends SynchronousCentralityProtocol {
 				long sigma_self = pathToSource.count * pathToDestination.count;
 				accumulatorSC += sigma_self;
 				accumulatorBC += sigma_self / (double) sigma_st;
+				updated = true;
 			}
 		}
 		
 		handledReports.add(new OrderedPair<Long,Long>(s.getID(), t.getID()));
+		return updated;
 	}
 	
 	@Override

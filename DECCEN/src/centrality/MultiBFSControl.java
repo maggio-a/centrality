@@ -1,5 +1,11 @@
+/*
+ * Peer-to-Peer Systems 2015/2016
+ * 
+ * Final project source code
+ * 
+ * Author: Andrea Maggiordomo - mggndr89@gmail.com
+ */
 package centrality;
-
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,6 +21,11 @@ import peersim.core.Node;
 public class MultiBFSControl implements Control {
 	
 	private static final String PAR_PROTOCOL = "protocol";
+	
+	/**
+	 * The maximum number of active sources. Useful to limit the memory requirements of
+	 * a simulation at the price of increasing the number of cycles needed to complete.
+	 */
 	private static final String PAR_DEGREE = "degree";
 	
 	private int protocolID;
@@ -51,13 +62,11 @@ public class MultiBFSControl implements Control {
 			if (mbfs.isCompleted(n)) it.remove();
 		}
 		
-		if (visiting.size() == 0) {
-			while (visiting.size() < degree && sourcesIterator.hasNext()) {
-				Node s = sourcesIterator.next();
-				MultiBFS mbfs = (MultiBFS) s.getProtocol(protocolID);
-				mbfs.startAccumulation(s, protocolID);
-				visiting.add(s);
-			}
+		while (visiting.size() < degree && sourcesIterator.hasNext()) {
+			Node s = sourcesIterator.next();
+			MultiBFS mbfs = (MultiBFS) s.getProtocol(protocolID);
+			mbfs.startAccumulation(s, protocolID);
+			visiting.add(s);
 		}
 		int counter = 0;
 		Set<Node> sources = MultiBFSInitializer.getSources();

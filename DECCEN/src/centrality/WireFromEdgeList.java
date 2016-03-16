@@ -1,4 +1,12 @@
+/*
+ * Peer-to-Peer Systems 2015/2016
+ * 
+ * Final project source code
+ * 
+ * Author: Andrea Maggiordomo - mggndr89@gmail.com
+ */
 package centrality;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Scanner;

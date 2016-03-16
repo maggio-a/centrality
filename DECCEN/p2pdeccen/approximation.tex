@@ -1,23 +1,20 @@
 % !TeX root = p2p.tex
 
 \section{Approximation of centrality indices}
+\label{sec:mbfs}
 
-The main issue with the \deccen{} algorithm is its computational cost both in terms of memory consumption and number of messages exchanged, rendering the algorithm impractical for networks of reasonable size.. In order to keep track of the forwarded report messages and guarantee the termination of the protocol each node needs to maintain a data structure of size $O(n^2)$, while the number of messages exchanged is $O(n^2m)$.
+The main issue with \deccen{} is its high cost in terms of number of messages exchanged and the requirement of a quadratic space data structure, which make its use impractical for networks of reasonable size.
 
-However, if we are for example interested in computing centrality indices in order to mitigate network congestion a simple estimation of the values could be sufficient. In the following I propose an approximation algorithm that adapts an idea originally developed for closeness centrality in \cite{ew2004} and expanded for the estimation of betweenness centrality in \cite{brandes2007}. The idea is to isolate the contribution of a single node $s$ to the centrality values of all the other nodes in the network and compute those contributions by solving a Single-Source-Shortest-Path problem starting from $s$. We can then compute the centrality of a node $v$ by adding the contributions of all the other nodes to $v$ (that is, by solving $n$ SSSP instances starting from all the nodes and accumulating the contributions locally). In our case, the SSSP problem is converted to a decentralized Breadth First Search.
+Eppstein and Wang introduced in \cite{ew2004} an approximation algorithm for the computation of closeness centrality. Their approach is to sample the contributions of a subset of nodes to the centrality indices and extrapolate an approximate value from those contributions; the contribution of a node $s$ to any $v$ is taken to be the distance $d(s,v)$ and can be computed by solving a Single-Source-Shortest-Path problem with $s$ as source. Brandes extended this scheme in \cite{brandes2007} to the approximation of betweenness centrality: his method relies on reformulating the betweenness in terms of contributions from other nodes and employs an augmented SSSP to compute those contributions recursively, as originally proposed in \cite{brandes2001}. This approach can be applied in a decentralized way (by adapting the SSSP problem, which in this case becomes a Breadth-First Search) and extended to the estimation of stress centrality, leading to the definition of a different decentralized algorithm for the computation (and estimation) of centrality indices.
 
-The approximation algorithms described in \cite{ew2004,brandes2007} estimate the centrality values by solving the SSSP problems for a restricted set of source nodes.
+\subsection{Reformulating centrality indices}
 
-\subsection*{Contribution of a source to Closeness centrality}
+The first step is to write each centrality index of a node $v$ as a sum of terms where each term denotes the contribution of a second node $s$ (referred to as the \emph{source} of the contribution) to the index value.
 
-The contribution of a source $s$ to the closeness centrality value of $v$ is simply the distance $d(s,v)$ of $v$ from $s$:
+\paragraph{Contribution of a source to Closeness centrality}
+As already mentioned, the contribution of a source node $s$ to the closeness centrality of $v$ is the distance $d(s,v)$. The closeness of a node is simply the reciprocal of the sum of the contributions of all the other nodes to its centrality.
 
-\begin{equation}
-\gamma(s|v) = d(s,v) .
-\end{equation}
-
-\subsection*{Contribution of a source to Betweenness centrality}
-
+\paragraph{Contribution of a source to Betweenness centrality}
 The contribution of a source $s$ to the betweenness centrality of $v$ is the \emph{dependency} of $s$ on $v$ introduced in \cite{brandes2001}:
 
 \begin{equation}
@@ -25,12 +22,11 @@ The contribution of a source $s$ to the betweenness centrality of $v$ is the \em
 \end{equation}
 that allows to rewrite the betweenness centrality of $v$ as
 
-\begin{equation*}
+\begin{equation}
 BC(v) = \sum_{s \in V} \delta(s|v).
-\end{equation*}
+\end{equation}
 
-\subsection*{Contribution of a source to Stress centrality}
-
+\paragraph{Contribution of a source to Stress centrality}
 The contribution to stress centrality is analogous to the betweenness centrality:
 
 \begin{equation} \label{eq:contrib:sc}
@@ -38,16 +34,18 @@ The contribution to stress centrality is analogous to the betweenness centrality
 \end{equation}
 and the stress centrality of $v$ is rewritten as
 
-\begin{equation*}
+\begin{equation}
 SC(v) = \sum_{s \in V} \sigma(s|v).
-\end{equation*}
+\end{equation}
 
 \subsection{Computing contributions from a single source}
 \label{sec:recursive}
 
-As stated previously, a decentralized Breadth First Search can be adapted to compute the contribution of a source to any of the three centrality indices considered. The closeness centrality contribution is simply the distance from the source to the node (that is, the depth of the visited node in the Breadth-First tree) and it can be computed directly during the visit.
+A decentralized Breadth First Search can be adapted to compute the contribution of a source to any of the three centrality indices considered.
 
-For betweenness centrality, \cite{brandes2001} shows that dependencies of a source obey a recursive relation expressed in terms of predecessors set:
+The closeness centrality contribution is simply the distance from the source to the node and it can be computed directly during the visit.
+
+For betweenness centrality, Brandes proved in \cite{brandes2001} that dependencies of a source obey a recursive relation expressed in terms of predecessors set:
 \begin{theorem}[Brandes, 2001]
 \label{th:contrib:bc}
 The dependency of $s \in V$ on any $v \in V$ obeys
@@ -64,48 +62,50 @@ The stress centrality contribution of $s \in V$ on any $v \in V$ obeys
 \end{equation}
 \end{theorem}
 
-The predecessor sets of all the nodes can be easily discovered by adjusting the ``descent'' phase of the BFS algorithm, while contributions are computed during a backward walk from the frontier of the BF-Tree back to the source.
+The predecessor sets can be easily discovered by the BFS algorithm during the network exploration, while contributions are computed while walking back to the source $s$ from the frontier of the BF-Tree .
 
-\subsection{Random sampling of source nodes [FIXME]}
+\subsection{Random sampling of source nodes}
 
-To let the algorithm operate in a decentralized way, each node independently initiates a visit with a given probability $p$, which reflects the fraction of the network sampled. Even if the number of samples is not known beforehand, eventually all the nodes will become aware of the number of sources that initiated a visit (let it be $k$).
+To let the algorithm operate in a decentralized way, each node independently initiates a visit with a given probability $p$, which reflects the fraction of the network sampled. Even if the number of samples is not known beforehand, eventually all the nodes become aware of the number of sources that started a visit by taking part in each of them (let it be $k$).
 
-The contributions of sample $v_i$ to the closeness, stress and betweenness centrality of any node $u$ can be modeled with the following random variables
+To estimate the value of centrality indices, first the result of sampling from a source node $v_i$ at a node $u$ is modeled with the following random variables that rely on the contributions of $v_i$ to the centrality values of $u$:
+\begin{equation*}
+X_i(u) = \frac{n}{n-1} \cdot d(v_i,u) , \qquad
+Y_i(u) = n \cdot \delta(v_i|u) , \qquad
+Z_i(u) = n \cdot \sigma(v_i|u) .
+\end{equation*}
+Then, centrality indices are approximated with the following estimators:
+\begin{equation*}
+\widetilde{C}_C(u) = \sum_{i=1}^k \frac{X_i(u)}{k}, \qquad
+\widetilde{C}_B(u) = \sum_{i=1}^k \frac{Y_i(u)}{k}, \qquad
+\widetilde{C}_S(u) = \sum_{i=1}^k \frac{Z_i(u)}{k} .
+\end{equation*}
 
-To estimate the value of centrality indices, first the result of sampling from a source node $v_i$ at a node $u$ is modeled using the following random variables:
-\begin{eqnarray*}
-X_i(u) = \frac{n}{n-1} \cdot d(v_i,u) , \quad
-Y_i(u) = n \cdot \delta(v_i|u) , \quad
-Z_i(u) = n \cdot \sigma(v_i|u) ,
-\end{eqnarray*}
-then centrality indices are approximated with the following estimators:
-\begin{eqnarray*}
-\widehat{C}_C(u) = \sum_{i=1}^k \frac{X_i(u)}{k}, \quad
-\widehat{C}_B(u) = \sum_{i=1}^k \frac{Y_i(u)}{k}, \quad
-\widehat{C}_S(u) = \sum_{i=1}^k \frac{Z_i(u)}{k} .
-\end{eqnarray*}
-
-The derivations for the following theorem -- which ensures the estimators are unbiased -- are reported in the appendix.
+The derivations for the next theorem -- which ensures the estimators are unbiased -- are reported in the appendix.
 
 \begin{theorem}[Unbiased estimators]
 \label{th:expect}
-The expected values of the centrality estimators are the exact centrality indices:
+The expected values of the centrality estimators are the actual centrality indices:
  \begin{enumerate}[label=\textup{(\alph*)}]
-  \item $\mathbf{E}[\widehat{C}_C(u)] = C_C(u)$,
-  \item $\mathbf{E}[\widehat{C}_S(u)] = C_S(u)$,
-  \item $\mathbf{E}[\widehat{C}_B(u)] = C_B(u)$.
+  \item $\mathbf{E}[\widetilde{C}_C(u)] = \widehat{C}_C(u)$,
+  \item $\mathbf{E}[\widetilde{C}_S(u)] = C_S(u)$,
+  \item $\mathbf{E}[\widetilde{C}_B(u)] = C_B(u)$.
   \end{enumerate}
 \end{theorem}
 
-\subsection{Algorithm specification}
+\subsection{\multibfs{} algorithm specification}
 
-In this section the algorithm is detailed. The only parameter of the algorithm is the probability $p$ with which each independent node decides to begin a visit of the network. The network size $n$ is assumed to be known to all the agents in the network. Initially, every node sets to zero the estimation of each centrality index.
+The only parameter of the algorithm is the probability $p$ of a node becoming the source of a decentralized BFS and having its centrality contributions being sampled at every location. The network size $n$ is assumed to be known in advance to all the nodes, otherwise it can be easily computed during the backtracking phase of the augmented BFS and broadcast by one or more sources.
+
+\pagebreak
+Note that if this algorithm is executed with $p=1$ it is basically the decentralized version of the algorithm described in \cite{brandes2001}, and at the end of the execution the estimates are the exact centrality values.
 
 \subsubsection{Message types}
+\begin{description}[leftmargin=0cm]
+\item[\mdiscargs{s}{u}{d}] Messages of this type are used during the descent from a source to build the predecessors sets at each node. Relevant fields are the source $s$ of the visit, the sender $u$, the distance $d$ of the sender to the source (that is, $d = d(s,u)$) and the number of shortest path from the source to the sender $\sigma_{su}$.
 
-\paragraph{\mdiscargs{s}{u}{d}} Messages of this type are used during the descent from a source to build the predecessors sets at each node. Relevant fields are the source $s$ of the visit, the sender $u$, the distance $d$ of the sender to the source (that is, $d = d(s,u)$) and the number of shortest path from the source to the sender $\sigma_{su}$.
-
-\paragraph{\mrepargs{s}{v}} These messages are sent by a node $v$ as part of the backtracking phase to inform its predecessors of the computed contributions and to allow them to compute their own by applying the recursive relations introduced in section \ref{sec:recursive}.
+\item[\mrepargs{s}{v}] These messages are sent by a node $v$ as part of the backtracking phase to inform its predecessors of the computed contributions and to allow them to compute their own by applying the recursive relations introduced in section \ref{sec:recursive}.
+\end{description}
 
 \subsubsection{Visit states}
 
@@ -117,9 +117,7 @@ Visit states are parametric with respect to the discovery from a source $s \in V
 \end{description}
 
 \subsubsection{Node state}
-Each node $v$ maintains three centrality accumulators $C_C$, $C_B$ and $C_S$ like in \deccen{}, and a counter $k$ to track the number of sample nodes involved in the protocol.
-
-Furthermore, while a node is in state \sact{s} when dealing with a visit from $s$ it will need to partition the set of neighbors $N_v$ in three subsets: the set of predecessors $P_s(v)$, the set of siblings $S_s(v)$ and the set of children $C_s(v)$, as well as track contributions of $s$ to its centrality scores with three parametric accumulators $C_C(s)$, $C_B(s)$ and $C_S(s)$.
+Each node $v$ maintains three centrality accumulators $C_C$, $C_B$ and $C_S$ like in \deccen{}, and a counter $k$ to track the number of sample nodes involved in the protocol. Furthermore, while a node is in state \sact{s} when dealing with a visit from $s$ it will need to partition the set of neighbors $N_v$ in three subsets: the set of predecessors $P_s(v)$, the set of siblings $S_s(v)$ and the set of children $C_s(v)$, as well as track contributions of $s$ to its centrality scores with three parametric accumulators $C_C^{(s)}$, $C_B^{(s)}$ and $C_S^{(s)}$.
 
 \subsubsection{Protocol initialization}
 Upon initialization, a node $v$ clears its centrality accumulators and the counter $k$, and enters state \swait{s} for all $s \in V$. Then, with probability $p$ initiates a visit by entering state \sact{v}, sending a \mdiscargsfull{v}{v}{0}{1} to every neighbor and letting $P_v(v) = \emptyset$.
@@ -130,9 +128,9 @@ The actions performed by a node $v$ at each step are the following:
 
 \begin{algosteps}
   \item The messages received at the current step are divided by type and then \mdisc{} messages are grouped by source.
-  \item For each group of \mdiscargs{s}{u}{d} messages having source $s$ and distance $d$ with $v$ in state \swait{s}:
+  \item For each group of \mdiscargs{s}{u}{d} messages having $s$ as a common source (at distance $d$), with $v$ in state \swait{s}:
   \begin{algosteps}
-    \item Change state to \sact{s}, let $C_C(s) \gets d+1$, $C_B(s) \gets 0$, $C_S(s) \gets 0$, collect all the senders $u$ in the predecessor set $P_s(v)$. Let $\sigma_{sv} = \sum_{u \in P_s(v)} \sigma_{su}$.
+    \item Change state to \sact{s} and initialize $C_C^{(s)} \gets d+1$, $C_B^{(s)} \gets 0$ and $C_S^{(s)} \gets 0$; then collect all the senders $u$ in the predecessor set $P_s(v)$ and compute $\sigma_{sv} = \sum_{u \in P_s(v)} \sigma_{su}$.
     \item If $P_s(v) = N_v$ send a \mrepleaf{s}{v} message to all the predecessors $u \in P_s(v)$ and change state to \scomp{s}. 
     \item Otherwise, send to all $w \in N_v \setminus P_s(v)$ a \mdiscargs{s}{v}{d+1} message and change state to \sact{s}.
   \end{algosteps}
@@ -143,32 +141,30 @@ The actions performed by a node $v$ at each step are the following:
   \item For each \mrepargs{s}{w} message received with $v$ in state \sact{s}:
   \begin{algosteps}
       \item Add $w$ to the children set $C_s(v)$.
-      \item Update $C_B(s) \gets C_B(s) + \frac{\sigma_{sv}}{\sigma_{sw}} \cdot (1 + \delta(s|w))$.
-      \item Update $C_B(s) \gets C_B(s) + \sigma_{sw} \cdot ( 1 + \sigma(s|w)/\sigma_{sw} )$.
+      \item Update $C_B^{(s)} \gets C_B^{(s)} + \frac{\sigma_{sv}}{\sigma_{sw}} \cdot (1 + \delta(s|w))$.
+      \item Update $C_S^{(s)} \gets C_S^{(s)} + \sigma_{sw} \cdot ( 1 + \frac{\sigma(s|w)}{\sigma_{sw}})$.
     \end{algosteps}
-  \item For any $s \in V$ such that $v$ is in state \sact{s}, if $P_s(v) \cup S_s(v) \cup C_s(v) = N_v$ then:
+  \item For any $s \in V$ with $v$ is in state \sact{s}, if $P_s(v) \cup S_s(v) \cup C_s(v) = N_v$ then:
   \begin{algosteps}
       \item If $s \neq v$ update the accumulators:
       \begin{itemize}
-        \item[-] $C_C \gets C_C + C_C(s)$
-        \item[-] $C_B \gets C_B + C_B(s)$
-        \item[-] $C_S \gets C_S + C_S(s)$
+        \item[-] $C_C \gets C_C + C_C^{(s)}$
+        \item[-] $C_B \gets C_B + C_B^{(s)}$
+        \item[-] $C_S \gets C_S + C_S^{(s)}$
       \end{itemize}
       and send a \mrepargs{s}{v} message to all the predecessors contained in $P_s(v)$.
       \item Increment the counter $k$ and change state to \scomp{s}.
     \end{algosteps}
 \end{algosteps}
 A node $v$ can obtain the value of the estimators in the following way:
-\begin{eqnarray*}
-\widehat{C}_C(v) =  \left( \frac{n}{k} \, C_C \right)^{-1}, \quad
-\widehat{C}_B(v) = \frac{n}{k} \, C_B, \quad
-\widehat{C}_S(v) = \frac{n}{k} \, C_S .
-\end{eqnarray*}
-
-Note that if the algorithm is executed with $p=1$ this is basically the decentralized version of the algorithm described in \cite{brandes2001}, and the estimators are actually the exact centrality indices.[FIXME move this at the beginning of the description]
+\begin{equation*}
+\widetilde{C}_C(v) = \frac{n C_C}{k(n-1)} , \qquad
+\widetilde{C}_B(v) = \frac{n C_B}{k} , \qquad
+\widetilde{C}_S(v) = \frac{n C_S}{k} .
+\end{equation*}
 
 \subsection{Cost analysis}
 
 Each independent search requires $O(m)$ messages for the \mdisc{} phase and $O(m)$ messages to backtrack with \mrep{} messages. The parameter $p$ determines the fraction of nodes $pn$ that initiate a \mdisc{} search, so the total number of messages is $O(\lceil pn \rceil m)$.
 
-In terms of memory consumption, note that for each $v \in V$ there are at most $\lceil pn \rceil$ other nodes $s$ for which $v$ is in state \sact{s} and needs to partition its neighbor set $N_v$ in the three subsets $P_s(v)$, $S_s(v)$ and $C_s(v)$, so the cost is $O(\lceil pn \rceil deg(v))$.
+In terms of memory consumption, note that for each $v \in V$ there are at most $\lceil pn \rceil$ other nodes $s$ for which $v$ is in state \sact{s} and needs to partition its neighbor set $N_v$ in the three subsets $P_s(v)$, $S_s(v)$ and $C_s(v)$, so the cost is $O(\lceil pn \rceil N_v)$.

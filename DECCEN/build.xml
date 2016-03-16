@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="run" basedir="." name="CentralitySimulation">
+	
+	<property name="src.dir" value="src"/>
+	<property name="bin.dir" value="bin"/>
+	<property name="lib.dir" value="lib"/>
+	<property name="jar" value="${ant.project.name}.jar"/>
+	
+	<path id="classpath">
+		<fileset dir="${lib.dir}" includes="**/*.jar"/>
+	</path>
+	
+	<target name="clean">
+		<delete dir="${bin.dir}"/>
+		<delete file="${jar}"/>
+	</target>
+	
+	<target name="compile">
+		<mkdir dir="${bin.dir}"/>
+		<javac srcdir="${src.dir}" destdir="${bin.dir}" classpathref="classpath" includeantruntime="false"/>
+	</target>
+	
+    <target name="jar" depends="compile">
+        <jar destfile="${jar}">
+            <manifest>
+                <attribute name="Main-Class" value="peersim.Simulator"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${bin.dir}"/>
+            <zipfileset includes="**/*.class" src="${lib.dir}/djep-1.0.0.jar"/>
+        	<zipfileset includes="**/*.class" src="${lib.dir}/jep-2.3.0.jar"/>
+        	<zipfileset includes="**/*.class" src="${lib.dir}/peersim-1.0.5.jar"/>
+        </jar>
+    </target>
+	
+	<target name="run"  depends="jar">
+		<fail unless="arg" message="Cfg file required (re-run with -Darg=&quot;FILENAME&quot;)"/>
+		<java jar="${jar}" fork="true">
+			<arg value="${arg}"/>
+		</java>
+	</target>
+	
+</project>

@@ -1,3 +1,10 @@
+/*
+ * Peer-to-Peer Systems 2015/2016
+ * 
+ * Final project source code
+ * 
+ * Author: Andrea Maggiordomo - mggndr89@gmail.com
+ */
 package centrality;
 
 import java.util.HashSet;
@@ -14,6 +21,11 @@ import peersim.core.Node;
 public class MultiBFSInitializer implements Control {
 	
 	private static final String PAR_PROTOCOL = "protocol";
+	
+	/**
+	 * This is the fraction of nodes that participate in the protocol. It is the equivalent
+	 * of the <i>p</i> parameter in the Multi-BFS algorithm specification.
+	 */
 	private static final String PAR_FRACTION = "fraction";
 	
 	private static double defaultFraction = 1.0;

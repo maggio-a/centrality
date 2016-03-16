@@ -1,8 +1,9 @@
 % !TeX root = p2p.tex
 
 \section{The \deccen{} algorithm}
+\label{sec:deccen}
 
-The specification of \deccen{} is based on the algorithmic scheme outlined in \cite{lehmann2003}. Initially, each node broadcasts itself on the network. Exploiting the synchronous model, after $k$ steps any node $t \in V$ will know all the nodes $s \in V$ such that $d(s,t) = k$ and the number of shortest paths  $\sigma_{st}$ that links it to each of them. This information is stored locally and also reported in broadcast to allow other nodes $v \in V$ to compute the quantity $\sigma_{st}(u)$ necessary to compute the betweenness and stress centrality indices. The value $\sigma_{st}(u)$ can be determined by exploiting the following
+The specification of \deccen{} is based on the algorithmic scheme outlined in \cite{lehmann2003}. Initially, each node broadcasts itself on the network. Exploiting the synchronous model, after $k$ steps any node $t \in V$ will know all the nodes $s \in V$ such that $d(s,t) = k$ and the number of shortest paths  $\sigma_{st}$ that links it to each of them. This information is stored locally and also reported in broadcast to allow other nodes $v \in V$ to compute the quantity $\sigma_{st}(u)$ necessary to compute the betweenness and stress centrality indices. The value $\sigma_{st}(u)$ can be determined by exploiting the following lemma.
 
 \begin{lemma}[Bellman conditions]
 A node $v \in V$ lies on a shortest path from $s \in V$ to $t \in V$ if and only if $d(s,t) = d(v,s) + d(v,t)$.
@@ -11,10 +12,11 @@ A node $v \in V$ lies on a shortest path from $s \in V$ to $t \in V$ if and only
 The synchronous model ensures that if a node $v$ lies on a shortest path between $s$ and $t$ and receives a report for such a pair, it has already computed $\sigma_{vs}$ and $\sigma_{vt}$. Then, according to the above conditions $\sigma_{st}(v) = \sigma_{vs} \cdot \sigma_{vt}$.
 
 \subsection{Message types}
+\begin{description}[leftmargin=0cm]
+\item[\mdiscargs{s}{u}{d}] These messages are used to track distances and the number of shortest paths from a specific origin. They contain the source $s \in V$ of the broadcast, the sender $u \in V$, the distance $d = d(s,u)$ of $u$ from $s$ and the number of shortest path that connect $u$ to $s$.
 
-\paragraph{\mdiscargs{s}{u}{d}} These messages are used to track distances and the number of shortest paths from a specific origin. They contain the source $s \in V$ of the broadcast, the sender $u \in V$, the distance $d = d(s,u)$ of $u$ from $s$ and the number of shortest path that connect $u$ to $s$.
-
-\paragraph{\mdecrepargs{s}{t}} These messages are broadcast by $t$ after having determined the number of shortest paths to $s$ and the distance from it.
+\item[\mdecrepargs{s}{t}] These messages are broadcast by $t$ after having determined the number of shortest paths to $s$ and the distance from it.
+\end{description}
 
 \subsection{Node state}
 
@@ -43,11 +45,11 @@ The processing performed by each node $v$ at each step is the following:
   \begin{algosteps}
     \item If $s = v$ then $C_C \gets C_C + d_{st}$.
     \item If $d_{st} = D[s]+D[t]$ let $\sigma_{st}(v) = \sigma_{sv} \cdot \sigma_{tv}$, then $C_B \gets \frac{\sigma_{st}(v)}{\sigma_{st}}$ and $C_S \gets \sigma_{st}(v)$.
-    \item Add the pair $(s,t)$ to the set $R$, and forward the \mrep{} message to all the neighbors.
+    \item Add the pair $(s,t)$ to the set $R$, and forward the \mrep{} message to all the neighbors. \label{step:deccen:report}
   \end{algosteps}
 \end{algosteps}
 
 \subsection{Cost analysis}
-The broadcast of a \mdisc{} or a \mrep{} requires $O(m)$ messages. Since each nodes starts a \mdisc{} and generates $n-1$ reports the total number of messages exchanged is $O(nm + n^2m)$, with \mrep{} messages inducing the dominant factor $n^2m$.
+The broadcast of a \mdisc{} or a \mrep{} requires $O(m)$ messages. Since each nodes starts a \mdisc{} and generates $n-1$ reports the total number of messages exchanged is $O(nm + n^2m)$, with \mrep{} messages inducing the dominant factor $n^2m$. An optimization that can be performed by a node $v$ at step 3.3 is to avoid the propagation of a $(s,t)$ \mrep{} if $\sigma_{st}(v) = 0$. In this case the report is irrelevant to $v$ and any neighbor that may have needed it will have received it earlier from the broadcast of nodes that lie on shortest $st$-paths.
 
 In terms of memory consumption, each node will add $O(n)$ entries each of the two dictionaries and $O(n^2)$ pairs to the set $R$.

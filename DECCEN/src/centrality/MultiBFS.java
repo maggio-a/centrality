@@ -1,4 +1,12 @@
+/*
+ * Peer-to-Peer Systems 2015/2016
+ * 
+ * Final project source code
+ * 
+ * Author: Andrea Maggiordomo - mggndr89@gmail.com
+ */
 package centrality;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -118,7 +126,7 @@ public class MultiBFS extends SynchronousCentralityProtocol {
 					discoveryMap.put(s, ml);
 				}
 				ml.add(m);
-			} else if (m.type == Message.Type.REPORT) {
+			} else if (m.type == Message.Type.MBFS_REPORT) {
 				reportList.add(m);
 			}
 			it.remove();

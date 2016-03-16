@@ -1,10 +1,12 @@
-\documentclass[a4paper, 11pt, draft]{article}
+\documentclass[a4paper, 11pt]{article}
+
+
 
 \usepackage[numbers]{natbib}
 
-\usepackage{amsmath,amssymb,amsthm}
+\usepackage{amsmath,amsthm}
 
-\usepackage[retainorgcmds]{IEEEtrantools}
+\usepackage[retainorgcmds]{IEEEtrantools} % ieee doesn't change other environments
 
 
 \usepackage{pgfplots}
@@ -19,16 +21,42 @@
 
 \usepackage{minted}
 
-
-%\usepackage[adobe-utopia]{mathdesign}
-%\usepackage{zi4}
-
 \usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
 
-\usepackage{lmodern}
+%\usepackage{lmodern}
+%\usepackage[adobe-utopia]{mathdesign}
+%\usepackage{fourier}
+%\usepackage{mathpazo}
+%\usepackage{pxfonts}
+%\usepackage{newpxtext}
+%\usepackage{newpxmath}
+\usepackage[charter]{mathdesign}
+%\usepackage{newpxtext}
 
-%\usepackage{microtype}
+%\linespread{1.05}
+
+%\usepackage{zi4}
+%\usepackage[scaled]{beramono}
+\usepackage[scaled]{ulgothic}
+
+
+%\pdfmapfile{+SourceSansPro.map}
+%\usepackage[scaled=1.02]{sourcesanspro}
+
+%\usepackage[rm, big]{titlesec}
+%\titlelabel{\thetitle\quad}
+
+%\usepackage[no-math]{fontspec}
+%\setmonofont[Scale=0.94]{M+ 1m}
+%\setmainfont[Ligatures=TeX,Scale=0.97]{XCharter}
+
+
+
+\usepackage[final, expansion=false, kerning=true]{microtype}
+%\usepackage[final]{microtype}
+
+%\usepackage[utf8]{inputenc}
+
 
 \newtheorem{theorem}{Theorem}
 \newtheorem*{th_recall_contrib_sc}{Theorem \ref{th:contrib:sc}}
@@ -70,9 +98,10 @@
 \input{deccen.tex}
 \input{approximation.tex}
 \input{experiments.tex}
-\input{proofs.tex}
 \input{code.tex}
+\input{proofs.tex}
+
 
 \bibliography{p2pbiblio}{}
-\bibliographystyle{natbib_ita}
+\bibliographystyle{natbib}
 \end{document}
