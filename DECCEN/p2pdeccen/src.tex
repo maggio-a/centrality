@@ -10,12 +10,14 @@
 
 \usemintedstyle{vs}
 
-\setminted[java]{linenos=true, breaklines, tabsize=4}
+\setminted[java]{linenos=true, breaklines, tabsize=2}
 
 \usepackage{fontspec}
-\setmonofont[Scale=0.8]{Consolas}
+%\setmonofont[Scale=0.8]{Consolas}
+\setmonofont[Scale=0.83]{M+ 1m}
 
-\linespread{0.73}
+
+\linespread{0.74}
 
 \usepackage[tt, bf, small]{titlesec}
 \titlelabel{\thetitle\quad}
@@ -26,7 +28,7 @@
 \begin{verbatim}
 Author: Andrea Maggiordomo. Imports are omitted.
 \end{verbatim}
-\section{Protocol classes}
+\section{Protocol related classes}
 \subsection*{Message.java}
 \inputminted[firstline=16]{java}{../src/centrality/Message.java}
 \subsection*{CycleBasedTransportSupport.java}

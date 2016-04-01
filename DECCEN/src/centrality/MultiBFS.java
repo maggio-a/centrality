@@ -182,7 +182,7 @@ public class MultiBFS extends SynchronousCentralityProtocol {
 		}
 	}
 	
-	public void reportNewCompleted(Node self, int pid) {
+	private void reportNewCompleted(Node self, int pid) {
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		Iterator<Map.Entry<Node,VisitState>> it = activeVisits.entrySet().iterator();
 		while (it.hasNext()) {

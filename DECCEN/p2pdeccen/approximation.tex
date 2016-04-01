@@ -3,9 +3,9 @@
 \section{Approximation of centrality indices}
 \label{sec:mbfs}
 
-The main issue with \deccen{} is its high cost in terms of number of messages exchanged and the requirement of a quadratic space data structure, which make its use impractical for networks of reasonable size.
+The main issues with \deccen{} are the high cost in terms of number of messages exchanged and the local requirement of a quadratic space data structure, which make its use impractical in networks of reasonable size.
 
-Eppstein and Wang introduced in \cite{ew2004} an approximation algorithm for the computation of closeness centrality. Their approach is to sample the contributions of a subset of nodes to the centrality indices and extrapolate an approximate value from those contributions; the contribution of a node $s$ to any $v$ is taken to be the distance $d(s,v)$ and can be computed by solving a Single-Source-Shortest-Path problem with $s$ as source. Brandes extended this scheme in \cite{brandes2007} to the approximation of betweenness centrality: his method relies on reformulating the betweenness in terms of contributions from other nodes and employs an augmented SSSP to compute those contributions recursively, as originally proposed in \cite{brandes2001}. This approach can be applied in a decentralized way (by adapting the SSSP problem, which in this case becomes a Breadth-First Search) and extended to the estimation of stress centrality, leading to the definition of a different decentralized algorithm for the computation (and estimation) of centrality indices.
+Eppstein and Wang introduced in \cite{ew2004} an approximation algorithm for the computation of closeness centrality. Their approach is to sample from a subset of nodes the contributions to the closeness of all the nodes in the network, and extrapolate an approximation from them; the contribution of a node $s$ to any $v$ is taken to be the distance $d(s,v)$ and is computed by solving a Single-Source-Shortest-Path problem with $s$ as source. Brandes in \cite{brandes2007} extended this scheme to the approximation of betweenness centrality: his method relies on reformulating the betweenness in terms of contributions from other nodes and employs an augmented SSSP to compute those contributions recursively, as he originally proposed in \cite{brandes2001}. This approach can be applied in a decentralized way (by adapting the SSSP problem, which in this case becomes a decentralized Breadth-First Search) and extended to the estimation of stress centrality, leading to the definition of another decentralized algorithm for the computation (and estimation) of centrality indices.
 
 \subsection{Reformulating centrality indices}
 
@@ -27,7 +27,7 @@ BC(v) = \sum_{s \in V} \delta(s|v).
 \end{equation}
 
 \paragraph{Contribution of a source to Stress centrality}
-The contribution to stress centrality is analogous to the betweenness centrality:
+The contribution to stress centrality is analogous to the contribution to betweenness centrality:
 
 \begin{equation} \label{eq:contrib:sc}
 \sigma(s|v) = \sum_{t \in V} \sigma_{st}(v),
@@ -62,19 +62,19 @@ The stress centrality contribution of $s \in V$ on any $v \in V$ obeys
 \end{equation}
 \end{theorem}
 
-The predecessor sets can be easily discovered by the BFS algorithm during the network exploration, while contributions are computed while walking back to the source $s$ from the frontier of the BF-Tree .
+The predecessor sets can be easily discovered by the BFS algorithm during the network exploration, while contributions are computed with a backward walk from the frontier of the BF-Tree to the source of the visit.
 
 \subsection{Random sampling of source nodes}
 
-To let the algorithm operate in a decentralized way, each node independently initiates a visit with a given probability $p$, which reflects the fraction of the network sampled. Even if the number of samples is not known beforehand, eventually all the nodes become aware of the number of sources that started a visit by taking part in each of them (let it be $k$).
+To let the algorithm operate in a decentralized way, each node independently initiates a visit with a given probability $p$, which reflects the fraction of the network sampled. Even if the number $k$ of samples is not known beforehand, all the nodes will be able to compute it by counting the number of visits in which they will take part.
 
-To estimate the value of centrality indices, first the result of sampling from a source node $v_i$ at a node $u$ is modeled with the following random variables that rely on the contributions of $v_i$ to the centrality values of $u$:
+The result of sampling from a source node $v_i$ at a node $u$ is modeled with the following random variables that rely on the contributions of $v_i$ to the centrality values of $u$:
 \begin{equation*}
 X_i(u) = \frac{n}{n-1} \cdot d(v_i,u) , \qquad
 Y_i(u) = n \cdot \delta(v_i|u) , \qquad
 Z_i(u) = n \cdot \sigma(v_i|u) .
 \end{equation*}
-Then, centrality indices are approximated with the following estimators:
+These variables are then used to approximate centrality indices with the following estimators:
 \begin{equation*}
 \widetilde{C}_C(u) = \sum_{i=1}^k \frac{X_i(u)}{k}, \qquad
 \widetilde{C}_B(u) = \sum_{i=1}^k \frac{Y_i(u)}{k}, \qquad
@@ -95,32 +95,32 @@ The expected values of the centrality estimators are the actual centrality indic
 
 \subsection{\multibfs{} algorithm specification}
 
-The only parameter of the algorithm is the probability $p$ of a node becoming the source of a decentralized BFS and having its centrality contributions being sampled at every location. The network size $n$ is assumed to be known in advance to all the nodes, otherwise it can be easily computed during the backtracking phase of the augmented BFS and broadcast by one or more sources.
+The only parameter of the algorithm is the probability $p$ of a node becoming the source of a decentralized BFS and having its centrality contributions sampled at every location. The network size $n$ is assumed to be known in advance to all the nodes, otherwise it can be easily computed during the backtracking phase of the augmented BFS and broadcast by one or more sources.
 
 \pagebreak
-Note that if this algorithm is executed with $p=1$ it is basically the decentralized version of the algorithm described in \cite{brandes2001}, and at the end of the execution the estimates are the exact centrality values.
+Note that if this algorithm is executed with $p=1$ it is basically the decentralized version of the algorithm described in \cite{brandes2001}, and at the end of the execution the estimators will yield the exact centrality values.
 
 \subsubsection{Message types}
 \begin{description}[leftmargin=0cm]
-\item[\mdiscargs{s}{u}{d}] Messages of this type are used during the descent from a source to build the predecessors sets at each node. Relevant fields are the source $s$ of the visit, the sender $u$, the distance $d$ of the sender to the source (that is, $d = d(s,u)$) and the number of shortest path from the source to the sender $\sigma_{su}$.
+\item[\mdiscargs{s}{u}{d}] Messages of this type are used during the visit from a source to build the predecessors sets at each node. The fields are the source $s$ of the visit, the sender $u$, the distance $d$ of the sender to the source (that is, $d = d(s,u)$) and the number of shortest path from the source to the sender $\sigma_{su}$.
 
-\item[\mrepargs{s}{v}] These messages are sent by a node $v$ as part of the backtracking phase to inform its predecessors of the computed contributions and to allow them to compute their own by applying the recursive relations introduced in section \ref{sec:recursive}.
+\item[\mrepargs{s}{v}] These messages are sent by a node $v$ as part of the backward walk to inform its predecessors of the computed contributions and to allow them to compute their own by applying the recursive relations introduced in section \ref{sec:recursive}.
 \end{description}
 
 \subsubsection{Visit states}
 
 Visit states are parametric with respect to the discovery from a source $s \in V$. A node $v$ is in state:
-\begin{description}
+\begin{description}[leftmargin=0cm]
 \item[\swait{s}] if it has not yet received any \mdisc{} having $s$ as source.
 \item[\sact{s}] if it has received one or more \mdisc{} messages with source $s$ and has not yet computed the contributions of $s$ to its centrality indices.
-\item[\scomp{s}] if it has computed the contributions of $s$ to its centrality indices, updated them accordingly, and reported the contributions to each predecessor in $P_s(v)$ by sending the appropriate \mrep{} messages.
+\item[\scomp{s}] if it has computed the contributions of $s$ to its centrality indices and reported them back to each predecessor in $P_s(v)$ by sending appropriate \mrep{} messages.
 \end{description}
 
 \subsubsection{Node state}
-Each node $v$ maintains three centrality accumulators $C_C$, $C_B$ and $C_S$ like in \deccen{}, and a counter $k$ to track the number of sample nodes involved in the protocol. Furthermore, while a node is in state \sact{s} when dealing with a visit from $s$ it will need to partition the set of neighbors $N_v$ in three subsets: the set of predecessors $P_s(v)$, the set of siblings $S_s(v)$ and the set of children $C_s(v)$, as well as track contributions of $s$ to its centrality scores with three parametric accumulators $C_C^{(s)}$, $C_B^{(s)}$ and $C_S^{(s)}$.
+Each node $v$ maintains three centrality accumulators $C_C$, $C_B$ and $C_S$ like in \deccen{}, and a counter $k$ to track the number of sample nodes involved in the procedure. Furthermore, while a node is in state \sact{s} when dealing with a visit from $s$ it will need to partition the set of neighbors $N_v$ in three subsets: the set of predecessors $P_s(v)$, the set of siblings $S_s(v)$ and the set of children $C_s(v)$, as well as track contributions of $s$ to its centrality scores with three parametric accumulators $C_C^{(s)}$, $C_B^{(s)}$ and $C_S^{(s)}$.
 
 \subsubsection{Protocol initialization}
-Upon initialization, a node $v$ clears its centrality accumulators and the counter $k$, and enters state \swait{s} for all $s \in V$. Then, with probability $p$ initiates a visit by entering state \sact{v}, sending a \mdiscargsfull{v}{v}{0}{1} to every neighbor and letting $P_v(v) = \emptyset$.
+Upon initialization, a node $v$ clears its centrality accumulators and the counter $k$, and enters state \swait{s} for all $s \in V$. Then, during the initial step it initiates a visit with probability $p$ by entering state \sact{v}, setting $P_v(v) = \emptyset$ and sending a \mdiscargsfull{v}{v}{0}{1} to every neighbor.
 
 \subsubsection{Step actions}
 \label{multibfs:step}

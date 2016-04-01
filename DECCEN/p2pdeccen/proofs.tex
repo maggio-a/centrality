@@ -12,7 +12,7 @@ The stress centrality contribution of $s \in V$ on any $v \in V$ obeys
 \begin{proof}
 The proof is analogous to the one provided by Brandes in \cite{brandes2001} to prove Theorem \ref{th:contrib:bc}.
 
-Let $\sigma_{st}(v,e)$ be the number of shortest paths between $s$ and $t$ that pass through $v$ and across edge $e$. Observe that if a shortest path from $s$ to $t$ travels through $v$, then after $v$ it must immediately reach some other node $w$ that has $v$ in its predecessor set $P_s(w)$, so equation \eqref{eq:contrib:sc} can be rewritten as
+Let $\sigma_{st}(v,e)$ be the number of shortest paths between $s$ and $t$ that pass through $v$ and across edge $e$. Observe that if a shortest path from $s$ to $t$ passes through $v$, then after $v$ it must immediately reach some other node $w$ that has $v$ in its predecessor set $P_s(w)$, so equation \eqref{eq:contrib:sc} can be rewritten as
 \begin{IEEEeqnarray}{rCl}
 \sigma(s|v) & = & \sum_{t \in V} \sigma_{st}(v) \nonumber =  \sum_{t \in V} \sum_{w : v \in P_s(w)} \sigma_{st}(v, \{v,w\}) \nonumber \\
  & = & \sum_{w : v \in P_s(w)} \sum_{t \in V} \sigma_{st}(v, \{v,w\}) . \nonumber
@@ -42,7 +42,7 @@ The expected values of the centrality estimators are the actual centrality indic
   \end{enumerate}
 \end{th_recall_expect}
 \begin{proof}
-\ref{estimator:cc} Recall that for the estimation of closeness centrality, the result of sampling from a source $v_i$ at a node $u$ was modeled with the random variable $X_i(u) = \frac{n}{n-1} \cdot d(v_i,u)$. The derivation exploits the linearity of the expected value operator $\mathbf{E}$ and the fact that source nodes are random (that is, each node has equal probability $1/n$ of being a source).
+\ref{estimator:cc} Recall that for the estimation of closeness centrality, the result of sampling from a source $v_i$ at a node $u$ is modeled with the random variable $X_i(u) = \frac{n}{n-1} \cdot d(v_i,u)$. The derivation exploits the linearity of the expected value operator $\mathbf{E}$ and the fact that source nodes are random (that is, each node has equal probability $1/n$ of being a source).
 \begin{IEEEeqnarray}{+rCl+r*} 
 \mathbf{E}[\widetilde{C}_C(u)] & = &
 \IEEEeqnarraymulticol{2}{l}{

@@ -3,21 +3,23 @@
 \section{Experiments}
 \label{sec:exp}
 
-Simulations were performed to evaluate the performances of the algorithms, and to assess the quality of the estimations obtained by running \multibfs{} with different values of the parameter $p$.
+The aim of the simulations was to compare the number of messages required by the algorithms to complete the decentralized computation of the indices, and to measure the error of the estimates computed by \multibfs{} with different values of the parameter $p$.
 
-The networks used in the experiments (taken from the KONECT repository \cite{konect}) are:
-\begin{description}
- \item[\texttt{dolphins}] This is a social network of bottlenose dolphins. The nodes are the bottlenose dolphins (genus \emph{Tursiops}) of a bottlenose dolphin community living off Doubtful Sound, a fjord in New Zealand. An edge indicates a frequent association. The dolphins were observed between 1994 and 2001. ($n=62$, $m=159$, source \cite{network:dolphins}).
- \item[\texttt{surf}] This network contains interpersonal contacts between windsurfers in southern California during the fall of 1986. ($n=62$, $m=336$, source \cite{network:surf}).
- \item[\texttt{macaques}] This directed network contains dominance behaviour in a colony of 62 adult female Japanese macaques. An undirected version of the network (where edges are made symmetric) was used to run the experiments. ($n=62$, $m=1167$, source \cite{network:mac}).
+The networks used in the experiments (taken from the KONECT \cite{konect} repository) are the following:
+\begin{description}[leftmargin=0cm]
+ \item[\texttt{dolphins}] This is a social network of bottlenose dolphins where nodes are dolphins and edges represent frequent associations. ($n=62$, $m=159$, source \cite{network:dolphins}).
+ \item[\texttt{surf}] This network that represents interpersonal contacts between windsurfers in southern California during the fall of 1986. ($n=62$, $m=336$, source \cite{network:surf}).
+ \item[\texttt{macaques}] This is a directed network that represent dominance behavior in a colony of 62 adult female Japanese macaques. The undirected version was obtained by forcing the edges to be symmetric. ($n=62$, $m=1167$, original source \cite{network:mac}).
  \item[\texttt{train}] This network contains contacts between suspected terrorists involved in the train bombing of Madrid on March 11, 2004 as reconstructed from newspapers. ($n=62$, $m=243$, source \cite{network:train}).
- \item[\texttt{email}] This is the email communication network at the University Rovira i Virgili in Tarragona in the south of Catalonia in Spain. Edges represent contacts between users. ($n=1133$, $m=5451$, source \cite{network:email}).
- \item[\texttt{powergrid}] This network is the high-voltage power grid in the Western States of the United States of America. The nodes are transformers, substations, and generators, and the ties are high-voltage transmission lines. ($n=4941$, $m=6594$, source \cite{network:powergrid}).
+ \item[\texttt{email}] This is the email communication network at the University Rovira i Virgili in Tarragona in the south of Catalonia in Spain. ($n=1133$, $m=5451$, source \cite{network:email}).
+ \item[\texttt{powergrid}] This network is the high-voltage power grid in the Western States of the United States of America. ($n=4941$, $m=6594$, source \cite{network:powergrid}).
 \end{description}
 
-\subsection{Performance analysis}
+\subsection{Performance comparison}
 
-The performance metrics used to evaluate the algorithms were the number of steps required to complete the computation and the number of messages that the agents needed to generate to do so. Note that due to the high memory requirements of \deccen{}, these simulations were performed on small networks.
+The performance measures used to evaluate the algorithms are the number of steps required to complete the computation and the number of messages that the network nodes generate.
+
+Table \ref{table:comparison} reports the results obtained by running \deccen{} and \multibfs{} with $p = 1$ in order to compute the exact centrality values. Due to the high memory requirements of \deccen{} the simulations could only be performed on small networks, but both algorithms can be expected to perform in a similar way (relatively to each other) in any other scenario since all the messages are generated in a deterministic way.
 
 \begin{table}
 \centering
@@ -43,354 +45,33 @@ Network           & $n$ & $m$  & $\Delta$ & Steps  & Messages & Steps & Messages
 
 \end{table}
 
-Table \ref{table:comparison} reports the results obtained by running \deccen{} and \multibfs{} with $p = 1$ in order to compute the exact centrality values. As expected, in both cases the number of steps required to complete is exactly twice the diameter $\Delta$ of the networks, since each ``discovery'' phase takes at most $\Delta$ steps to reach any destination from a given source, and the same also holds for the report phase of \deccen{} or the backtracking in \multibfs{}. However, the number of messages required by \deccen{} is significantly larger. This follows from the different way in which the report phase evolves in the two algorithms: while in \deccen{} any node must generate a report for each source and broadcast it to every other node in the network, in \multibfs{} reports are routed back to the source by signaling only the predecessors at each step.
+As expected, in both cases the number of steps required to complete is twice the diameter $\Delta$ of the network, since each ``discovery'' phase takes at most $\Delta$ steps to reach any destination from a given source, and the same also holds for the report phase of \deccen{} or the backtracking in \multibfs{}. In all cases, \multibfs{} requires an extra step between reaching the farthest child nodes and the beginning of the backtracking phase: this is bound to happen whenever nodes at distance $\Delta$ from any source have siblings, since they need to be detected before reporting back.
 
-
-
-%
-%\begin{figure}
-%
-%\centering
-%
-%\begin{tikzpicture}
-%\begin{axis}
-%[
-%  width=8cm,
-%  height=\textheight*0.2,
-%  xlabel={$p$},
-%  ylabel={$\epsilon_r$},
-%  xlabel near ticks, ylabel near ticks,
-%  label style = {
-%    font = \footnotesize
-%  },
-%  ticklabel style = {
-%    font = \footnotesize
-%  },
-%  cycle list name=color list,
-%  legend style = {
-%    draw=none,
-%    font=\footnotesize
-%  },
-%  legend plot pos = left,
-%  legend cell align = left,
-%  legend entries = {All nodes, 90th percentile},
-%  title = {Closeness centrality approximation},
-%  title style = {
-%    font=\footnotesize
-%  }
-%]
-%
-%\addplot+ [smooth, semithick] table [x=Fraction, y=CCerr]{../results/dolphins/analysis_dolphins.txt};
-%\addplot+ [smooth, mark=none, semithick] table [x=Fraction, y=CCPercentileErr]{../results/dolphins/analysis_dolphins.txt};
-%
-%\end{axis}
-%\end{tikzpicture}
-%
-%\bigskip
-%
-%\begin{tikzpicture}
-%\begin{axis}
-%[
-%  width=8cm,
-%  height=\textheight*0.2,
-%  xlabel={$p$},
-%  ylabel={$\epsilon_r$},
-%  xlabel near ticks, ylabel near ticks,
-%  label style = {
-%    font = \footnotesize
-%  },
-%  ticklabel style = {
-%    font = \footnotesize
-%  },
-%  cycle list name=color list,
-%  legend style = {
-%    draw=none,
-%    font=\footnotesize
-%  },
-%  legend plot pos = left,
-%  legend cell align = left,
-%  legend entries = {All nodes, 90th percentile},
-%  title = {Stress centrality approximation},
-%  title style = {
-%    font=\footnotesize
-%  }
-%]
-%
-%\addplot+ [smooth, semithick] table [x=Fraction, y=SCerr]{../results/dolphins/analysis_dolphins.txt};
-%\addplot+ [smooth, mark=none, semithick] table [x=Fraction, y=SCPercentileErr]{../results/dolphins/analysis_dolphins.txt};
-%
-%\end{axis}
-%\end{tikzpicture}
-%
-%\bigskip
-%
-%\begin{tikzpicture}
-%\begin{axis}
-%[
-%  width=8cm,
-%  height=\textheight*0.2,
-%  xlabel={$p$},
-%  ylabel={$\epsilon_r$},
-%  xlabel near ticks, ylabel near ticks,
-%  label style = {
-%    font = \footnotesize
-%  },
-%  ticklabel style = {
-%    font = \footnotesize
-%  },
-%  cycle list name=color list,
-%  legend style = {
-%    draw=none,
-%    font=\footnotesize
-%  },
-%  legend plot pos = left,
-%  legend cell align = left,
-%  legend entries = {All nodes, 90th percentile},
-%  title = {Betweenness centrality approximation},
-%  title style = {
-%    font=\footnotesize
-%  }
-%]
-%
-%\addplot+ [smooth, semithick] table [x=Fraction, y=BCerr]{../results/dolphins/analysis_dolphins.txt};
-%\addplot+ [smooth, mark=none, semithick] table [x=Fraction, y=BCPercentileErr]{../results/dolphins/analysis_dolphins.txt};
-%
-%\end{axis}
-%\end{tikzpicture}
-%
-%\caption{Approximation of centrality indices in the \texttt{dolphins} network}
-%
-%\end{figure}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+The experimental data shows that \deccen{} requires a significantly larger amount of messages than \multibfs{} to terminate the execution, as anticipated by the theoretical analysis of the algorithms. This is a consequence of the different way in which the algorithms handle the report phase: while in \deccen{} new reports are broadcast at every step of a discovery, \multibfs{} uses the distance from the source of the discovery to rank the nodes, and only generates reports from the most distant nodes (that are then routed back to the source using the predecessor sets).
 
 \subsection{\multibfs{} approximations}
-The quality of the estimations yielded by \multibfs{} was evaluated both in terms of the numerical error introduced by the estimators, and the difference in the ranking of the nodes induced by the centrality values which could prove to be accurate even in presence of non-negligible error in the estimates.
 
-Figure \ref{fig:error} reports the average relative error $\epsilon_r$ yielded by the centrality estimators for increasing values of the parameter $p$ in the \texttt{dolphins}, \texttt{email} and \texttt{powergrid} networks. The estimation of Closeness centrality is much more accurate than the estimation of Stress and Betweenness centrality, which behave roughly the same.
+The quality of the approximations obtained with \multibfs{} were evaluated by running simulations with increasing values of $p$ (from 0.05 to 1.0 with an increment of 0.05 at each step); each experiment was repeated 10 times. The aim of the experiments was to measure the numerical error of the estimates yielded by the algorithm, and to evaluate how close the ``ranking'' of the nodes using these estimates is to the actual ranking of the nodes according to the exact centrality values, since nodes could be ranked correctly even if the estimates are subject to high numerical error. This second experiment is especially interesting if a node wants to make a ``greedy'' choice knowing only its and it's neighbors index's value as it gives an idea of how often this choice may be the wrong one.
 
-\begin{figure}
-\centering
-\begin{tikzpicture}
-\begin{axis}
-[
-  height=0.3\textheight,
-  width = 0.92\textwidth,
-  xlabel={$p$},
-  ylabel={Relative error $\epsilon_r$},
-  xlabel near ticks, ylabel near ticks,
-  label style = {
-    font = \footnotesize
-  },
-  ticklabel style = {
-    font = \footnotesize
-  },
-  legend style = {
-    draw=none,
-    font=\footnotesize
-  },
-  title = {Approximation of centralities in the \texttt{dolphins} network},
-  title style = {
-    font=\footnotesize
-  }
-]
-\addplot+ [smooth, mark=none, semithick, red] table [x=Fraction, y=CCerr]{../results/dolphins/analysis_dolphins.txt}; \addlegendentry{$C_C$}
-\addplot+ [smooth, mark=none, semithick, blue] table [x=Fraction, y=SCerr]{../results/dolphins/analysis_dolphins.txt}; \addlegendentry{$S_C$}
-\addplot+ [smooth, mark=none, semithick, black] table [x=Fraction, y=BCerr]{../results/dolphins/analysis_dolphins.txt}; \addlegendentry{$B_C$}
-\end{axis}
-\end{tikzpicture}
+Figure \ref{fig:error} reports the average relative error $\epsilon_r$ yielded by the centrality estimators in the \texttt{dolphins}, \texttt{email} and \texttt{powergrid} networks. The results show satisfactory results for the estimation of closeness centrality for small values of $p$, while stress and betweenness estimates exhibit large numerical error even for values of $p$ close to 1.
 
-\bigskip
+\input{error.tikz}
 
-\begin{tikzpicture}
-\begin{axis}
-[
-  height=0.3\textheight,
-  width = 0.92\textwidth,
-  xlabel={$p$},
-  ylabel={Relative error $\epsilon_r$},
-  xlabel near ticks, ylabel near ticks,
-  label style = {
-    font = \footnotesize
-  },
-  ticklabel style = {
-    font = \footnotesize
-  },
-  legend style = {
-    draw=none,
-    font=\footnotesize
-  },
-  title = {Approximation of centralities in the \texttt{email} network},
-  title style = {
-    font=\footnotesize
-  }
-]
-\addplot+ [smooth, mark=none, semithick, red] table [x=Fraction, y=CCerr]{../results/arenas-email/analysis_arenas-email.txt}; \addlegendentry{$C_C$}
-\addplot+ [smooth, mark=none, semithick, blue] table [x=Fraction, y=SCerr]{../results/arenas-email/analysis_arenas-email.txt}; \addlegendentry{$S_C$}
-\addplot+ [smooth, mark=none, semithick, black] table [x=Fraction, y=BCerr]{../results/arenas-email/analysis_arenas-email.txt}; \addlegendentry{$B_C$}
-\end{axis}
-\end{tikzpicture}
+The accuracy of the ranking induced by the approximated indices is measured by counting, among all the pairs of nodes, the fraction of pairs in which the nodes are wrongly ordered with respect to the ranking imposed by the exact centrality values; results are reported in figure \ref{fig:inversion}. In this case the results are encouraging: even for small values of $p$ the fraction of pairs in wrong rank order is relatively small.
 
-\bigskip
+\input{pairs.tikz}
 
-\begin{tikzpicture}
-\begin{axis}
-[
-  height=0.3\textheight,
-  width = 0.92\textwidth,
-  xlabel={$p$},
-  ylabel={Relative error $\epsilon_r$},
-  xlabel near ticks, ylabel near ticks,
-  label style = {
-    font = \footnotesize
-  },
-  ticklabel style = {
-    font = \footnotesize
-  },
-  legend style = {
-    draw=none,
-    font=\footnotesize
-  },
-  title = {Approximation of centralities in the \texttt{powergrid} network},
-  title style = {
-    font=\footnotesize
-  }
-]
-\addplot+ [smooth, mark=none, semithick, red] table [x=Fraction, y=CCerr]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt}; \addlegendentry{$C_C$}
-\addplot+ [smooth, mark=none, semithick, blue] table [x=Fraction, y=SCerr]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt}; \addlegendentry{$S_C$}
-\addplot+ [smooth, mark=none, semithick, black] table [x=Fraction, y=BCerr]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt}; \addlegendentry{$B_C$}
-\end{axis}
-\end{tikzpicture}
-\caption{Approximation error in the estimation of centrality indices.}
-\label{fig:error}
-\end{figure}
-
-The accuracy of the ranking in presence of approximated indices is measured by counting among all the pair of nodes, the fraction of pairs in which the nodes are wrongly ordered with respect to the ranking induced by the exact centrality values. Results are reported in figure \ref{fig:inversion}. In this case, even for small values of $p$ the fraction of pairs of nodes in wrong rank order is relatively small. This is encouraging if the estimated indices are used locally, to make decisions based on the values computed at a node and at its neighbors.
-
-\begin{figure}
-\centering
-\begin{tikzpicture}
-\begin{axis}
-[
-  height=0.3\textheight,
-  width = 0.92\textwidth,
-  xlabel={$p$},
-  ylabel={Fraction of pairs},
-  xlabel near ticks, ylabel near ticks,
-  label style = {
-    font = \footnotesize
-  },
-  ticklabel style = {
-    font = \footnotesize
-  },
-  cycle list name=color list,
-  legend style = {
-    draw=none,
-    font=\footnotesize
-  },
-  legend plot pos = left,
-  legend cell align = left,
-  legend entries = {$C_C$, $S_C$, $B_C$},
-  title = {Pairs in wrong rank order in the \texttt{dolphins} network},
-  title style = {
-    font=\footnotesize
-  }
-]
-\addplot+ [smooth, semithick] table [x=Fraction, y=CCpercInv]{../results/dolphins/analysis_dolphins.txt};
-\addplot+ [smooth, semithick] table [x=Fraction, y=SCpercInv]{../results/dolphins/analysis_dolphins.txt};
-\addplot+ [smooth, semithick] table [x=Fraction, y=BCpercInv]{../results/dolphins/analysis_dolphins.txt};
-\end{axis}
-\end{tikzpicture}
-
-\bigskip
-
-\begin{tikzpicture}
-\begin{axis}
-[
-  height=0.3\textheight,
-  width = 0.92\textwidth,
-  xlabel={$p$},
-  ylabel={Fraction of pairs},
-  xlabel near ticks, ylabel near ticks,
-  label style = {
-    font = \footnotesize
-  },
-  ticklabel style = {
-    font = \footnotesize
-  },
-  yticklabel style = {/pgf/number format/fixed},
-  scaled y ticks = false,
-  cycle list name=color list,
-  legend style = {
-    draw=none,
-    font=\footnotesize
-  },
-  legend plot pos = left,
-  legend cell align = left,
-  legend entries = {$C_C$, $S_C$, $B_C$},
-  title = {Pairs in wrong rank order in the \texttt{email} network},
-  title style = {
-    font=\footnotesize
-  }
-]
-\addplot+ [smooth, semithick] table [x=Fraction, y=CCpercInv]{../results/arenas-email/analysis_arenas-email.txt};
-\addplot+ [smooth, semithick] table [x=Fraction, y=SCpercInv]{../results/arenas-email/analysis_arenas-email.txt};
-\addplot+ [smooth, semithick] table [x=Fraction, y=BCpercInv]{../results/arenas-email/analysis_arenas-email.txt};
-\end{axis}
-\end{tikzpicture}
-
-\bigskip
-
-\begin{tikzpicture}
-\begin{axis}
-[
-  height=0.3\textheight,
-  width = 0.92\textwidth,
-  xlabel={$p$},
-  ylabel={Fraction of pairs},
-  xlabel near ticks, ylabel near ticks,
-  label style = {
-    font = \footnotesize
-  },
-  ticklabel style = {
-    font = \footnotesize
-  },
-  yticklabel style = {/pgf/number format/fixed},
-  scaled y ticks = false,
-  cycle list name=color list,
-  legend style = {
-    draw=none,
-    font=\footnotesize
-  },
-  legend plot pos = left,
-  legend cell align = left,
-  legend entries = {$C_C$, $S_C$, $B_C$},
-  title = {Pairs in wrong rank order in the \texttt{powergrid} network},
-  title style = {
-    font=\footnotesize
-  }
-]
-\addplot+ [smooth, semithick] table [x=Fraction, y=CCpercInv]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt};
-\addplot+ [smooth, semithick] table [x=Fraction, y=SCpercInv]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt};
-\addplot+ [smooth, semithick] table [x=Fraction, y=BCpercInv]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt};
-\end{axis}
-\end{tikzpicture}
-\caption{Pairs in wrong rank order with approximated centralities}
-\label{fig:inversion}
-\end{figure}
+%
+%
+%
+%
+%The quality of the estimations yielded by \multibfs{} is evaluated both in terms of the numerical error introduced by the estimators, and the difference in the ranking of the nodes induced by the centrality values which could prove to be accurate even in presence of non-negligible error in the estimates.
+%
+%\input{error.tikz}
+%
+%Figure \ref{fig:error} reports the average relative error $\epsilon_r$ yielded by the centrality estimators for increasing values of the parameter $p$ in the \texttt{dolphins}, \texttt{email} and \texttt{powergrid} networks. The estimation of Closeness centrality is much more accurate than the estimation of Stress and Betweenness centrality, which behave roughly the same.
+%
+%\input{pairs.tikz}
+%
+%The accuracy of the ranking in presence of approximated indices is measured by counting among all the pair of nodes, the fraction of pairs in which the nodes are wrongly ordered with respect to the ranking induced by the exact centrality values. Results are reported in figure \ref{fig:inversion}. In this case, even for small values of $p$ the fraction of pairs of nodes in wrong rank order is relatively small. This is encouraging if the estimated indices are used locally, to make decisions based on the values computed at a node and at its neighbors.
+%

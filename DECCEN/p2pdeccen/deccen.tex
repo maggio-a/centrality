@@ -3,7 +3,7 @@
 \section{The \deccen{} algorithm}
 \label{sec:deccen}
 
-The specification of \deccen{} is based on the algorithmic scheme outlined in \cite{lehmann2003}. Initially, each node broadcasts itself on the network. Exploiting the synchronous model, after $k$ steps any node $t \in V$ will know all the nodes $s \in V$ such that $d(s,t) = k$ and the number of shortest paths  $\sigma_{st}$ that links it to each of them. This information is stored locally and also reported in broadcast to allow other nodes $v \in V$ to compute the quantity $\sigma_{st}(u)$ necessary to compute the betweenness and stress centrality indices. The value $\sigma_{st}(u)$ can be determined by exploiting the following lemma.
+The specification of \deccen{} is based on the algorithmic scheme outlined in \citet{lehmann2003}. Initially, each node broadcasts itself on the network. Exploiting the synchronous model, after $k$ steps any node $t \in V$ will know all the nodes $s \in V$ such that $d(s,t) = k$ and the number of shortest paths  $\sigma_{st}$ that links it to each of them. This information is stored locally and also reported in broadcast to allow other nodes $v \in V$ to compute the quantity $\sigma_{st}(u)$ necessary to compute the betweenness and stress centrality indices. The value $\sigma_{st}(u)$ can be determined by exploiting the following lemma.
 
 \begin{lemma}[Bellman conditions]
 A node $v \in V$ lies on a shortest path from $s \in V$ to $t \in V$ if and only if $d(s,t) = d(v,s) + d(v,t)$.
