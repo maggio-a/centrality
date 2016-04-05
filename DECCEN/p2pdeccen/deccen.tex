@@ -3,53 +3,63 @@
 \section{The \deccen{} algorithm}
 \label{sec:deccen}
 
-The specification of \deccen{} is based on the algorithmic scheme outlined in \citet{lehmann2003}. Initially, each node broadcasts itself on the network. Exploiting the synchronous model, after $k$ steps any node $t \in V$ will know all the nodes $s \in V$ such that $d(s,t) = k$ and the number of shortest paths  $\sigma_{st}$ that links it to each of them. This information is stored locally and also reported in broadcast to allow other nodes $v \in V$ to compute the quantity $\sigma_{st}(u)$ necessary to compute the betweenness and stress centrality indices. The value $\sigma_{st}(u)$ can be determined by exploiting the following lemma.
-
+The specification of \deccen{} is based on the scheme outlined in \cite{lehmann2003}, which uses broadcasts to count the number of shortest paths and distances between any pair of nodes by leveraging the synchronous model and the following
 \begin{lemma}[Bellman conditions]
 A node $v \in V$ lies on a shortest path from $s \in V$ to $t \in V$ if and only if $d(s,t) = d(v,s) + d(v,t)$.
 \end{lemma}
-
-The synchronous model ensures that if a node $v$ lies on a shortest path between $s$ and $t$ and receives a report for such a pair, it has already computed $\sigma_{vs}$ and $\sigma_{vt}$. Then, according to the above conditions $\sigma_{st}(v) = \sigma_{vs} \cdot \sigma_{vt}$.
+After $k$ steps any node $t \in V$ will know all the nodes $s \in V$ such that $d(s,t) = k$ and the number of shortest paths $\sigma_{st}$ that links it to each of them (taken as the sum of the number of shortest paths between $s$ and \emph{all} the predecessors of $t$ with respect to $s$). This information is stored locally and also reported in broadcast to allow other nodes $v \in V$ to compute the quantity $\sigma_{st}(v)$: the synchronous communication ensures that if a node $v$ lies on a shortest path between $s$ and $t$ and receives a report for such a pair, it has already computed $\sigma_{vs}$ and $\sigma_{vt}$; then, according to the above conditions $\sigma_{st}(v) = \sigma_{vs} \cdot \sigma_{vt}$.
+%After $k$ steps any node $t \in V$ will know all the nodes $s \in V$ such that $d(s,t) = k$ and the number of shortest paths $\sigma_{st}$ that links it to each of them (taken as the sum of the number of shortest paths between $s$ and \emph{all} the predecessors of $t$ with respect to $s$). This information is stored locally and also reported in broadcast to allow other nodes $v \in V$ to compute the quantity $\sigma_{st}(v)$: the synchronous communication ensures that if a node $v$ lies on a shortest path between $s$ and $t$ and receives a report for such a pair, it has already computed $\sigma_{vs}$ and $\sigma_{vt}$; then, according to the above conditions $\sigma_{st}(v) = \sigma_{vs} \cdot \sigma_{vt}$.
 
 \subsection{Message types}
-\begin{description}[leftmargin=0cm]
-\item[\mdiscargs{s}{u}{d}] These messages are used to track distances and the number of shortest paths from a specific origin. They contain the source $s \in V$ of the broadcast, the sender $u \in V$, the distance $d = d(s,u)$ of $u$ from $s$ and the number of shortest path that connect $u$ to $s$.
 
-\item[\mdecrepargs{s}{t}] These messages are broadcast by $t$ after having determined the number of shortest paths to $s$ and the distance from it.
+The messages used during the algorithm execution are the following:
+\begin{description}[leftmargin=0cm]
+\item[\mdiscargs{s}{u}{d}] These messages are broadcast from a node to allow others to compute their distance from it and the number of shortest paths. They contain the source $s \in V$ of the broadcast, the sender $u \in V$, the distance $d = d(s,u)$ of $u$ from $s$ and the number of shortest path that connect $u$ to $s$.
+
+\item[\mdecrepargs{s}{t}] These messages are broadcast by a node $t$ after it has determined the distance from and the number of shortest path to $s$.
 \end{description}
 
 \subsection{Node state}
 
-Each node $v$ maintains three accumulators $C_C$, $C_B$ and $C_S$ for closeness, betweenness and stress centrality (the closeness centrality will be retrieved as $1/C_C$), a set $R$ of node pairs for which a \mrep{} message has already been received, and two dictionaries $D$ and $S$ that associate each node $s \in V$ with the discovered distance $d(s,v)$ and the number of shortest paths $\sigma_{sv}$ respectively.
+Each node $v$ maintains three accumulators $C_C$, $C_B$ and $C_S$ to compute its closeness, betweenness and stress centrality values, a counter $k$, a set $R$ of node pairs for which a \mrep{} message has already been received, and two dictionaries $D$ and $S$ that associate each node $s \in V$ with the discovered distance $d(s,v)$ and the number of shortest paths $\sigma_{sv}$ respectively.
 
-\subsection{Protocol initialization}
+\subsection{Algorithm initialization}
 
-Each node $v \in V$ initializes the accumulators $C_C$, $C_B$ and $C_S$ to $0$, the set $R$ to the empty set, the dictionary $D$ so that it only contains the entry $(v,0)$ and $S$ so that it only contains the entry $(v,1)$. Furthermore, it sends to all its neighbors a \mdiscstart{v} message.
+Each node $v \in V$ initializes the counter $k$ and the accumulators $C_C$, $C_B$ and $C_S$ to $0$, the set $R$ to the empty set, the dictionary $D$ so that it only contains the entry $(v,0)$ and $S$ so that it only contains the entry $(v,1)$. Furthermore, it sends to all its neighbors a \mdiscstart{v} message.
 
 \subsection{Step actions}
 \label{deccen:step}
-The processing performed by each node $v$ at each step is the following:
+
+The actions performed by a node $v$ at each step are the following:
 
 \begin{algosteps}
 
-  \item All the \mdisc{} messages having a source $s$ for which the dictionary $D$ contain no mapping are grouped together. (These will be the nodes ``discovered'' at this step).
+  \item All the \mdisc{} messages are grouped by source. Any group of messages having a source $s$ appearing in the dictionary $D$ as key is discarded.
 
-  \item Each group of messages is processed independently. For each group, let $s$ be the source and $d$ be the distance of all the \mdiscargs{s}{u}{d} messages in it (these will be the same for all the messages), then:
+  \item Each group of messages is processed independently. For each group, let $s$ be the source and $d$ be the distance of all the \mdiscargs{s}{u}{d} messages in it (they will be the same for all the messages), then:
   \begin{algosteps}
-    \item Add the entry $(s,d+1)$ to the dictionary $D$, so that $D[s] = d+1$.
+    \item Add the entry $(s,d+1)$ to the dictionary $D$, so that $D[s] = d+1$ and increment the counter $k$.
     \item Let $\sigma_{sv} = \sum_{u} \sigma_{su}$ and add the entry $(s,\sigma_{sv})$ to  $S$. (The number of shortest paths from $s$ to $v$ is the sum of the number of shortest paths from $s$ to all the predecessors of $v$).
-    \item Send a \mdecrepargsfull{s}{v}{d+1} message to each neighbor node.
+    \item Send a \mdecrepargsfull{s}{v}{d+1} message to every neighbor.
   \end{algosteps}
   
   \item For each \mdecrepargs{s}{t} message such that $(s,t) \notin R$:
   \begin{algosteps}
     \item If $s = v$ then $C_C \gets C_C + d_{st}$.
-    \item If $d_{st} = D[s]+D[t]$ let $\sigma_{st}(v) = \sigma_{sv} \cdot \sigma_{tv}$, then $C_B \gets \frac{\sigma_{st}(v)}{\sigma_{st}}$ and $C_S \gets \sigma_{st}(v)$.
-    \item Add the pair $(s,t)$ to the set $R$, and forward the \mrep{} message to all the neighbors. \label{step:deccen:report}
+    \item If $d_{st} = D[s]+D[t]$ let $\sigma_{st}(v) = \sigma_{sv} \cdot \sigma_{tv}$, then $C_B \gets C_B + \frac{\sigma_{st}(v)}{\sigma_{st}}$ and $C_S \gets C_S + \sigma_{st}(v)$.
+    \item Add the pair $(s,t)$ to $R$, and forward the \mrep{} to every neighbor. \label{step:deccen:report}
   \end{algosteps}
 \end{algosteps}
+At the end of the execution a node $v$ can obtain its closeness centrality index as $\frac{C_C}{k}$, its betweenness centrality as $C_B$ and its stress centrality as $C_S$.
+%At the end of the execution a node $v$ can obtain its centrality indices as
+%\begin{equation*}
+%C_C(v) = \frac{C_C}{k} , \qquad
+%C_B(v) = C_C , \qquad
+%C_S(v) = C_S .
+%\end{equation*}
 
 \subsection{Cost analysis}
-The broadcast of a \mdisc{} or a \mrep{} requires $O(m)$ messages. Since each nodes starts a \mdisc{} and generates $n-1$ reports the total number of messages exchanged is $O(nm + n^2m)$, with \mrep{} messages inducing the dominant factor $n^2m$. An optimization that can be performed by a node $v$ at step 3.3 is to avoid the propagation of a $(s,t)$ \mrep{} if $\sigma_{st}(v) = 0$. In this case the report is irrelevant to $v$ and any neighbor that may have needed it will have received it earlier from the broadcast of nodes that lie on shortest $st$-paths.
 
-In terms of memory consumption, each node will add $O(n)$ entries each of the two dictionaries and $O(n^2)$ pairs to the set $R$.
+The broadcast of a \mdisc{} or a \mrep{} requires $O(m)$ messages. Since each node starts a \mdisc{} and generates $n-1$ reports the total number of messages exchanged is $O(nm + n^2m)$, with \mrep{} messages inducing the dominant term $n^2m$. An optimization that can be performed at step 3.3 is to avoid the propagation of a $(s,t)$ \mrep{} if $\sigma_{st}(v) = 0$. In this case the report is irrelevant to $v$, and any neighbor that may have needed it will have received it earlier from the broadcast of other nodes that lie on shortest $st$-paths.
+
+Regarding memory consumption, each node will add $O(n)$ entries each of the two dictionaries and $O(n^2)$ pairs to the set $R$.

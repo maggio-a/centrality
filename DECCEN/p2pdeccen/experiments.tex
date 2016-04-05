@@ -3,23 +3,23 @@
 \section{Experiments}
 \label{sec:exp}
 
-The aim of the simulations was to compare the number of messages required by the algorithms to complete the decentralized computation of the indices, and to measure the error of the estimates computed by \multibfs{} with different values of the parameter $p$.
+The aim of the experiments was to compare the number of messages required by the algorithms to complete the decentralized computation of the indices, and to measure the error of the estimates of \multibfs{} with different values of the parameter $p$.
 
-The networks used in the experiments (taken from the KONECT \cite{konect} repository) are the following:
+The results were obtained by running simulations on the following networks (taken from the KONECT \cite{konect} repository):
 \begin{description}[leftmargin=0cm]
- \item[\texttt{dolphins}] This is a social network of bottlenose dolphins where nodes are dolphins and edges represent frequent associations. ($n=62$, $m=159$, source \cite{network:dolphins}).
- \item[\texttt{surf}] This network that represents interpersonal contacts between windsurfers in southern California during the fall of 1986. ($n=62$, $m=336$, source \cite{network:surf}).
- \item[\texttt{macaques}] This is a directed network that represent dominance behavior in a colony of 62 adult female Japanese macaques. The undirected version was obtained by forcing the edges to be symmetric. ($n=62$, $m=1167$, original source \cite{network:mac}).
- \item[\texttt{train}] This network contains contacts between suspected terrorists involved in the train bombing of Madrid on March 11, 2004 as reconstructed from newspapers. ($n=62$, $m=243$, source \cite{network:train}).
- \item[\texttt{email}] This is the email communication network at the University Rovira i Virgili in Tarragona in the south of Catalonia in Spain. ($n=1133$, $m=5451$, source \cite{network:email}).
- \item[\texttt{powergrid}] This network is the high-voltage power grid in the Western States of the United States of America. ($n=4941$, $m=6594$, source \cite{network:powergrid}).
+ \item[\texttt{dolphins}] A social network of bottlenose dolphins where nodes are dolphins and edges represent frequent associations between individuals. ($n=62$, $m=159$, source \cite{network:dolphins}).
+ \item[\texttt{surf}] A network that represents interpersonal contacts between windsurfers in southern California during the fall of 1986. ($n=62$, $m=336$, source \cite{network:surf}).
+ \item[\texttt{macaques}] The undirected version of a directed network that represent dominance behavior in a colony of 62 adult female Japanese macaques -- obtained by forcing the edges to be symmetric. ($n=62$, $m=1167$, original source \cite{network:mac}).
+ \item[\texttt{train}] A network that contains contacts between suspected terrorists involved in the train bombing of Madrid on March 11, 2004 as reconstructed from newspapers. ($n=62$, $m=243$, source \cite{network:train}).
+ \item[\texttt{email}] The email communication network at the University Rovira i Virgili in Tarragona in the south of Catalonia in Spain. ($n=1133$, $m=5451$, source \cite{network:email}).
+ \item[\texttt{powergrid}] The high-voltage power grid in the Western States of the United States of America. ($n=4941$, $m=6594$, source \cite{network:powergrid}).
 \end{description}
 
-\subsection{Performance comparison}
+\subsection{Performance evaluation}
 
 The performance measures used to evaluate the algorithms are the number of steps required to complete the computation and the number of messages that the network nodes generate.
 
-Table \ref{table:comparison} reports the results obtained by running \deccen{} and \multibfs{} with $p = 1$ in order to compute the exact centrality values. Due to the high memory requirements of \deccen{} the simulations could only be performed on small networks, but both algorithms can be expected to perform in a similar way (relatively to each other) in any other scenario since all the messages are generated in a deterministic way.
+Table \ref{table:comparison} reports the results obtained by running \deccen{} and \multibfs{} with $p = 1$ (in order to compute exact values). Due to the high memory requirements of \deccen{} the simulations could only be performed on small networks, but the algorithms can be expected to behave similarly in any other scenario since all the messages are generated in a deterministic way.
 
 \begin{table}
 \centering
@@ -45,33 +45,18 @@ Network           & $n$ & $m$  & $\Delta$ & Steps  & Messages & Steps & Messages
 
 \end{table}
 
-As expected, in both cases the number of steps required to complete is twice the diameter $\Delta$ of the network, since each ``discovery'' phase takes at most $\Delta$ steps to reach any destination from a given source, and the same also holds for the report phase of \deccen{} or the backtracking in \multibfs{}. In all cases, \multibfs{} requires an extra step between reaching the farthest child nodes and the beginning of the backtracking phase: this is bound to happen whenever nodes at distance $\Delta$ from any source have siblings, since they need to be detected before reporting back.
+As expected, both algorithms require a number of steps to complete the execution that is twice the diameter $\Delta$ of the network, since each of the two ``discovery'' phases takes at most $\Delta$ steps to reach any destination from any given source, and the same also holds for the report phase of \deccen{} or the backtracking in \multibfs{}. In the test instances \multibfs{} exhibits an extra delay of one step between reaching the farthest child nodes and the beginning of the backtracking phase: this is bound to happen whenever nodes at distance $\Delta$ from a source have a non-empty siblings set, as the siblings need to be identified before reporting back.
 
-The experimental data shows that \deccen{} requires a significantly larger amount of messages than \multibfs{} to terminate the execution, as anticipated by the theoretical analysis of the algorithms. This is a consequence of the different way in which the algorithms handle the report phase: while in \deccen{} new reports are broadcast at every step of a discovery, \multibfs{} uses the distance from the source of the discovery to rank the nodes, and only generates reports from the most distant nodes (that are then routed back to the source using the predecessor sets).
+The experimental data also shows that \deccen{} requires a significantly larger amount of messages than \multibfs{} to terminate the execution, as anticipated in the previous sections. This is a consequence of the different way in which the algorithms handle the report phase: while in \deccen{} new reports are broadcast at every step of a discovery, \multibfs{} uses the distance from the source of the discovery to rank the nodes, and only generates reports from the most distant nodes (that are then routed back to the source using the predecessor sets).
 
 \subsection{\multibfs{} approximations}
 
-The quality of the approximations obtained with \multibfs{} were evaluated by running simulations with increasing values of $p$ (from 0.05 to 1.0 with an increment of 0.05 at each step); each experiment was repeated 10 times. The aim of the experiments was to measure the numerical error of the estimates yielded by the algorithm, and to evaluate how close the ``ranking'' of the nodes using these estimates is to the actual ranking of the nodes according to the exact centrality values, since nodes could be ranked correctly even if the estimates are subject to high numerical error. This second experiment is especially interesting if a node wants to make a ``greedy'' choice knowing only its and it's neighbors index's value as it gives an idea of how often this choice may be the wrong one.
+The quality of the approximations obtained with \multibfs{} were evaluated by running simulations with increasing values of $p$ (from 0.05 to 1.0 at steps of 0.05). The goal was to measure the numerical error of the estimates generated by the algorithm, and to evaluate how close the ``ranking'' of the nodes using these estimates is to the actual ranking of the nodes according to the exact centrality values, since nodes could be ranked correctly even if the estimates are subject to high error (this is especially interesting if a node wants to make a ``greedy'' choice knowing only its and it's neighbors index's value, as it gives an idea of how often this choice may be the wrong one). Each experiment was repeated ten times.
 
-Figure \ref{fig:error} reports the average relative error $\epsilon_r$ yielded by the centrality estimators in the \texttt{dolphins}, \texttt{email} and \texttt{powergrid} networks. The results show satisfactory results for the estimation of closeness centrality for small values of $p$, while stress and betweenness estimates exhibit large numerical error even for values of $p$ close to 1.
+Figure \ref{fig:error} reports the average relative error $\epsilon_r$ yielded by the centrality estimators in the \texttt{dolphins}, \texttt{email} and \texttt{powergrid} networks. The data shows satisfactory results for the estimation of closeness centrality for small values of $p$, while stress and betweenness estimates exhibit large numerical error even for values of $p$ close to 1.
 
 \input{error.tikz}
 
-The accuracy of the ranking induced by the approximated indices is measured by counting, among all the pairs of nodes, the fraction of pairs in which the nodes are wrongly ordered with respect to the ranking imposed by the exact centrality values; results are reported in figure \ref{fig:inversion}. In this case the results are encouraging: even for small values of $p$ the fraction of pairs in wrong rank order is relatively small.
+The accuracy of the ranking induced by the approximated indices is measured by counting, among all the pairs of nodes, the fraction of pairs in which the nodes are wrongly ordered with respect to the ranking imposed by the exact centrality values; results are reported in figure \ref{fig:inversion}. In this case the results are encouraging: even for small values of $p$ the fraction of pairs in wrong order is relatively small.
 
 \input{pairs.tikz}
-
-%
-%
-%
-%
-%The quality of the estimations yielded by \multibfs{} is evaluated both in terms of the numerical error introduced by the estimators, and the difference in the ranking of the nodes induced by the centrality values which could prove to be accurate even in presence of non-negligible error in the estimates.
-%
-%\input{error.tikz}
-%
-%Figure \ref{fig:error} reports the average relative error $\epsilon_r$ yielded by the centrality estimators for increasing values of the parameter $p$ in the \texttt{dolphins}, \texttt{email} and \texttt{powergrid} networks. The estimation of Closeness centrality is much more accurate than the estimation of Stress and Betweenness centrality, which behave roughly the same.
-%
-%\input{pairs.tikz}
-%
-%The accuracy of the ranking in presence of approximated indices is measured by counting among all the pair of nodes, the fraction of pairs in which the nodes are wrongly ordered with respect to the ranking induced by the exact centrality values. Results are reported in figure \ref{fig:inversion}. In this case, even for small values of $p$ the fraction of pairs of nodes in wrong rank order is relatively small. This is encouraging if the estimated indices are used locally, to make decisions based on the values computed at a node and at its neighbors.
-%

@@ -1,0 +1,95 @@
+\begin{figure}
+\centering
+\begin{tikzpicture}
+\begin{axis}
+[
+  height=0.28\textheight,
+  width = 0.92\textwidth,
+  xlabel={$p$},
+  ylabel={Relative error $\epsilon_r$},
+  xlabel near ticks, ylabel near ticks,
+  label style = {
+    font = \footnotesize
+  },
+  ticklabel style = {
+    font = \footnotesize
+  },
+  legend style = {
+    draw=none,
+    font=\footnotesize
+  },
+  title = {Approximation of centralities in the \texttt{dolphins} network},
+  title style = {
+    font=\footnotesize
+  }
+]
+\addplot+ [smooth, mark=none, semithick, red] table [x=Fraction, y=CCerr]{../results/dolphins/analysis_dolphins.txt}; \addlegendentry{$C_C$}
+\addplot+ [smooth, mark=none, semithick, blue] table [x=Fraction, y=SCerr]{../results/dolphins/analysis_dolphins.txt}; \addlegendentry{$S_C$}
+\addplot+ [smooth, mark=none, semithick, black] table [x=Fraction, y=BCerr]{../results/dolphins/analysis_dolphins.txt}; \addlegendentry{$B_C$}
+\end{axis}
+\end{tikzpicture}
+
+\bigskip
+
+\begin{tikzpicture}
+\begin{axis}
+[
+  height=0.28\textheight,
+  width = 0.92\textwidth,
+  xlabel={$p$},
+  ylabel={Relative error $\epsilon_r$},
+  xlabel near ticks, ylabel near ticks,
+  label style = {
+    font = \footnotesize
+  },
+  ticklabel style = {
+    font = \footnotesize
+  },
+  legend style = {
+    draw=none,
+    font=\footnotesize
+  },
+  title = {Approximation of centralities in the \texttt{email} network},
+  title style = {
+    font=\footnotesize
+  }
+]
+\addplot+ [smooth, mark=none, semithick, red] table [x=Fraction, y=CCerr]{../results/arenas-email/analysis_arenas-email.txt}; \addlegendentry{$C_C$}
+\addplot+ [smooth, mark=none, semithick, blue] table [x=Fraction, y=SCerr]{../results/arenas-email/analysis_arenas-email.txt}; \addlegendentry{$S_C$}
+\addplot+ [smooth, mark=none, semithick, black] table [x=Fraction, y=BCerr]{../results/arenas-email/analysis_arenas-email.txt}; \addlegendentry{$B_C$}
+\end{axis}
+\end{tikzpicture}
+
+\bigskip
+
+\begin{tikzpicture}
+\begin{axis}
+[
+  height=0.28\textheight,
+  width = 0.92\textwidth,
+  xlabel={$p$},
+  ylabel={Relative error $\epsilon_r$},
+  xlabel near ticks, ylabel near ticks,
+  label style = {
+    font = \footnotesize
+  },
+  ticklabel style = {
+    font = \footnotesize
+  },
+  legend style = {
+    draw=none,
+    font=\footnotesize
+  },
+  title = {Approximation of centralities in the \texttt{powergrid} network},
+  title style = {
+    font=\footnotesize
+  }
+]
+\addplot+ [smooth, mark=none, semithick, red] table [x=Fraction, y=CCerr]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt}; \addlegendentry{$C_C$}
+\addplot+ [smooth, mark=none, semithick, blue] table [x=Fraction, y=SCerr]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt}; \addlegendentry{$S_C$}
+\addplot+ [smooth, mark=none, semithick, black] table [x=Fraction, y=BCerr]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt}; \addlegendentry{$B_C$}
+\end{axis}
+\end{tikzpicture}
+\caption{Approximation error in the estimation of centrality indices.}
+\label{fig:error}
+\end{figure}

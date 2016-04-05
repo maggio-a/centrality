@@ -1,0 +1,111 @@
+\begin{figure}
+\centering
+\begin{tikzpicture}
+\begin{axis}
+[
+  height=0.28\textheight,
+  width = 0.92\textwidth,
+  xlabel={$p$},
+  ylabel={Fraction of pairs},
+  xlabel near ticks, ylabel near ticks,
+  label style = {
+    font = \footnotesize
+  },
+  ticklabel style = {
+    font = \footnotesize
+  },
+  cycle list name=color list,
+  legend style = {
+    draw=none,
+    font=\footnotesize
+  },
+  legend plot pos = left,
+  legend cell align = left,
+  legend entries = {$C_C$, $S_C$, $B_C$},
+  title = {Pairs in wrong rank order in the \texttt{dolphins} network},
+  title style = {
+    font=\footnotesize
+  }
+]
+\addplot+ [smooth, semithick] table [x=Fraction, y=CCpercInv]{../results/dolphins/analysis_dolphins.txt};
+\addplot+ [smooth, semithick] table [x=Fraction, y=SCpercInv]{../results/dolphins/analysis_dolphins.txt};
+\addplot+ [smooth, semithick] table [x=Fraction, y=BCpercInv]{../results/dolphins/analysis_dolphins.txt};
+\end{axis}
+\end{tikzpicture}
+
+\bigskip
+
+\begin{tikzpicture}
+\begin{axis}
+[
+  height=0.28\textheight,
+  width = 0.92\textwidth,
+  xlabel={$p$},
+  ylabel={Fraction of pairs},
+  xlabel near ticks, ylabel near ticks,
+  label style = {
+    font = \footnotesize
+  },
+  ticklabel style = {
+    font = \footnotesize
+  },
+  yticklabel style = {/pgf/number format/fixed},
+  scaled y ticks = false,
+  cycle list name=color list,
+  legend style = {
+    draw=none,
+    font=\footnotesize
+  },
+  legend plot pos = left,
+  legend cell align = left,
+  legend entries = {$C_C$, $S_C$, $B_C$},
+  title = {Pairs in wrong rank order in the \texttt{email} network},
+  title style = {
+    font=\footnotesize
+  }
+]
+\addplot+ [smooth, semithick] table [x=Fraction, y=CCpercInv]{../results/arenas-email/analysis_arenas-email.txt};
+\addplot+ [smooth, semithick] table [x=Fraction, y=SCpercInv]{../results/arenas-email/analysis_arenas-email.txt};
+\addplot+ [smooth, semithick] table [x=Fraction, y=BCpercInv]{../results/arenas-email/analysis_arenas-email.txt};
+\end{axis}
+\end{tikzpicture}
+
+\bigskip
+
+\begin{tikzpicture}
+\begin{axis}
+[
+  height=0.28\textheight,
+  width = 0.92\textwidth,
+  xlabel={$p$},
+  ylabel={Fraction of pairs},
+  xlabel near ticks, ylabel near ticks,
+  label style = {
+    font = \footnotesize
+  },
+  ticklabel style = {
+    font = \footnotesize
+  },
+  yticklabel style = {/pgf/number format/fixed},
+  scaled y ticks = false,
+  cycle list name=color list,
+  legend style = {
+    draw=none,
+    font=\footnotesize
+  },
+  legend plot pos = left,
+  legend cell align = left,
+  legend entries = {$C_C$, $S_C$, $B_C$},
+  title = {Pairs in wrong rank order in the \texttt{powergrid} network},
+  title style = {
+    font=\footnotesize
+  }
+]
+\addplot+ [smooth, semithick] table [x=Fraction, y=CCpercInv]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt};
+\addplot+ [smooth, semithick] table [x=Fraction, y=SCpercInv]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt};
+\addplot+ [smooth, semithick] table [x=Fraction, y=BCpercInv]{../results/opsahl-powergrid/analysis_opsahl-powergrid.txt};
+\end{axis}
+\end{tikzpicture}
+\caption{Pairs in wrong rank order with approximated centralities}
+\label{fig:inversion}
+\end{figure}

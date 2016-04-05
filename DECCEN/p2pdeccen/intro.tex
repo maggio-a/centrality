@@ -7,11 +7,11 @@
 
 \section{Introduction}
 
-The task of the project was to define \deccen{}, a decentralized algorithm to compute stress centrality indices in a network based on the ideas introduced in \cite{lehmann2003}, and study its behavior using the \peersim{} \cite{peersim} simulator. Additionally -- given the high cost of the algorithm -- approximation techniques could be proposed in order to reduce the communication overhead and memory requirements, and the algorithm could be extended to also compute the closeness and betweenness centrality indices.
+The goal of the project was to define \deccen{}, a decentralized algorithm to compute stress centrality indices in a network based on the framework introduced in \citet{lehmann2003}, and study its behavior using the \peersim{} \cite{peersim} simulator. Additionally -- given the high cost of the algorithm -- approximation techniques could be proposed in order to reduce the communication overhead and memory requirements, and the algorithm could be extended to also compute closeness and betweenness indices.
 
-This report defines a version of \deccen{} capable of computing all the three centrality measures mentioned. It also defines a different decentralized algorithm based on the previous works of Brandes \cite{brandes2001,brandes2007}, and Eppstein and Wang \cite{ew2004}, to approximate centrality values by sampling a limited amount of network nodes. This second algorithm, referred to as \multibfs{}, has a significantly smaller communication overhead.
+This report defines a version of \deccen{} capable of computing all the three centrality measures mentioned. It also defines a different decentralized algorithm, based on the previous works of Brandes \cite{brandes2001,brandes2007} and Eppstein and Wang \cite{ew2004}, to approximate centralities by sampling the contributions of a subset of network nodes to their values. This second algorithm, referred to as \multibfs{}, has a significantly smaller communication overhead.
 
-This document is organized as follows: in section \ref{sec:def} some preliminary definitions are given, while \deccen{} is defined in section \ref{sec:deccen} and \multibfs{} is defined in section \ref{sec:mbfs}. Experimental results are shown in section \ref{sec:exp}: the aims of the experiments were to compare the performance of the two algorithms, and to evaluate the quality of the estimates obtained with \multibfs{}. Follows a small overview of the most relevant choices made in the development of the project code. The proofs of some results introduced in section \ref{sec:mbfs} are reported in the appendix.
+This document is organized as follows: in section \ref{sec:def} some preliminary definitions are given, while \deccen{} is defined in section \ref{sec:deccen} and \multibfs{} is defined in section \ref{sec:mbfs}. Section \ref{sec:exp} reports some experimental results: the aim of the experiments was to compare the performance of the two algorithms, and to evaluate the quality of the approximations obtained with \multibfs{}. Finally, section \ref{sec:code} contains a small overview of the most relevant choices made in the development of the simulator.
 
 
 \section{Preliminary definitions and assumptions}
@@ -19,14 +19,14 @@ This document is organized as follows: in section \ref{sec:def} some preliminary
 
 The task is to compute centrality indices for a given undirected graph $G = (V,E)$, which is assumed to be connected. Unless otherwise stated, $n$ denotes the number of nodes $|V|$ and $m$ the number of edges $|E|$. Each vertex $v \in V$ represents a network node with some given computational power, that can only communicate with its direct neighbors $N_v = \{u \in V : \{u,v\} \in E\}$. The terms \emph{vertex} and \emph{node} will be used interchangeably.
 
-A \emph{path} of \emph{length} $k$ from a source $s \in V$ to a destination $t \in V$ is a sequence $\langle v_0, v_1, \dots, v_k \rangle$ of vertices such that $s=v_0$, $t=v_k$ and $\{v_{i-1}, v_i\} \in E$ for $i = 1,2,\dots,k$. The \emph{distance} $d(u,v)$ between two vertices is the length of the shortest path that connects them (with $d(u,u) = 0$) while the diameter $\Delta$ is the maximum distance between any pair of vertices. Note that $d(u,v) = d(v,u)$ since the graph is undirected. A vertex $v$ is a \emph{predecessor} of $w$ with respect to $s$ if $\{v,w\} \in E$ and $d(s,v) +1 = d(s,w)$. The \emph{predecessor set} $P_s(w)$ of a vertex $w$ is the set of all predecessors of $w$ with respect to $s$.
+A \emph{path} of \emph{length} $k$ from a source $s \in V$ to a destination $t \in V$ is a sequence $\langle v_0, v_1, \dots, v_k \rangle$ of vertices such that $s=v_0$, $t=v_k$ and $\{v_{i-1}, v_i\} \in E$ for $i = 1,2,\dots,k$. The \emph{distance} $d(u,v)$ between two vertices is the length of the shortest path that connects them (note that $d(u,v) = d(v,u)$ since the graph is undirected) and the diameter $\Delta$ is the maximum distance between any pair of vertices. A vertex $v$ is a \emph{predecessor} of $w$ with respect to $s$ if $\{v,w\} \in E$ and $d(s,v) +1 = d(s,w)$. The \emph{predecessor set} $P_s(w)$ of a vertex $w$ is the set of all predecessors of $w$ with respect to $s$.
 
 The number of different shortest paths that connect two vertices $s,t \in V$ is denoted by $\sigma_{st}$, while the quantity $\sigma_{st}(v)$ is the number of shortest paths between $s$ and $t$ that pass through $v$ (this means that if $v = s$ or $v = t$ then $\sigma_{st}(v)$ is always zero).
 
 The centrality indices relevant to this document are the following:
 \begin{defcc} The \emph{closeness} centrality $C_C(v)$ of a vertex $v \in V$ is
 \begin{equation}
- C_C(v) = \frac{\sum_{u \in V} d(u,v)}{n-1}
+ C_C(v) = \frac{\sum_{u \in V} d(v,u)}{n-1}
 \end{equation}
 \end{defcc}
 \begin{defsc} The \emph{stress} centrality $S_C(v)$ of a vertex $v \in V$ is
