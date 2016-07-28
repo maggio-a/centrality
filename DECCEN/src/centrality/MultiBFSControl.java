@@ -24,7 +24,7 @@ public class MultiBFSControl implements Control {
 	
 	/**
 	 * The maximum number of active sources. Useful to limit the memory requirements of
-	 * a simulation at the price of increasing the number of cycles needed to complete.
+	 * a simulation at the expense of increasing the number of cycles needed to complete.
 	 */
 	private static final String PAR_DEGREE = "degree";
 	
@@ -39,11 +39,8 @@ public class MultiBFSControl implements Control {
 		visiting = new LinkedList<Node>();
 	}
 	
-	static { 
-		resetStaticFields();
-	}
-	
 	public MultiBFSControl(String prefix) {
+		resetStaticFields();
 		protocolID = Configuration.getPid(prefix + "." + PAR_PROTOCOL);
 		degree = Configuration.getInt(prefix + "." + PAR_DEGREE);
 		if (degree <= 0)
@@ -74,14 +71,11 @@ public class MultiBFSControl implements Control {
 			MultiBFS mbfs = (MultiBFS) s.getProtocol(protocolID);
 			if (mbfs.isCompleted(s)) counter++;
 		}
-		if (counter == sources.size()) {
-			System.err.println("All sources completed the accumulation, stopping the simulation");
-			resetStaticFields();
-			return true;
-		} else {
+		if (counter == sources.size())
+			System.err.println("All sources completed the accumulation");
+		else
 			System.err.println(counter + " out of " + sources.size() + " sources completed the accumulation");
-			return false;
-		}
+		return false;
 	}
 	
 }

@@ -22,13 +22,13 @@ import peersim.core.Network;
 import peersim.core.Node;
 
 
-public class MultiBFS extends SynchronousCentralityProtocol {
+public class MultiBFS extends CentralityProtocol {
+
 	private static class VisitState {
 		public Set<Node> predecessors;
 		public Set<Node> siblings;
 		public Set<Node> children;
 		public int distanceFromSource;
-		public int timestamp;
 		public int sigma;
 		public long contributionSC;
 		public double contributionBC;
@@ -37,7 +37,6 @@ public class MultiBFS extends SynchronousCentralityProtocol {
 			distanceFromSource = d;
 			sigma = sig;
 			predecessors = p;
-			timestamp = t;
 			siblings = new HashSet<Node>();
 			children = new HashSet<Node>();
 			contributionSC = 0;
@@ -52,10 +51,8 @@ public class MultiBFS extends SynchronousCentralityProtocol {
 	}
 	
 	private static final String PAR_LINKABLE = "lnk";
-	private static final String PAR_IGNORE_CORRECT_ESTIMATE = "ignoreCorrectEstimate";
 	
 	private final int linkableProtocolID;
-	private final boolean ignoreCorrectEstimate;
 	
 	private Map<Node,VisitState> activeVisits;
 	private Set<Node> completed;
@@ -67,7 +64,6 @@ public class MultiBFS extends SynchronousCentralityProtocol {
 	public MultiBFS(String prefix) {
 		super(prefix);
 		linkableProtocolID = Configuration.getPid(prefix + "." + PAR_LINKABLE);
-		ignoreCorrectEstimate = Configuration.getBoolean(prefix + "." + PAR_IGNORE_CORRECT_ESTIMATE);
 		reset();
 	}
 	
@@ -97,10 +93,8 @@ public class MultiBFS extends SynchronousCentralityProtocol {
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		for (int i = 0; i < lnk.degree(); ++i) {
 			Node n = lnk.getNeighbor(i);
-			if (!state.predecessors.contains(n)) {
-				MultiBFS next = (MultiBFS) n.getProtocol(pid);
-				addToSendQueue(Message.createDiscoveryMessage(self, self, state.sigma, state.distanceFromSource), next);
-			}
+			if (!state.predecessors.contains(n))
+				send(self, n, Message.createDiscoveryMessage(self, self, state.sigma, state.distanceFromSource), pid);
 		}
 	}
 	
@@ -115,7 +109,7 @@ public class MultiBFS extends SynchronousCentralityProtocol {
 	}
 	
 	private void parseIncomingMessages(Map<Node,List<Message>> discoveryMap, List<Message> reportList) {
-		Iterator<Message> it = getIncomingMessagesIterator();
+		Iterator<Message> it = getIncomingMessages().iterator();
 		while (it.hasNext()) {
 			Message m = it.next();
 			if (m.type == Message.Type.DISCOVERY) {
@@ -153,15 +147,12 @@ public class MultiBFS extends SynchronousCentralityProtocol {
 				
 				for (int i = 0; i < lnk.degree(); ++i) {
 					Node n = lnk.getNeighbor(i);
-					if (!state.predecessors.contains(n)) {
-						MultiBFS next = (MultiBFS) n.getProtocol(pid);
-						addToSendQueue(Message.createDiscoveryMessage(self, s, state.sigma, state.distanceFromSource), next);
-					}
+					if (!state.predecessors.contains(n))
+						send(self, n, Message.createDiscoveryMessage(self, s, state.sigma, state.distanceFromSource), pid);
 				}
 			} else if (isActive(s)) {
 				VisitState state = activeVisits.get(s);
 				assert state != null && state.siblings.isEmpty() : "sibling set not empty";
-				assert state.timestamp + 1 == CommonState.getIntTime() : "timestamp issue"; 
 				for (Message m : e.getValue()) state.siblings.add(m.get(Message.Field.SENDER, Node.class));
 			}
 		}
@@ -198,12 +189,10 @@ public class MultiBFS extends SynchronousCentralityProtocol {
 			if (canReport) {
 				numSamples++;
 				if (s != self) {
-					for (Node p : state.predecessors) {
-						MultiBFS predecessor = (MultiBFS) p.getProtocol(pid);
-						addToSendQueue(Message.createMBFSReportMessage(
+					for (Node p : state.predecessors) 
+						send(self, p, Message.createMBFSReportMessage(
 								self, s, state.contributionBC, state.contributionSC, state.sigma),
-								predecessor);
-					}
+								pid);
 					accumulatorCC += state.distanceFromSource;
 					accumulatorBC += state.contributionBC;
 					accumulatorSC += state.contributionSC;
@@ -226,17 +215,14 @@ public class MultiBFS extends SynchronousCentralityProtocol {
 		return completed.contains(source);
 	}
 	
-	@Override
 	public long getSC() { 
-		return ignoreCorrectEstimate ? accumulatorSC : (long) ((Network.size()/(double)numSamples)*accumulatorSC);
+		return (long) ((Network.size()/(double)numSamples)*accumulatorSC);
 	}
 	
-	@Override
 	public double getBC() {
-		return ignoreCorrectEstimate ? accumulatorBC : ((Network.size()/(double)numSamples)*accumulatorBC);
+		return ((Network.size()/(double)numSamples)*accumulatorBC);
 	}
 	
-	@Override
 	public double getCC() {
 		if (accumulatorCC == 0) return 0.0;
 		else {
@@ -244,4 +230,5 @@ public class MultiBFS extends SynchronousCentralityProtocol {
 			return sx / numSamples;
 		}
 	}
+
 }

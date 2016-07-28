@@ -229,13 +229,13 @@ public class Main {
 						System.out.println("+++CC[i]=" + CC[i] + " CC[j]=" + CC[j] + " app[i]=" + runCC[i][k] +" app[j]=" +  runCC[j][k]);
 					}*/
 					
-					if (invertedCC) {
+					if (_invertedCC) {
 						closenessInversion++;
 					}
-					if (invertedBC) {
+					if (_invertedBC) {
 						betweennessInversion++;
 					}
-					if (invertedSC) {
+					if (_invertedSC) {
 						stressInversion++;
 					}
 				}

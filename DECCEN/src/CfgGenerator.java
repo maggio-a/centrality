@@ -13,9 +13,9 @@ public class CfgGenerator {
 	
 	private static boolean correct = true;
 
-	private static String name = "opsahl-powergrid";
-	private static int _netSize = 4941;
-	private static int _deg = 500;
+	private static String name = "dolphins";
+	private static int _netSize = 62;
+	private static int _deg = 1500;
 
 	public static void main(String[] args) throws Exception {
 		
@@ -33,7 +33,7 @@ public class CfgGenerator {
 		String experimentPath = "experiments/" + name + "/";
 		
 		analysis.println("echo Fraction > results/" + name + "/analysis_" + name + ".txt");
-		analysis.println("echo CCerr CCpercInv BCerr BCpercInv SCerr SCpercInv >>"
+		analysis.println("echo CCerr CCPercentileErr CCpercInv BCerr BCPercentileErr BCpercInv SCerr SCPercentileErr SCpercInv >>"
 				+ " results/" + name + "/analysis_" + name + ".txt");
 		
 		for (int i = 0; i < fractions.length; ++i) {
@@ -44,12 +44,12 @@ public class CfgGenerator {
 			boolean exact = (i == fractions.length -1);
 			int _runs = exact ? 1 : 10;
 			
-			// write out the cfg file
 			ps.println("#SIMULATION");
 			ps.println("");
 			if (exact) ps.println("random.seed 1234567890");
-			ps.println("simulation.cycles 10000000");
 			ps.println("simulation.experiments " + _runs);
+			ps.println("simulation.endtime 1000000000");
+			ps.println("simulation.logtime 2000");
 			ps.println("network.size " + _netSize);
 			ps.println("network.node MyNode");
 			ps.println("");
@@ -57,11 +57,16 @@ public class CfgGenerator {
 			ps.println("");
 			ps.println("# PROTOCOLS");
 			ps.println("");
-			ps.println("protocol.linkable LinkableImplementation");
+			ps.println("protocol.linkable IdleProtocol");
 			ps.println("");
-			ps.println("protocol.approximation CentralityApproximation");
-			ps.println("protocol.approximation.lnk linkable");
-			ps.println("protocol.approximation.ignoreCorrectEstimate " + !correct);
+			ps.println("protocol.tr UniformRandomTransport");
+			ps.println("protocol.tr.mindelay 10");
+			ps.println("protocol.tr.maxdelay 200");
+			ps.println("");
+			ps.println("protocol.mbfs MultiBFS");
+			ps.println("protocol.mbfs.lnk linkable");
+			ps.println("protocol.mbfs.transport tr");
+			ps.println("protocol.mbfs.step 500");
 			ps.println("");
 			ps.println("");
 			ps.println("");
@@ -74,32 +79,34 @@ public class CfgGenerator {
 			ps.println("init.wire.filename data/" + name + "/out." + name);
 			ps.println("init.wire.setLabels");
 			ps.println("");
+			ps.println("init.scheduler CDScheduler");
+			ps.println("init.scheduler.protocol mbfs");
+			ps.println("");
 			ps.println("# Initializes the values");
-			ps.println("init.initializer ApproximationInitializer");
-			ps.println("init.initializer.protocol approximation");
+			ps.println("init.initializer MultiBFSInitializer");
+			ps.println("init.initializer.protocol mbfs");
 			ps.println("init.initializer.fraction "+ fractions[i]);
 			ps.println("");
-			ps.println("order.init wire initializer");
+			ps.println("order.init wire initializer scheduler");
 			ps.println("");
 			ps.println("");
 			ps.println("");
 			ps.println("# CONTROLS");
 			ps.println("");
 			ps.println("# Regulates the number of simultaneous visits to control memory usage");
-			ps.println("control.ac ApproximationControl");
-			ps.println("control.ac.protocol approximation");
-			ps.println("control.ac.degree " + _deg);
-			ps.println("");
-			ps.println("control.transport CycleBasedTransport");
-			ps.println("control.transport.protocol approximation");
-			ps.println("#control.transport.printStatistics");
-			ps.println("#control.transport.terminateOnEmptyQueues");
+			ps.println("control.cc MultiBFSControl");
+			ps.println("control.cc.protocol mbfs");
+			ps.println("control.cc.degree " + _deg);
+			ps.println("control.cc.step 500");
 			ps.println("");
 			ps.println("control.observer CentralityObserver");
-			ps.println("control.observer.protocol approximation");
+			ps.println("control.observer.protocol mbfs");
 			ps.println("control.observer.until 0");
+			ps.println("control.observer.step 500");
 			ps.println("control.observer.FINAL");
 			ps.println("");
+			ps.println("control.sim CentralitySimulation");
+			ps.println("control.sim.step 500");
 			
 			ps.close();
 			

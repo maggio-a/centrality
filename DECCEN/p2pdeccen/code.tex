@@ -2,49 +2,60 @@
 
 \section{Project code overview} \label{sec:code}
 
-\setminted[text]{breaklines, tabsize=2, xleftmargin=14pt}
+\setminted[text]{breaklines, tabsize=2, xleftmargin=\parindent} %xleftmargin=14pt}
 
-The simulations were designed to work with the \emph{cycle-driven} engine of the \peersim{} \cite{peersim} simulator. This section explains how the protocol classes were adapted to comply to the synchronous communication model, and then illustrates the main features of the implemented protocols.
+The project code is based on the \emph{event driven} engine of the \peersim{} \cite{peersim} simulator.
 
-\subsection{Synchronous communication model}
+As already stated stated, the algorithms presented in this report assume the communication is synchronized, which means that a computation step is not executed until all the messages sent at the previous step have reached the destination. This can be achieved with the event driven engine by letting the nodes exchange messages using a reliable \texttt{Transport} protocol and having them execute a periodic action (the computation step) at intervals larger than the maximum delay required by the \texttt{Transport} to deliver a message. Since messages are only sent during computation steps, this configuration guarantees that all the messages sent at one step are delivered before the next one is executed.
 
-Implementing the algorithms as cycle-driven protocols seems a natural choice given the assumption of synchronous communication under which the algorithms are specified: the cycle-driven engine simply iterates over each \texttt{Node} in the network array and executes the protocol logic at each step. However, to correctly model the synchronous communication, a protocol shouldn't be able to influence another one in the middle of a cycle, since if this happens while the second protocol is yet to be executed, it would receive information one cycle (or step) in advance. In other words, each protocol must be executed in isolation from the others at each cycle, and a message generated during a cycle should reach the destination only at the beginning of the following one.
+%As already stated, the algorithms presented in this report assume the communication is synchronized, meaning there are time windows in which the network nodes exchange messages interleaved with computation steps. This can be easily modeled with the event driven engine by including a reliable \texttt{Transport} protocol used by the \texttt{Node} instances to exchange messages, and having them execute a periodic action (an algorithm step) at intervals larger than the maximum delay required by the \texttt{Transport} to deliver a message. Since messages are only sent when a step is executed, this guarantees that all the messages sent at one step will be received before the next one. Using this model, the action performed upon receiving a message is simply to store it in a container to make it available when needed at a later time.
 
-To solve this issue, whenever a new message is generated it must be retained by the sender protocol until the iteration of the current cycle is finished, and then delivered to the receiver protocol. This can be achieved in a number of different ways; the choice made here was to define a generic interface providing methods to allow \emph{synchronous} protocols to communicate with each other under the requirement above but in a way that is transparent to the logic of the protocol itself, and defining a \peersim{} \texttt{Control} to move deliver messages at the end of each cycle.
+\subsection{Messages}
 
-\subsubsection{Components}
-
-The \texttt{CycleBasedTransportSupport} interface is the generic interface that syn\-chro\-nous protocol classes are required to implement (its type argument is the class that models the messages protocols exchange with each other):
-\begin{minted}[breaklines=false]{text}
-public interface CycleBasedTransportSupport<T> {
-  interface SendQueueEntry<T> {
-      T getMessage();
-      CycleBasedTransportSupport<T> getDestination();
-  }
-  void addToSendQueue(
-      T message, CycleBasedTransportSupport<T> destination);
-  boolean hasOutgoingMessages();
-  void addToIncoming(T message);
-  Iterator<T> getIncomingMessagesIterator();
-  Iterator<SendQueueEntry<T>> getSendQueueIterator();
-}
-\end{minted}
-A protocol invokes the \texttt{addToSendQueue} method to ``send'' a message to the specified \texttt{destination} argument. The message is not actually sent, but held in a container until the cycle ends and the \texttt{CycleBasedTransport} control begins the execution. The control then obtains an iterator to the send queue of each protocol (with the \texttt{getSendQueueIterator} method), and moves the messages to the destinations by calling the \texttt{addToIncoming} method on them with the messages as arguments. A protocol can access available messages by obtaining an \texttt{Iterator} over them with the \texttt{getIncomingMessagesIterator} method.
+The nodes communicate by exchanging objects of the \texttt{Message} class. This class provides factory methods to generate \texttt{Message} objects that comply with the specification given in the algorithms description.
 
 \subsection{Protocol classes}
 
-\begin{figure}
-\centering
-%\includegraphics[width=0.72\textwidth]{diagram4.pdf}
-\includegraphics[height=0.31\textheight]{diagram_final.pdf}
-\caption{Protocol classes.}
-\label{class:protocol:hierarchy}
-\end{figure}
+The implementation of the \peersim{} protocols for \deccen{} and \multibfs{} is derived from the common base class \texttt{CentralityProtocol}. This class implements the common mechanisms needed by the synchronized protocols, in particular the support for the execution of periodic actions and the handling of the ``communication windows'' during which the network nodes exchange messages. Here is an excerpt of the class:
+%The implementation of \deccen{} and \multibfs{} is organized in a hierarchy of \peersim{} protocol classes. The abstract base class \texttt{CentralityProtocol} provides methods to handle inter-node
+%Protocol classes are organized in a hierarchy. Both \deccen{} and \multibfs{} protocols are derived from the abstract \texttt{CentralityProtocol} class. Other than the \texttt{EDProtocol} interface, this class also implements the \texttt{CDProtocol} interface to execute the periodic step action mentioned above:
+\begin{minted}[breaklines=false]{text}
+public abstract class CentralityProtocol implements EDProtocol,
+    CDProtocol {
+  private static String PAR_TRANSPORT = "transport";
+  private int transportProtocolID;
+  private List<Message> incoming;
+  
+  public SynchronousCentralityProtocol(String prefix) { ... }
+  public Object clone() { ... }
+  public void processEvent(Node node, int pid, Object event) { ... }
+  protected void send(Node from, Node to, Message m, int pid) { ... }
+  protected List<Message> getIncomingMessages() { ... }
+  public abstract void nextCycle(Node self, int protocolID);
+  ...
+}
+\end{minted}
 
-Protocol classes are organized as shown in figure \ref{class:protocol:hierarchy}. Both \texttt{Deccen} and \texttt{MultiBFS} extend the abstract class \texttt{SynchronousCentralityProtocol}, which provides an implementation the \texttt{Cycle\-Based\-Transport\-Support<Message>} interface and declares the \texttt{nextCycle} method of the \texttt{CDProtocol} PeerSim interface \texttt{abstract}.
+The implementation of the \texttt{EDProtocol} interface is required by the event driven engine. The \texttt{EDProtocol.processEvent} method simply stores a newly received message in the \texttt{incoming} list, and notifies the \texttt{CentralitySimulation} control that a new message has been received (this control stops the simulation if no messages are sent in a time window):
+\begin{minted}{text}
+public void processEvent(Node node, int pid, Object event) {
+  incoming.add((Message) event);
+  CentralitySimulation.newMessage();
+}
+\end{minted}
 
-\subsubsection{Messages}
-The messages exchanged by the protocols during the simulation are instances of the \texttt{Message} class. This class provides factory methods to generate \mdisc{} and \mrep{} message objects that follow the conventions used in the definition of the algorithms. 
+%The \texttt{send} method is simply a convenience wrapper for \texttt{Transport.send}:
+Messages are delivered by a \texttt{Transport} protocol, and can be sent by calling the \texttt{send} method which is a convenience wrapper for \texttt{Transport.send}:
+\begin{minted}{text}
+protected void send(Node from, Node to, Message m, int pid) {
+  Transport tr = (Transport) from.getProtocol(transportProtocolID);
+  tr.send(from, to, m, pid);
+}
+\end{minted}
+
+The class also implements the \texttt{CDProtocol} interface to support the execution of periodic actions. This feature can be enabled by including in the simulation (through the configuration file) a \texttt{CDScheduler} component and configuring it to run a \texttt{CDProtocol} at regular steps, which causes the simulator to trigger the \texttt{CDProtocol.nextCycle} method on all the nodes that are running it.
+
+When performing the experiments, the synchronous communication was configured using a \texttt{UniformRandomTransport} protocol to deliver messages with \texttt{mindelay} and \texttt{maxdelay} options of 15 and 200 milliseconds respectively, while the computation steps (implemented by the subclasses in the \texttt{nextCycle} method) were triggered by a \texttt{CDScheduler} at intervals of 500 milliseconds.  
 
 \subsubsection{\deccen{} protocol implementation}
 
@@ -54,14 +65,12 @@ public class Deccen extends SynchronousCentralityProtocol {
   private static class ShortestPathData {
     public final int count;
     public final int length;
-
     public ShortestPathData(int count, int length) { ... }
   }
 
   private static class OrderedPair<T1,T2> {
     public final T1 first;
     public final T2 second;
-
     public OrderedPair(T1 first, T2 second) { ... }
     ...
   }
@@ -73,9 +82,9 @@ public class Deccen extends SynchronousCentralityProtocol {
   ...
 }
 \end{minted}
-Whenever new \mdisc{} messages are received, additional information about the number and length of shortest paths toward a particular source becomes available: this information is stored in the \texttt{shortestPathMap} structure by adding a new \texttt{ShortestPathData} entry paired with the source of the discovery. Since the algorithm computes all the centrality indices, it stores both the distance from the source and the number of different paths counted. Reports about a source--destination pair $(s,t)$ are tracked by storing the \texttt{handledReports} set an \texttt{Ordered\-Pair} of \texttt{Node} IDs (which are \texttt{long} integers in \peersim{}).
+Whenever new \mdisc{} messages are received, additional information about the number and length of shortest paths toward a particular source becomes available: this information is stored in the \texttt{shortestPathMap} structure by adding a new \texttt{ShortestPathData} entry, paired with the source of the discovery. As the algorithm computes all the centrality indices, it needs both the distance from the source and the number of different paths counted (the \texttt{length} and \texttt{count} fields respectively). Reports about a source--destination pair $(s,t)$ are tracked by adding to the \texttt{handledReports} set an \texttt{Ordered\-Pair} of \texttt{Node} IDs.
 
-The implementation of \texttt{nextCycle} simply executes the actions described in section \ref{deccen:step}:
+The \texttt{nextCycle} method implements the actions specified by this report in section \ref{deccen:step}:
 \begin{minted}{text}
 public void nextCycle(Node self, int protocolID) {
   Map<Node,List<Message>> discoveryMap =
@@ -88,6 +97,7 @@ public void nextCycle(Node self, int protocolID) {
     processReportMessages(self, protocolID, reportList);
 }
 \end{minted}
+Messages received in the previous communication window are parsed by the \texttt{parseIncomingMessages} method: discovery messages with the same source are grouped together in the \texttt{discoveryMap} structure (using the source node as key), and reports are collected in the \texttt{reportList}.
 
 \subsubsection{\multibfs{} protocol implementation}
 
@@ -118,7 +128,6 @@ private static class VisitState {
   public Set<Node> siblings;
   public Set<Node> children;
   public int distanceFromSource;
-  public int timestamp;
   public int sigma;
   public long contributionSC;
   public double contributionBC;
@@ -127,9 +136,9 @@ private static class VisitState {
       Node child, double bcc, long scc, int numSP) { ... }
 }
 \end{minted}
-The \texttt{accumulate} method updates the local contributions of the source by applying the recursive relations \eqref{eq:th:contrib:bc} and \eqref{eq:th:contrib:sc}, and it's invoked whenever a child node sends a report.
+The \texttt{accumulate} method updates the local contributions of the source (stored in the \texttt{contributionSC} and \texttt{contributionBC} fields) by applying the recursive relations \eqref{eq:th:contrib:bc} and \eqref{eq:th:contrib:sc}, and it's invoked whenever a child node sends a report.
 
-Finally, the \texttt{nextCycle} method follows the specification given in section \ref{multibfs:step}:
+Finally, the \texttt{nextCycle} method which again follows the specification given earlier (in section \ref{multibfs:step}):
 \begin{minted}{text}
 public void nextCycle(Node self, int protocolID) {
   Map<Node,List<Message>> discoveryMap =
@@ -143,4 +152,4 @@ public void nextCycle(Node self, int protocolID) {
   reportNewCompleted(self, protocolID);
 }
 \end{minted}
-Messages are parsed and handled by type, then active visits for which all child nodes have reported are finalized with the \texttt{reportNewCompleted} method by integrating the contributions in the centrality accumulators and reporting the relevant data to each predecessor.
+Active visits for which all child nodes have reported are finalized with the \texttt{reportNewCompleted} method by integrating the contributions in the centrality accumulators and sending reports to the predecessors.

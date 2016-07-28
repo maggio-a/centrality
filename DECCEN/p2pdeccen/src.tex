@@ -17,7 +17,7 @@
 \setmonofont[Scale=0.83]{M+ 1m regular}
 
 
-\linespread{0.74}
+\linespread{0.8}
 
 \usepackage[tt, bf, small]{titlesec}
 \titlelabel{\thetitle\quad}
@@ -28,22 +28,20 @@
 \begin{verbatim}
 Author: Andrea Maggiordomo. Imports are omitted.
 \end{verbatim}
+
 \section{Protocol related classes}
+
 \subsection*{Message.java}
 \inputminted[firstline=16]{java}{../src/centrality/Message.java}
-\subsection*{CycleBasedTransportSupport.java}
-\inputminted[firstline=13]{java}{../src/centrality/CycleBasedTransportSupport.java}
-\subsection*{SynchronousCentralityProtocol.java}
-\inputminted[firstline=18]{java}{../src/centrality/SynchronousCentralityProtocol.java}
-\subsection*{Deccen.java}
-\inputminted[firstline=24]{java}{../src/centrality/Deccen.java}
+\subsection*{CentralityProtocol.java}
+\inputminted[firstline=20]{java}{../src/centrality/CentralityProtocol.java}
 \subsection*{MultiBFS.java}
 \inputminted[firstline=25]{java}{../src/centrality/MultiBFS.java}
+\subsection*{Deccen.java}
+\inputminted[firstline=24]{java}{../src/centrality/Deccen.java}
 
 \section{Controls}
 
-\subsection*{CycleBasedTransport.java}
-\inputminted[firstline=19]{java}{../src/centrality/CycleBasedTransport.java}
 \subsection*{DeccenInitializer.java}
 \inputminted[firstline=16]{java}{../src/centrality/DeccenInitializer.java}
 \subsection*{MultiBFSInitializer.java}
@@ -52,6 +50,8 @@ Author: Andrea Maggiordomo. Imports are omitted.
 \inputminted[firstline=21]{java}{../src/centrality/MultiBFSControl.java}
 \subsection*{CentralityObserver.java}
 \inputminted[firstline=16]{java}{../src/centrality/CentralityObserver.java}
+\subsection*{CentralitySimulation.java}
+\inputminted[firstline=14]{java}{../src/centrality/CentralitySimulation.java}
 
 \section{Misc}
 

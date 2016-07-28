@@ -144,7 +144,7 @@ The actions performed by a node $v$ at each step are:
     \begin{algosteps}
       \item Under the synchronous model assumption $v$ can only receive such messages from nodes $u$ such that $d(s,u) = d(s,v)$. Collect these nodes in the set $S_s(v)$ of the siblings of $v$ with respect to $s$. (Note that these messages are received exactly one step after $v$ has been contacted by its predecessors).
     \end{algosteps}
-  \item For each \mrepargs{s}{w} message received with $v$ in state \sact{s}:
+  \item For each \mrepargs{s}{w} message received when $v$ is in state \sact{s}:
   \begin{algosteps}
       \item Add $w$ to the children set $C_s(v)$.
       \item Update $C_B^{(s)} \gets C_B^{(s)} + \frac{\sigma_{sv}}{\sigma_{sw}} \cdot (1 + \delta(s|w))$.

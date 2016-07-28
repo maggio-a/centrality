@@ -21,7 +21,7 @@ import peersim.core.Linkable;
 import peersim.core.Node;
 
 
-public class Deccen extends SynchronousCentralityProtocol {
+public class Deccen extends CentralityProtocol {
 	
 	private static class ShortestPathData {
 		public final int count;
@@ -98,8 +98,7 @@ public class Deccen extends SynchronousCentralityProtocol {
 		Linkable lnk = (Linkable) self.getProtocol(linkableProtocolID);
 		for (int i = 0; i < lnk.degree(); ++i) {
 			Node n = lnk.getNeighbor(i);
-			Deccen sdp = (Deccen) n.getProtocol(pid);
-			addToSendQueue(Message.createDiscoveryMessage(self, self, 1, 0), sdp);
+			send(self, n, Message.createDiscoveryMessage(self, self, 1, 0), pid);
 		}
 	}
 	
@@ -113,7 +112,7 @@ public class Deccen extends SynchronousCentralityProtocol {
 	}
 	
 	private void parseIncomingMessages(Map<Node,List<Message>> discoveryMap, List<Message> reportList) {
-		Iterator<Message> it = getIncomingMessagesIterator();
+		Iterator<Message> it = getIncomingMessages().iterator();
 		while (it.hasNext()) {
 			Message m = it.next();
 			if (m.type == Message.Type.DISCOVERY) {
@@ -152,10 +151,9 @@ public class Deccen extends SynchronousCentralityProtocol {
 				
 				for (int i = 0; i < lnk.degree(); ++i) {
 					Node n = lnk.getNeighbor(i);
-					Deccen sdp = (Deccen) n.getProtocol(pid);
 					if (!senders.contains(n))
-						addToSendQueue(Message.createDiscoveryMessage(self, s, spCount, distance), sdp);
-					addToSendQueue(Message.createReportMessage(self, s, self, spCount, distance), sdp);
+						send(self, n, Message.createDiscoveryMessage(self, s, spCount, distance), pid);
+					send(self, n, Message.createReportMessage(self, s, self, spCount, distance), pid);
 				}
 			}
 		}
@@ -178,9 +176,8 @@ public class Deccen extends SynchronousCentralityProtocol {
 				if (updated) {
 					for (int i = 0; i < lnk.degree(); ++i) {
 						Node n = lnk.getNeighbor(i);
-						Deccen sdp = (Deccen) n.getProtocol(pid);
 						if (n.getID() != sender.getID())
-							addToSendQueue(Message.createReportMessage(self, s, t, spCount, distance), sdp);
+							send(self, n, Message.createReportMessage(self, s, t, spCount, distance), pid);
 					}
 				}
 			}

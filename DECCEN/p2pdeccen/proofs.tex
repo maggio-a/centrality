@@ -10,9 +10,7 @@ The stress centrality contribution of $s \in V$ on any $v \in V$ obeys
 \end{th_recall_contrib_sc}
 
 \begin{proof}
-The proof is analogous to the one provided by Brandes in \cite{brandes2001} to prove Theorem \ref{th:contrib:bc}.
-
-Let $\sigma_{st}(v,e)$ be the number of shortest paths between $s$ and $t$ that pass through $v$ and across edge $e$. Observe that if a shortest path from $s$ to $t$ passes through $v$, then after $v$ it must immediately reach some other node $w$ that has $v$ in its predecessor set $P_s(w)$, so equation \eqref{eq:contrib:sc} can be rewritten as
+The proof is similar to the one used by \citet{brandes2001} to prove Theorem \ref{th:contrib:bc}. Let $\sigma_{st}(v,e)$ be the number of shortest paths between $s$ and $t$ that pass through $v$ and across edge $e$. Observe that if a shortest path from $s$ to $t$ passes through $v$, then after $v$ it must immediately reach some other node $w$ that has $v$ in its predecessor set $P_s(w)$, so equation \eqref{eq:contrib:sc} can be rewritten as
 \begin{IEEEeqnarray}{rCl}
 \sigma(s|v) & = & \sum_{t \in V} \sigma_{st}(v) \nonumber =  \sum_{t \in V} \sum_{w : v \in P_s(w)} \sigma_{st}(v, \{v,w\}) \nonumber \\
  & = & \sum_{w : v \in P_s(w)} \sum_{t \in V} \sigma_{st}(v, \{v,w\}) . \nonumber
