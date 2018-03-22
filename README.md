@@ -3,6 +3,8 @@ P2P Course final project
 
 The project consists in the definition and simulation of decentralized algorithms to compute centrality indices under the assumption of a synchronous communication model.
 
+[Report](report.pdf)
+
 Project files overview
 ----------------------
 
