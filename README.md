@@ -3,14 +3,20 @@ P2P Course final project
 
 The project consists in the definition and simulation of decentralized algorithms to compute centrality indices under the assumption of a synchronous communication model.
 
-Project files
--------------
+Project files overview
+----------------------
 
 	./
-	  src/             [Root of the source code files]
-	  lib/             [PeerSim library files]
 	  data/            [Datasets used in the experiments]
+	  experiments/     [Cfg files for approximation runs]
+	  lib/             [PeerSim library files]
+	  papers/          [Some of the referenced papers]
+	  results/         [Results tables]
+	  data/            [Datasets used in the experiments]
+	  run/             [run scripts]
 	  sim/             [Config file examples]
+	  src/             [Root of the source code files]
+	  tex/             [LaTeX files]
 	  build.xml        [Ant build file]
 	  README.md        
 	  report.pdf       [Full report of the project]
